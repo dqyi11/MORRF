@@ -130,7 +130,6 @@ void MainWindow::onExport()
 
 void MainWindow::onLoadMap()
 {
-
     QString tempFilename = QFileDialog::getOpenFileName(this,
              tr("Open Map File"), "./", tr("Map Files (*.*)"));
 
@@ -277,6 +276,14 @@ void MainWindow::onRun()
             msg += "S(F) ";
         }
         if(true == mpMORRF->isNodeNumberIdentical())
+        {
+            msg += "T ";
+        }
+        else
+        {
+            msg += "F ";
+        }
+        if(true == mpMORRF->isRefTreeMinCost())
         {
             msg += "T ";
         }
