@@ -37,7 +37,7 @@ bool MultiObjPathPlanningInfo::getObstacleInfo(int**& obstacleInfo)
     return getPixInfo(mMapFilename, obstacleInfo);
 }
 
-std::vector<int**> MultiObjPathPlanningInfo::getFitnessDistributions()
+std::vector<int**>& MultiObjPathPlanningInfo::getFitnessDistributions()
 {
     std::vector<int**> fitnessDistributions;
     for(std::vector<QString>::iterator it=mObjectiveFiles.begin();it!=mObjectiveFiles.end();it++)

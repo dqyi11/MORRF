@@ -7,50 +7,49 @@
 typedef double (*COST_FUNC_PTR)(POS2D, POS2D,int**, int*);
 
 
-class MORRF
-{
+class MORRF {
 public:
     enum MORRF_TYPE{ WEIGHTED_SUM, TCHEBYCHEFF, BOUNDARY_INTERSACTION };
-    MORRF(int width, int height, int objective_num, int subproblem_num, int segmentLength, MORRF_TYPE type=WEIGHTED_SUM);
+    MORRF( int width, int height, int objective_num, int subproblem_num, int segment_length, MORRF_TYPE type=WEIGHTED_SUM );
     ~MORRF();
 
-    void addFuncs( std::vector<COST_FUNC_PTR> funcs, std::vector<int**> fitnessDistributions );
+    void add_funcs( std::vector<COST_FUNC_PTR> funcs, std::vector<int**> fitnessDistributions );
 
     void init(POS2D start, POS2D goal);
 
-    void loadMap(int **map);
+    void load_map( int **pp_map );
     POS2D sampling();
-    POS2D steer(POS2D pos_a, POS2D pos_b);
+    POS2D steer( POS2D pos_a, POS2D pos_b );
     void extend();
 
-    KDNode2D findNearest(POS2D pos);
-    std::list<KDNode2D> findNear(POS2D pos);
+    KDNode2D find_nearest( POS2D pos );
+    std::list<KDNode2D> find_near( POS2D pos );
 
-    bool isObstacleFree(POS2D pos_a, POS2D pos_b);
-    bool isInObstacle(POS2D pos);
-    bool contains(POS2D pos);
+    bool _is_obstacle_free( POS2D pos_a, POS2D pos_b );
+    bool _is_in_obstacle( POS2D pos );
+    bool _contains( POS2D pos );
 
-    bool calcCost(POS2D& pos_a, POS2D& pos_b, double * p_cost);
-    double calcCost(POS2D& pos_a, POS2D& pos_b, int k);
-    double calcFitness(double * p_cost, double * p_weight, POS2D& pos);
+    bool calc_cost( POS2D& pos_a, POS2D& pos_b, double * p_cost );
+    double calc_cost( POS2D& pos_a, POS2D& pos_b, int k );
+    double calc_fitness( double * p_cost, double * p_weight, POS2D& pos );
 
-    bool getUtopiaReferenceVector(POS2D& pos, double * p_utopia);
+    bool getUtopiaReferenceVector( POS2D& pos, double * p_utopia );
 
-    int getSamplingWidth() { return mSamplingWidth; }
-    int getSamplingHeight() { return mSamplingHeight; }
+    int get_sampling_width() { return _sampling_width; }
+    int get_sampling_height() { return _sampling_height; }
 
-    void setObstacleInfo(int ** pObstacle) { mpMapInfo = pObstacle; }
+    void set_obstacle_info(int ** pp_obstacle) { _pp_map_info = pp_obstacle; }
 
-    int getCurrentIteration() { return mCurrentIteration; }
+    int get_current_iteration() { return _current_iteration; }
 
-    ReferenceTree* getReferenceTree(int k);
-    SubproblemTree* getSubproblemTree(int m);
+    ReferenceTree* get_reference_tree( int k );
+    SubproblemTree* get_subproblem_tree( int m );
 
-    std::vector<Path*> getPaths();
+    std::vector<Path*> get_paths();
 
-    int**& getMapInfo() { return mpMapInfo; };
+    int**& get_map_info() { return _pp_map_info; }
 
-    void dumpMapInfo( std::string filename );
+    void dump_map_info( std::string filename );
 
     bool areReferenceStructuresCorrect();
     bool areSubproblemStructuresCorrect();
@@ -60,40 +59,39 @@ public:
     bool areAllSubproblemNodesFitnessPositive();
     bool isNodeNumberIdentical();
     bool isRefTreeMinCost();
-    double getBallRadius() { return mBallRadius; };
-
-    bool updatePathCost(Path *p);
+    double get_ball_radius() { return _ball_radius; }
+    bool update_path_cost( Path *p );
 protected:
-    void initWeights();
-    void deinitWeights();
+    void _init_weights();
+    void _deinit_weights();
 
 private:
-    int ** mpMapInfo;
+    int ** _pp_map_info;
 
-    MORRF_TYPE mType;
-    int mSamplingWidth;
-    int mSamplingHeight;
+    MORRF_TYPE _type;
+    int _sampling_width;
+    int _sampling_height;
 
-    int mObjectiveNum;
-    int mSubproblemNum;
+    int _objective_num;
+    int _subproblem_num;
 
-    KDTree2D * mpKDTree;
+    KDTree2D * _p_kd_tree;
 
-    std::vector<COST_FUNC_PTR> mFuncs;
-    std::vector<int**> mFitnessDistributions;
+    std::vector<COST_FUNC_PTR> _funcs;
+    std::vector<int**> _fitness_distributions;
 
-    double** mpWeights;
+    double** _pp_weights;
 
-    std::vector<SubproblemTree*> mSubproblems;
-    std::vector<ReferenceTree*> mReferences;
+    std::vector<SubproblemTree*> _subproblems;
+    std::vector<ReferenceTree*> _references;
 
-    double mRange;
-    double mBallRadius;
-    double mSegmentLength;
-    int mObsCheckResolution;
+    double _range;
+    double _ball_radius;
+    double _segment_length;
+    int _obs_check_resolution;
 
-    double mTheta;
-    int mCurrentIteration;
+    double _theta;
+    int _current_iteration;
 };
 
 #endif // MORRF_H

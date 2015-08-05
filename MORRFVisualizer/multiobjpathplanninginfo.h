@@ -16,10 +16,10 @@ class MultiObjPathPlanningInfo
 public:
     MultiObjPathPlanningInfo();
 
-    bool getObstacleInfo(int** obstacleInfo);
-    std::vector<int**> getFitnessDistributions();
+    bool getObstacleInfo(int**& obstacleInfo);
+    std::vector<int**>& getFitnessDistributions();
 
-    bool getPixInfo(QString filename, int** pixInfo);
+    bool getPixInfo(QString filename, int**& pixInfo);
     void initFuncsParams();
 
     bool saveToFile(QString filename);
@@ -31,8 +31,7 @@ public:
     void loadPaths(std::vector<Path*> paths);
     void exportPaths(QString filename);
 
-    static double calcDist(POS2D pos_a, POS2D pos_b, int** distribution, int* dimension)
-    {
+    static double calcDist(POS2D pos_a, POS2D pos_b, int** distribution, int* dimension) {
         double dist = 0.0;
         if (pos_a == pos_b)
             return dist;
@@ -40,15 +39,13 @@ public:
         double delta_y = fabs(pos_a[1]-pos_b[1]);
         dist = sqrt(delta_x*delta_x+delta_y*delta_y);
         //dist = (delta_x*delta_x+delta_y*delta_y);
-        if(dist < 0.0)
-        {
+        if(dist < 0.0) {
             qWarning() << "Dist negative " << dist ;
         }
         return dist;
     }
 
-    static double calcCost(POS2D pos_a, POS2D pos_b, int** distribution, int* dimension)
-    {
+    static double calcCost(POS2D pos_a, POS2D pos_b, int** distribution, int* dimension) {
         double cost = 0.0;
         if (pos_a == pos_b)
             return cost;
@@ -60,8 +57,7 @@ public:
 
         double x_dist = pos_a[0]-pos_b[0];
         double y_dist = pos_a[1]-pos_b[1];
-        if (fabs(x_dist) > fabs(y_dist))
-        {
+        if (fabs(x_dist) > fabs(y_dist)) {
             int startX = 0, endX = 0, startY = 0, endY = 0;
             double k = y_dist / x_dist;
             if (pos_a[0] < pos_b[0])

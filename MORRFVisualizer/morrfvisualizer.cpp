@@ -52,11 +52,11 @@ void MORRFVisualizer::paintEvent(QPaintEvent * e)
         RRTree * pTree = NULL;
         if(mCurrentTreeIdx < mMOPPInfo.mObjectiveNum)
         {
-            pTree = mpMORRF->getReferenceTree(mCurrentTreeIdx);
+            pTree = mpMORRF->get_reference_tree(mCurrentTreeIdx);
         }
         else
         {
-            pTree = mpMORRF->getSubproblemTree(mCurrentTreeIdx - mMOPPInfo.mObjectiveNum);
+            pTree = mpMORRF->get_subproblem_tree(mCurrentTreeIdx - mMOPPInfo.mObjectiveNum);
         }
 
         if(pTree)
