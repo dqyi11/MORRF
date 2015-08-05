@@ -11,8 +11,7 @@
 
 #include "morrf.h"
 
-class MultiObjPathPlanningInfo
-{
+class MultiObjPathPlanningInfo {
 public:
     MultiObjPathPlanningInfo();
 
@@ -60,63 +59,52 @@ public:
         if (fabs(x_dist) > fabs(y_dist)) {
             int startX = 0, endX = 0, startY = 0, endY = 0;
             double k = y_dist / x_dist;
-            if (pos_a[0] < pos_b[0])
-            {
+            if (pos_a[0] < pos_b[0]) {
                 startX = (int)floor(pos_a[0]);
                 endX = (int)floor(pos_b[0]);
                 startY = (int)floor(pos_a[1]);
                 endY = (int)floor(pos_b[1]);
             }
-            else
-            {
+            else {
                 startX = (int)floor(pos_b[0]);
                 endX = (int)floor(pos_a[0]);
                 startY = (int)floor(pos_b[1]);
                 endY = (int)floor(pos_a[1]);
             }
-            for(int coordX = startX; coordX < endX; coordX++)
-            {
+            for(int coordX = startX; coordX < endX; coordX++) {
                 int coordY = (int)floor(k*(coordX-startX)+startY);
-                if (coordX < 0 || coordX >= width || coordY < 0 || coordY >= height)
-                {
+                if (coordX < 0 || coordX >= width || coordY < 0 || coordY >= height) {
                     continue;
                 }
                 double fitnessVal = (double)distribution[coordX][coordY];
-                if(fitnessVal < 0)
-                {
+                if(fitnessVal < 0) {
                     qWarning() << "Cost negative " << fitnessVal;
                 }
                 cost += fitnessVal/255.0;
             }
         }
-        else
-        {
+        else {
             int startY = 0, endY = 0, startX = 0, endX = 0;
             double k = x_dist / y_dist;
-            if (pos_a[0] < pos_b[0])
-            {
+            if (pos_a[0] < pos_b[0]) {
                 startY = (int)floor(pos_a[1]);
                 endY = (int)floor(pos_b[1]);
                 startX = (int)floor(pos_a[0]);
                 endX = (int)floor(pos_b[0]);
             }
-            else
-            {
+            else {
                 startY = (int)floor(pos_b[1]);
                 endY = (int)floor(pos_a[1]);
                 startX = (int)floor(pos_b[0]);
                 endX = (int)floor(pos_a[0]);
             }
-            for(int coordY = startY; coordY < endY; coordY++)
-            {
+            for(int coordY = startY; coordY < endY; coordY++) {
                 int coordX = (int)floor(k*(coordY-startY)+startX);
-                if (coordX < 0 || coordX >= width || coordY < 0 || coordY >= height)
-                {
+                if (coordX < 0 || coordX >= width || coordY < 0 || coordY >= height) {
                     continue;
                 }
                 double fitnessVal = (double)distribution[coordX][coordY];
-                if(fitnessVal < 0)
-                {
+                if(fitnessVal < 0) {
                     qWarning() << "Cost negative " << fitnessVal;
                 }
                 cost += fitnessVal/255.0;

@@ -11,8 +11,7 @@
 
 class MainWindow;
 
-class ConfigObjDialog : public QDialog
-{
+class ConfigObjDialog : public QDialog {
     Q_OBJECT
 public:
     ConfigObjDialog(MainWindow * parent);

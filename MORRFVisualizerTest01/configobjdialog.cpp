@@ -9,17 +9,14 @@
 #define TCHEBYCHEFF_STR           "Tchebycheff"
 #define BOUNDARY_INTERSECTION_STR "Boundary-intersection"
 
-ConfigObjDialog::ConfigObjDialog(MainWindow * parent)
-{
+ConfigObjDialog::ConfigObjDialog(MainWindow * parent) {
     mpParentWindow = parent;
 
     mpCheckMinDist = new QCheckBox();
-    if (mpParentWindow->mpViz->mMOPPInfo.mMinDistEnabled==true)
-    {
+    if (mpParentWindow->mpViz->mMOPPInfo.mMinDistEnabled==true) {
         mpCheckMinDist->setChecked(true);
     }
-    else
-    {
+    else {
         mpCheckMinDist->setChecked(false);
     }
     //connect(mpCheckMinDist , SIGNAL(stateChanged(int)),this,SLOT(checkBoxStateChanged(int)));
@@ -60,8 +57,7 @@ ConfigObjDialog::ConfigObjDialog(MainWindow * parent)
 
     mpListWidget = new QListWidget();
     mpListWidget->setViewMode(QListView::IconMode);
-    for(std::vector<QString>::iterator it=mpParentWindow->mpViz->mMOPPInfo.mObjectiveFiles.begin();it!=mpParentWindow->mpViz->mMOPPInfo.mObjectiveFiles.end();it++)
-    {
+    for(std::vector<QString>::iterator it=mpParentWindow->mpViz->mMOPPInfo.mObjectiveFiles.begin();it!=mpParentWindow->mpViz->mMOPPInfo.mObjectiveFiles.end();it++) {
         QString filename = (*it);
         mpListWidget->addItem(filename);
     }
@@ -94,70 +90,55 @@ ConfigObjDialog::ConfigObjDialog(MainWindow * parent)
     setLayout(mainLayout);
 }
 
-void ConfigObjDialog::onBtnOKClicked()
-{
+void ConfigObjDialog::onBtnOKClicked() {
     updateConfiguration();
     close();
 }
 
-void ConfigObjDialog::onBtnCancelClicked()
-{
+void ConfigObjDialog::onBtnCancelClicked() {
     close();
 }
 
-void ConfigObjDialog::onBtnAddClicked()
-{
+void ConfigObjDialog::onBtnAddClicked() {
    QString objFilename = QFileDialog::getOpenFileName(this,
                  tr("Open Objective File"), "./", tr("Objective Files (*.*)"));
-   if (objFilename!="")
-   {
-       if(true==isCompatible(objFilename))
-       {
+   if (objFilename!="") {
+       if(true==isCompatible(objFilename)) {
            mpListWidget->addItem(objFilename);
            repaint();
        }
    }
-   else
-   {
+   else {
        QMessageBox msg;
        msg.setText("Fitness distribution file is not compatible!");
        msg.exec();
    }
 }
 
-void ConfigObjDialog::onBtnRemoveClicked()
-{
+void ConfigObjDialog::onBtnRemoveClicked() {
     qDeleteAll(mpListWidget->selectedItems());
 }
 
-void ConfigObjDialog::updateDisplay()
-{
-    if(mpParentWindow)
-    {
-        if(mpParentWindow->mpViz)
-        {
-            if(mpParentWindow->mpViz->mMOPPInfo.mMinDistEnabled==true)
-            {
+void ConfigObjDialog::updateDisplay() {
+    if(mpParentWindow) {
+        if(mpParentWindow->mpViz) {
+            if(mpParentWindow->mpViz->mMOPPInfo.mMinDistEnabled==true) {
                 mpCheckMinDist->setChecked(true);
             }
-            else
-            {
+            else {
                 mpCheckMinDist->setChecked(false);
             }
             mpLineEditSubProb->setText(QString::number(mpParentWindow->mpViz->mMOPPInfo.mSubproblemNum));
             mpLineEditSegmentLength->setText(QString::number(mpParentWindow->mpViz->mMOPPInfo.mSegmentLength));
             mpLineEditIterationNum->setText(QString::number(mpParentWindow->mpViz->mMOPPInfo.mMaxIterationNum));
-            if(mpParentWindow->mpViz->mMOPPInfo.mObjectiveFiles.size()>0)
-            {
+            if(mpParentWindow->mpViz->mMOPPInfo.mObjectiveFiles.size()>0) {
                 mpListWidget->clear();
                 for(std::vector<QString>::iterator it= mpParentWindow->mpViz->mMOPPInfo.mObjectiveFiles.begin();
-                    it!=mpParentWindow->mpViz->mMOPPInfo.mObjectiveFiles.end();it++)
-                {
+                    it!=mpParentWindow->mpViz->mMOPPInfo.mObjectiveFiles.end();it++) {
                     QString objFilename = (*it);
                     mpListWidget->addItem(objFilename);
                 }
             }
-
 
             mpComboType->setCurrentIndex((int)mpParentWindow->mpViz->mMOPPInfo.mMethodType);
         }
@@ -165,23 +146,19 @@ void ConfigObjDialog::updateDisplay()
 
 }
 
-void ConfigObjDialog::updateConfiguration()
-{
+void ConfigObjDialog::updateConfiguration() {
     int numObj = 0;
-    if (mpCheckMinDist->isChecked()==true)
-    {
+    if (mpCheckMinDist->isChecked()==true) {
         numObj += 1;
         mpParentWindow->mpViz->mMOPPInfo.mMinDistEnabled=true;
     }
-    else
-    {
+    else {
         mpParentWindow->mpViz->mMOPPInfo.mMinDistEnabled=false;
     }
 
     mpParentWindow->mpViz->mMOPPInfo.mObjectiveFiles.clear();
     int count = mpListWidget->count();
-    for(int i=0;i<count;i++)
-    {
+    for(int i=0;i<count;i++) {
         QListWidgetItem * pItem = mpListWidget->item(i);
         mpParentWindow->mpViz->mMOPPInfo.mObjectiveFiles.push_back(pItem->text());
         numObj +=1;
@@ -198,12 +175,10 @@ void ConfigObjDialog::updateConfiguration()
 
 }
 
-bool ConfigObjDialog::isCompatible(QString fitnessFile)
-{
+bool ConfigObjDialog::isCompatible(QString fitnessFile) {
     QPixmap pixmap(fitnessFile);
     if (pixmap.width()==mpParentWindow->mpViz->mMOPPInfo.mMapWidth
-            && pixmap.height()==mpParentWindow->mpViz->mMOPPInfo.mMapHeight)
-    {
+            && pixmap.height()==mpParentWindow->mpViz->mMOPPInfo.mMapHeight) {
         return true;
     }
     return false;

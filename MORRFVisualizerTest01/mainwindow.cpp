@@ -7,8 +7,7 @@
 #include <QStatusBar>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-{
+    : QMainWindow(parent) {
     mpViz = new MORRFVisualizer();
 
     createActions();
@@ -28,26 +27,21 @@ MainWindow::MainWindow(QWidget *parent)
     statusBar()->addWidget(mpStatusProgressBar);
     statusBar()->addWidget(mpStatusLabel);
 
-
     updateTitle();
 }
 
-MainWindow::~MainWindow()
-{
-    if(mpConfigObjDialog)
-    {
+MainWindow::~MainWindow() {
+    if(mpConfigObjDialog) {
         delete mpConfigObjDialog;
         mpConfigObjDialog = NULL;
     }
-    if(mpViz)
-    {
+    if(mpViz) {
         delete mpViz;
         mpViz = NULL;
     }
 }
 
-void MainWindow::createMenuBar()
-{
+void MainWindow::createMenuBar() {
     mpFileMenu = menuBar()->addMenu("&File");
     mpFileMenu->addAction(mpOpenAction);
     mpFileMenu->addAction(mpSaveAction);
@@ -66,8 +60,7 @@ void MainWindow::createMenuBar()
 
 }
 
-void MainWindow::createActions()
-{
+void MainWindow::createActions() {
     mpOpenAction = new QAction("Open", this);
     mpSaveAction = new QAction("Save", this);
     mpExportAction = new QAction("Export", this);
@@ -91,45 +84,37 @@ void MainWindow::createActions()
     connect(this, SIGNAL(customContextMenuRequested(const QPoint)),this, SLOT(contextMenuRequested(QPoint)));
 }
 
-void MainWindow::onOpen()
-{
+void MainWindow::onOpen() {
     QString tempFilename = QFileDialog::getOpenFileName(this,
              tr("Open File"), "./", tr("Json Files (*.json)"));
 
-    if(mpViz)
-    {
+    if(mpViz) {
         mpViz->mMOPPInfo.loadFromFile(tempFilename);
         openMap(mpViz->mMOPPInfo.mMapFullpath);
-        if(mpConfigObjDialog)
-        {
+        if(mpConfigObjDialog) {
             mpConfigObjDialog->updateDisplay();
         }
         repaint();
     }
 }
 
-void MainWindow::onSave()
-{
+void MainWindow::onSave() {
     QString tempFilename = QFileDialog::getSaveFileName(this, tr("Save File"), "./", tr("Json Files (*.json)"));
 
-    if(mpViz)
-    {
+    if(mpViz) {
         mpViz->mMOPPInfo.saveToFile(tempFilename);
     }
 }
 
-void MainWindow::onExport()
-{
+void MainWindow::onExport() {
     QString pathFilename = QFileDialog::getSaveFileName(this, tr("Save File"), "./", tr("Txt Files (*.txt)"));
 
-    if(mpViz)
-    {
+    if(mpViz) {
         mpViz->mMOPPInfo.exportPaths(pathFilename);
     }
 }
 
-void MainWindow::onLoadMap()
-{
+void MainWindow::onLoadMap() {
     QString tempFilename = QFileDialog::getOpenFileName(this,
              tr("Open Map File"), "./", tr("Map Files (*.*)"));
 
@@ -144,16 +129,13 @@ void MainWindow::onLoadMap()
 }
 
 
-bool MainWindow::openMap(QString filename)
-{
-    if(mpMap)
-    {
+bool MainWindow::openMap(QString filename) {
+    if(mpMap) {
         delete mpMap;
         mpMap = NULL;
     }
     mpMap = new QPixmap(filename);
-    if(mpMap)
-    {
+    if(mpMap) {
         mpViz->mMOPPInfo.mMapWidth = mpMap->width();
         mpViz->mMOPPInfo.mMapHeight = mpMap->height();
         mpViz->setPixmap(*mpMap);
@@ -162,44 +144,37 @@ bool MainWindow::openMap(QString filename)
     updateTitle();
 }
 
-void MainWindow::onLoadObj()
-{
+void MainWindow::onLoadObj() {
     mpConfigObjDialog->exec();
     updateTitle();
 }
 
-void MainWindow::onRun()
-{
-    if (mpViz->mMOPPInfo.mMapWidth <= 0 || mpViz->mMOPPInfo.mMapHeight <= 0)
-    {
+void MainWindow::onRun() {
+    if (mpViz->mMOPPInfo.mMapWidth <= 0 || mpViz->mMOPPInfo.mMapHeight <= 0) {
         QMessageBox msgBox;
         msgBox.setText("Map is not initialized.");
         msgBox.exec();
         return;
     }
-    if (mpViz->mMOPPInfo.mObjectiveNum < 2)
-    {
+    if (mpViz->mMOPPInfo.mObjectiveNum < 2) {
         QMessageBox msgBox;
         msgBox.setText("Objective Number is less than 2.");
         msgBox.exec();
         return;
     }
-    if(mpViz->mMOPPInfo.mStart.x()<0 || mpViz->mMOPPInfo.mStart.y()<0)
-    {
+    if(mpViz->mMOPPInfo.mStart.x()<0 || mpViz->mMOPPInfo.mStart.y()<0) {
         QMessageBox msgBox;
         msgBox.setText("Start is not set.");
         msgBox.exec();
         return;
     }
-    if(mpViz->mMOPPInfo.mGoal.x()<0 || mpViz->mMOPPInfo.mGoal.y()<0)
-    {
+    if(mpViz->mMOPPInfo.mGoal.x()<0 || mpViz->mMOPPInfo.mGoal.y()<0) {
         QMessageBox msgBox;
         msgBox.setText("Goal is not set.");
         msgBox.exec();
         return;
     }
-    if(mpMORRF)
-    {
+    if(mpMORRF) {
         delete mpMORRF;
         mpMORRF = NULL;
     }
@@ -214,90 +189,72 @@ void MainWindow::onRun()
 
     mpMORRF = new MORRF(mpMap->width(), mpMap->height(), mpViz->mMOPPInfo.mObjectiveNum, mpViz->mMOPPInfo.mSubproblemNum, mpViz->mMOPPInfo.mSegmentLength, mpViz->mMOPPInfo.mMethodType);
 
-    mpMORRF->addFuncs(mpViz->mMOPPInfo.mFuncs, mpViz->mMOPPInfo.mDistributions);
+    mpMORRF->add_funcs(mpViz->mMOPPInfo.mFuncs, mpViz->mMOPPInfo.mDistributions);
     POS2D start(mpViz->mMOPPInfo.mStart.x(), mpViz->mMOPPInfo.mStart.y());
     POS2D goal(mpViz->mMOPPInfo.mGoal.x(), mpViz->mMOPPInfo.mGoal.y());
 
     mpMORRF->init(start, goal);
-    mpViz->mMOPPInfo.getObstacleInfo(mpMORRF->getMapInfo());
+    mpViz->mMOPPInfo.getObstacleInfo(mpMORRF->get_map_info());
     mpViz->setMORRF(mpMORRF);
 
     //mpMORRF->dumpMapInfo("map.txt");
 
-    while(mpMORRF->getCurrentIteration() <= mpViz->mMOPPInfo.mMaxIterationNum)
-    {
-        QString msg = "CurrentIteration " + QString::number(mpMORRF->getCurrentIteration()) + " ";
-        if(true == mpMORRF->areReferenceStructuresCorrect())
-        {
+    while(mpMORRF->get_current_iteration() <= mpViz->mMOPPInfo.mMaxIterationNum) {
+        QString msg = "CurrentIteration " + QString::number(mpMORRF->get_current_iteration()) + " ";
+        if(true == mpMORRF->areReferenceStructuresCorrect()) {
             msg += "R(T) ";
         }
-        else
-        {
+        else {
             msg += "R(F) ";
         }
-        if(true == mpMORRF->areSubproblemStructuresCorrect())
-        {
+        if(true == mpMORRF->areSubproblemStructuresCorrect()) {
             msg += "S(T) ";
         }
-        else
-        {
+        else {
             msg += "S(F) ";
         }
-        if(true == mpMORRF->areAllReferenceNodesTractable())
-        {
+        if(true == mpMORRF->areAllReferenceNodesTractable()) {
             msg += "R(T) ";
         }
-        else
-        {
+        else {
             msg += "R(F) ";
         }
-        if(true == mpMORRF->areAllSubproblemNodesTractable())
-        {
+        if(true == mpMORRF->areAllSubproblemNodesTractable()) {
             msg += "S(T) ";
         }
-        else
-        {
+        else {
             msg += "S(F) ";
         }
-        if(true == mpMORRF->areAllReferenceNodesFitnessPositive())
-        {
+        if(true == mpMORRF->areAllReferenceNodesFitnessPositive()) {
             msg += "R(T) ";
         }
-        else
-        {
+        else {
             msg += "R(F) ";
         }
-        if(true == mpMORRF->areAllSubproblemNodesFitnessPositive())
-        {
+        if(true == mpMORRF->areAllSubproblemNodesFitnessPositive()) {
             msg += "S(T) ";
         }
-        else
-        {
+        else {
             msg += "S(F) ";
         }
-        if(true == mpMORRF->isNodeNumberIdentical())
-        {
+        if(true == mpMORRF->isNodeNumberIdentical()) {
             msg += "T ";
         }
-        else
-        {
+        else {
             msg += "F ";
         }
-        if(true == mpMORRF->isRefTreeMinCost())
-        {
+        if(true == mpMORRF->isRefTreeMinCost()) {
             msg += "T ";
         }
-        else
-        {
+        else {
             msg += "F ";
         }
-        for(int k=0;k<mpViz->mMOPPInfo.mObjectiveNum;k++)
-        {
-            std::list<RRTNode*> list = mpMORRF->getReferenceTree(k)->findAllChildren(mpMORRF->getReferenceTree(k)->mpRoot);
+        for(int k=0;k<mpViz->mMOPPInfo.mObjectiveNum;k++) {
+            std::list<RRTNode*> list = mpMORRF->get_reference_tree(k)->findAllChildren(mpMORRF->get_reference_tree(k)->mpRoot);
             int num = list.size();
             msg += QString::number(num) + " ";
         }
-        msg += QString::number(mpMORRF->getBallRadius());
+        msg += QString::number(mpMORRF->get_ball_radius());
         qDebug(msg.toStdString().c_str());
 
         mpMORRF->extend();
@@ -306,50 +263,42 @@ void MainWindow::onRun()
         repaint();
     }
 
-    std::vector<Path*> paths = mpMORRF->getPaths();
+    std::vector<Path*> paths = mpMORRF->get_paths();
     mpViz->mMOPPInfo.loadPaths(paths);
     repaint();
 }
 
-void MainWindow::onAddStart()
-{
+void MainWindow::onAddStart() {
     mpViz->mMOPPInfo.mStart = mCursorPoint;
     repaint();
 }
 
-void MainWindow::onAddGoal()
-{
+void MainWindow::onAddGoal() {
     mpViz->mMOPPInfo.mGoal = mCursorPoint;
     repaint();
 }
 
-void MainWindow::contextMenuRequested(QPoint point)
-{
+void MainWindow::contextMenuRequested(QPoint point) {
     mCursorPoint = point;
     mpContextMenu->popup(mapToGlobal(point));
 }
 
-void MainWindow::updateTitle()
-{
+void MainWindow::updateTitle() {
     QString title = "ObjNum( " + QString::number(mpViz->mMOPPInfo.mObjectiveNum) + " )";
     title += " ==> " + mpViz->mMOPPInfo.mMapFilename;
     setWindowTitle(title);
 }
 
-void MainWindow::updateStatus()
-{
-    if(mpViz==NULL || mpMORRF==NULL)
-    {
+void MainWindow::updateStatus() {
+    if(mpViz==NULL || mpMORRF==NULL) {
         return;
     }
-    if(mpStatusProgressBar)
-    {
+    if(mpStatusProgressBar) {
         mpStatusProgressBar->setMinimum(0);
         mpStatusProgressBar->setMaximum(mpViz->mMOPPInfo.mMaxIterationNum);
-        mpStatusProgressBar->setValue(mpMORRF->getCurrentIteration());
+        mpStatusProgressBar->setValue(mpMORRF->get_current_iteration());
     }
-    if(mpStatusLabel)
-    {
+    if(mpStatusLabel) {
         QString status = "";
         status += "TreeIdx: " + QString::number(mpViz->getCurrentTreeIndex());
         mpStatusLabel->setText(status);
@@ -357,21 +306,16 @@ void MainWindow::updateStatus()
     repaint();
 }
 
-void MainWindow::keyPressEvent(QKeyEvent *event)
-{
-    if(event->key() == Qt::Key_Right)
-    {
-        if(mpViz)
-        {
+void MainWindow::keyPressEvent(QKeyEvent *event) {
+    if(event->key() == Qt::Key_Right) {
+        if(mpViz) {
             mpViz->nextTree();
             updateStatus();
             repaint();
         }
     }
-    else if(event->key() == Qt::Key_Left)
-    {
-        if(mpViz)
-        {
+    else if(event->key() == Qt::Key_Left) {
+        if(mpViz) {
             mpViz->prevTree();
             updateStatus();
             repaint();
