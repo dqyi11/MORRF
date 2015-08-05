@@ -1,0 +1,24 @@
+{
+    "goalX": 470,
+    "goalY": 250,
+    "mapFilename": "empty_map.png",
+    "mapFullpath": "/home/hcmi/qt_workspace/MORRF/data/empty_map.png",
+    "mapHeight": 400,
+    "mapWidth": 600,
+    "maxIterationNum": 10000,
+    "methodType": 0,
+    "minDistEnabled": true,
+    "objectiveFiles": [
+        {
+            "filepath": "/home/hcmi/qt_workspace/MORRF/data/fitness1.png"
+        },
+        {
+            "filepath": "/home/hcmi/qt_workspace/MORRF/data/VisibilityPoly.png"
+        }
+    ],
+    "objectiveNum": 3,
+    "segmentLength": 5,
+    "startX": 40,
+    "startY": 40,
+    "subproblemNum": 100
+}

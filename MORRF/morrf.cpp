@@ -29,6 +29,10 @@ MORRF::MORRF(int width, int height, int objective_num, int subproblem_num, int s
     for(int i=0;i<mSamplingWidth;i++)
     {
         mpMapInfo[i] = new int[mSamplingHeight];
+        for(int j=0;j<mSamplingHeight;j++)
+        {
+            mpMapInfo[i][j] = 255;
+        }
     }
 }
 
@@ -145,7 +149,7 @@ POS2D MORRF::steer(POS2D pos_a, POS2D pos_b)
     double delta[2];
     delta[0] = pos_a[0] - pos_b[0];
     delta[1] = pos_a[1] - pos_b[1];
-    double delta_len = std::sqrt(delta[0]*delta[0]+delta[1]*delta[1]);
+    double delta_len = sqrt(delta[0]*delta[0]+delta[1]*delta[1]);
 
     if (delta_len > mSegmentLength)
     {
@@ -161,9 +165,13 @@ POS2D MORRF::steer(POS2D pos_a, POS2D pos_b)
 
 bool MORRF::isInObstacle(POS2D pos)
 {
-    int x = (int)pos[0];
-    int y = (int)pos[1];
-    if( mpMapInfo[x][y] < 255)
+    int x = (int)floor(pos[0]);
+    int y = (int)floor(pos[1]);
+    if(x < 0 || x > mSamplingWidth || y < 0 || y > mSamplingHeight )
+        return true;
+    int val = mpMapInfo[x][y];
+    std::cout << "isInObstacle val: " << val << std::endl;
+    if( val < 200)
         return true;
     return false;
 }

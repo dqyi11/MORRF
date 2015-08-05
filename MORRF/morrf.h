@@ -48,7 +48,7 @@ public:
 
     std::vector<Path*> getPaths();
 
-    int** getMapInfo() { return mpMapInfo; };
+    int**& getMapInfo() { return mpMapInfo; };
 
     void dumpMapInfo( std::string filename );
 

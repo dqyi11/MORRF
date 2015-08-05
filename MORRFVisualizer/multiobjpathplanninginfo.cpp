@@ -28,7 +28,7 @@ MultiObjPathPlanningInfo::MultiObjPathPlanningInfo()
     mMethodType = MORRF::WEIGHTED_SUM;
 }
 
-bool MultiObjPathPlanningInfo::getObstacleInfo(int** obstacleInfo)
+bool MultiObjPathPlanningInfo::getObstacleInfo(int**& obstacleInfo)
 {
     if(obstacleInfo==NULL)
     {
@@ -58,7 +58,7 @@ std::vector<int**> MultiObjPathPlanningInfo::getFitnessDistributions()
     return fitnessDistributions;
 }
 
-bool MultiObjPathPlanningInfo::getPixInfo(QString filename, int ** pixInfo)
+bool MultiObjPathPlanningInfo::getPixInfo(QString filename, int **& pixInfo)
 {
     if(pixInfo==NULL)
     {
