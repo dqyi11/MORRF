@@ -5,8 +5,7 @@
 #include <QJsonDocument>
 #include <list>
 
-MultiObjPathPlanningInfo::MultiObjPathPlanningInfo()
-{
+MultiObjPathPlanningInfo::MultiObjPathPlanningInfo() {
     mInfoFilename = "";
     mMapFilename = "";
     mObjectiveNum = 0;
@@ -28,24 +27,19 @@ MultiObjPathPlanningInfo::MultiObjPathPlanningInfo()
     mMethodType = MORRF::WEIGHTED_SUM;
 }
 
-bool MultiObjPathPlanningInfo::getObstacleInfo(int**& obstacleInfo)
-{
-    if(obstacleInfo==NULL)
-    {
+bool MultiObjPathPlanningInfo::getObstacleInfo(int** obstacleInfo) {
+    if(obstacleInfo==NULL) {
         return false;
     }
     return getPixInfo(mMapFilename, obstacleInfo);
 }
 
-std::vector<int**>& MultiObjPathPlanningInfo::getFitnessDistributions()
-{
+std::vector<int**> MultiObjPathPlanningInfo::getFitnessDistributions() {
     std::vector<int**> fitnessDistributions;
-    for(std::vector<QString>::iterator it=mObjectiveFiles.begin();it!=mObjectiveFiles.end();it++)
-    {
+    for(std::vector<QString>::iterator it=mObjectiveFiles.begin();it!=mObjectiveFiles.end();it++)  {
         QString fitnessName = (*it);
         int** fitness = new int*[mMapWidth];
-        for(int i=0;i<mMapWidth;i++)
-        {
+        for(int i=0;i<mMapWidth;i++) {
             fitness[i] = new int[mMapHeight];
             for(int j=0;j<mMapHeight;j++)
             {
@@ -58,10 +52,8 @@ std::vector<int**>& MultiObjPathPlanningInfo::getFitnessDistributions()
     return fitnessDistributions;
 }
 
-bool MultiObjPathPlanningInfo::getPixInfo(QString filename, int **& pixInfo)
-{
-    if(pixInfo==NULL)
-    {
+bool MultiObjPathPlanningInfo::getPixInfo(QString filename, int ** pixInfo) {
+    if(pixInfo==NULL) {
         return false;
     }
     QPixmap map(filename);
@@ -69,10 +61,8 @@ bool MultiObjPathPlanningInfo::getPixInfo(QString filename, int **& pixInfo)
     int width = map.width();
     int height = map.height();
 
-    for(int i=0;i<width;i++)
-    {
-        for(int j=0;j<height;j++)
-        {
+    for(int i=0;i<width;i++) {
+        for(int j=0;j<height;j++) {
             QRgb col = grayImg.pixel(i,j);
             int gVal = qGray(col);
             if(gVal < 0 || gVal > 255)
@@ -85,8 +75,7 @@ bool MultiObjPathPlanningInfo::getPixInfo(QString filename, int **& pixInfo)
     return true;
 }
 
-void MultiObjPathPlanningInfo::initFuncsParams()
-{
+void MultiObjPathPlanningInfo::initFuncsParams() {
     mFuncs.clear();
     mDistributions.clear();
 
@@ -113,8 +102,7 @@ void MultiObjPathPlanningInfo::initFuncsParams()
     }
 }
 
-void MultiObjPathPlanningInfo::read(const QJsonObject &json)
-{
+void MultiObjPathPlanningInfo::read(const QJsonObject &json) {
     mInfoFilename;
     mMapFilename = json["mapFilename"].toString();
     mMapFullpath = json["mapFullpath"].toString();

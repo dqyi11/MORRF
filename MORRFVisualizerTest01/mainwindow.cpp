@@ -194,10 +194,11 @@ void MainWindow::onRun() {
     POS2D goal(mpViz->mMOPPInfo.mGoal.x(), mpViz->mMOPPInfo.mGoal.y());
 
     mpMORRF->init(start, goal);
+    //mpMORRF->dump_map_info("map1.txt");
     mpViz->mMOPPInfo.getObstacleInfo(mpMORRF->get_map_info());
     mpViz->setMORRF(mpMORRF);
 
-    //mpMORRF->dumpMapInfo("map.txt");
+    //mpMORRF->dump_map_info("map.txt");
 
     while(mpMORRF->get_current_iteration() <= mpViz->mMOPPInfo.mMaxIterationNum) {
         QString msg = "CurrentIteration " + QString::number(mpMORRF->get_current_iteration()) + " ";

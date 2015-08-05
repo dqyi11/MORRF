@@ -27,6 +27,9 @@ MORRF::MORRF(int width, int height, int objective_num, int subproblem_num, int s
     _pp_map_info = new int*[_sampling_width];
     for(int i=0;i<_sampling_width;i++) {
         _pp_map_info[i] = new int[_sampling_height];
+        for(int j=0;j<_sampling_height;j++) {
+            _pp_map_info[i][j] = 255;
+        }
     }
 }
 
@@ -99,19 +102,15 @@ void MORRF::init(POS2D start, POS2D goal) {
     _current_iteration = 0;
 }
 
-void MORRF::load_map(int **map)
-{
-    for(int i=0;i<_sampling_width;i++)
-    {
-        for(int j=0;j<_sampling_height;j++)
-        {
+void MORRF::load_map(int **map) {
+    for(int i=0;i<_sampling_width;i++) {
+        for(int j=0;j<_sampling_height;j++) {
             _pp_map_info[i][j] = map[i][j];
         }
     }
 }
 
-POS2D MORRF::sampling()
-{
+POS2D MORRF::sampling() {
     double x = rand();
     double y = rand();
     x = x * ((double)(_sampling_width)/RAND_MAX);
@@ -121,16 +120,14 @@ POS2D MORRF::sampling()
     return m;
 }
 
-POS2D MORRF::steer(POS2D pos_a, POS2D pos_b)
-{
+POS2D MORRF::steer(POS2D pos_a, POS2D pos_b) {
     POS2D new_pos(pos_a[0], pos_a[1]);
     double delta[2];
     delta[0] = pos_a[0] - pos_b[0];
     delta[1] = pos_a[1] - pos_b[1];
     double delta_len = std::sqrt(delta[0]*delta[0]+delta[1]*delta[1]);
 
-    if (delta_len > _segment_length)
-    {
+    if (delta_len > _segment_length) {
         double scale = _segment_length / delta_len;
         delta[0] = delta[0] * scale;
         delta[1] = delta[1] * scale;
@@ -141,70 +138,58 @@ POS2D MORRF::steer(POS2D pos_a, POS2D pos_b)
     return new_pos;
 }
 
-bool MORRF::_is_in_obstacle(POS2D pos)
-{
+bool MORRF::_is_in_obstacle(POS2D pos) {
     int x = (int)pos[0];
     int y = (int)pos[1];
-    if( _pp_map_info[x][y] < 255)
+    if( _pp_map_info[x][y] < OBSTACLE_THRESHOLD)
         return true;
     return false;
 }
 
 
-bool MORRF::_is_obstacle_free(POS2D pos_a, POS2D pos_b)
-{
+bool MORRF::_is_obstacle_free(POS2D pos_a, POS2D pos_b) {
     if (pos_a == pos_b)
         return true;
     int x_dist = pos_a[0] - pos_b[0];
     int y_dist = pos_a[1] - pos_b[1];
-    if (fabs(x_dist) > fabs(y_dist))
-    {
+    if (fabs(x_dist) > fabs(y_dist)) {
         double k = (double)y_dist/ x_dist;
         int startX, endX, startY;
-        if (pos_a[0] < pos_b[0])
-        {
+        if (pos_a[0] < pos_b[0]) {
             startX = pos_a[0];
             endX = pos_b[0];
             startY = pos_a[1];
         }
-        else
-        {
+        else {
             startX = pos_b[0];
             endX = pos_a[0];
             startY = pos_b[1];
         }
-        for (int coordX = startX; coordX < endX + _obs_check_resolution ; coordX+=_obs_check_resolution)
-        {
+        for (int coordX = startX; coordX < endX + _obs_check_resolution ; coordX+=_obs_check_resolution) {
             int coordY = (int)(k*(coordX-startX)+startY);
             if (coordY >= _sampling_height || coordX >= _sampling_width) break;
-            if ( _pp_map_info[coordX][coordY] < OBSTACLE_THRESHOLD )
-            {
+            if ( _pp_map_info[coordX][coordY] < OBSTACLE_THRESHOLD ) {
                 return false;
             }
         }
     }
-    else
-    {
+    else {
         double k = (double)x_dist/ y_dist;
         int startY, endY, startX;
-        if (pos_a[1] < pos_b[1])
-        {
+        if (pos_a[1] < pos_b[1]) {
             startY = pos_a[1];
             endY = pos_b[1];
             startX = pos_a[0];
         }
-        else
-        {
+        else {
             startY = pos_b[1];
             endY = pos_a[1];
             startX = pos_b[0];
         }
-        for (int coordY = startY; coordY < endY + _obs_check_resolution ; coordY+=_obs_check_resolution)
-        {
+        for (int coordY = startY; coordY < endY + _obs_check_resolution ; coordY+=_obs_check_resolution) {
             int coordX = (int)(k*(coordY-startY)+startX);
             if (coordY >= _sampling_height || coordX >= _sampling_width) break;
-            if ( _pp_map_info[coordX][coordY] < OBSTACLE_THRESHOLD )
-            {
+            if ( _pp_map_info[coordX][coordY] < OBSTACLE_THRESHOLD ) {
                 return false;
             }
         }
@@ -212,40 +197,34 @@ bool MORRF::_is_obstacle_free(POS2D pos_a, POS2D pos_b)
     return true;
 }
 
-void MORRF::extend()
-{
+void MORRF::extend() {
+
     bool node_inserted = false;
-    while(false==node_inserted)
-    {
+    while(false==node_inserted) {
         POS2D rndPos = sampling();
         KDNode2D nearest_node = find_nearest(rndPos);
 
         POS2D new_pos = steer(rndPos, nearest_node);
 
-        if(true == _contains(new_pos))
-        {
+        if(true == _contains(new_pos)) {
             continue;
         }
-        if( true==_is_in_obstacle(new_pos) )
-        {
+        if( true==_is_in_obstacle(new_pos) ) {
             continue;
         }
 
-        if(true==_is_obstacle_free(nearest_node, new_pos))
-        {
+        if(true==_is_obstacle_free(nearest_node, new_pos)) {
             std::list<KDNode2D> near_nodes = find_near(new_pos);
             KDNode2D new_node(new_pos);
 
             // create new nodes of reference trees
-            for(int k=0;k<_objective_num;k++)
-            {
+            for(int k=0;k<_objective_num;k++) {
                 RRTNode * pNewRefNode = _references[k]->createNewNode(new_pos);
                 new_node.mNodeList.push_back(pNewRefNode);
             }
 
             // create new nodes of subproblem trees
-            for (int m=0;m<_subproblem_num;m++)
-            {
+            for (int m=0;m<_subproblem_num;m++) {
                 RRTNode * pNewSubNode = _subproblems[m]->createNewNode(new_pos);
                 new_node.mNodeList.push_back(pNewSubNode);
             }
@@ -255,8 +234,7 @@ void MORRF::extend()
 
             // attach new node to reference trees
             // rewire near nodes of reference trees
-            for (int k=0;k<_objective_num;k++)
-            {
+            for (int k=0;k<_objective_num;k++) {
                 // std::cout << "@ " << k << std::endl;
                 int index = k;
                 RRTNode* pNearestRefNode = nearest_node.mNodeList[index];
@@ -264,8 +242,7 @@ void MORRF::extend()
                 std::list<RRTNode*> nearRefNodes;
                 nearRefNodes.clear();
                 for(std::list<KDNode2D>::iterator itr = near_nodes.begin();
-                    itr != near_nodes.end(); itr++)
-                {
+                    itr != near_nodes.end(); itr++) {
                     KDNode2D kd_node = (*itr);
                     RRTNode* pRefNode = kd_node.mNodeList[index];
                     nearRefNodes.push_back(pRefNode);
@@ -277,8 +254,7 @@ void MORRF::extend()
 
             // attach new nodes to subproblem trees
             // rewire near nodes of subproblem trees
-            for(int m=0;m<_subproblem_num;m++)
-            {
+            for(int m=0;m<_subproblem_num;m++) {
                 // std::cout << "@ " << m+mObjectiveNum << std::endl;
                 int index = m+_objective_num;
                 RRTNode* pNearestSubNode = nearest_node.mNodeList[index];
@@ -286,8 +262,7 @@ void MORRF::extend()
                 std::list<RRTNode*> nearSubNodes;
                 nearSubNodes.clear();
                 for(std::list<KDNode2D>::iterator its = near_nodes.begin();
-                    its != near_nodes.end(); its++)
-                {
+                    its != near_nodes.end(); its++) {
                     KDNode2D kd_node = (*its);
                     RRTNode* pSubNode = kd_node.mNodeList[index];
                     nearSubNodes.push_back(pSubNode);
@@ -301,8 +276,7 @@ void MORRF::extend()
     _current_iteration++;
 }
 
-KDNode2D MORRF::find_nearest(POS2D pos)
-{
+KDNode2D MORRF::find_nearest(POS2D pos) {
     KDNode2D node(pos);
 
     std::pair<KDTree2D::const_iterator,double> found = _p_kd_tree->find_nearest(node);
@@ -310,8 +284,7 @@ KDNode2D MORRF::find_nearest(POS2D pos)
     return near_node;
 }
 
-std::list<KDNode2D> MORRF::find_near(POS2D pos)
-{
+std::list<KDNode2D> MORRF::find_near(POS2D pos) {
     std::list<KDNode2D> near_list;
     KDNode2D node(pos);
 
@@ -325,56 +298,44 @@ std::list<KDNode2D> MORRF::find_near(POS2D pos)
 }
 
 
-bool MORRF::_contains(POS2D pos)
-{
-    if(_p_kd_tree)
-    {
+bool MORRF::_contains(POS2D pos) {
+    if(_p_kd_tree) {
         KDNode2D node(pos[0], pos[1]);
         KDTree2D::const_iterator it = _p_kd_tree->find(node);
-        if(it!=_p_kd_tree->end())
-        {
+        if(it!=_p_kd_tree->end()) {
             return true;
         }
-        else
-        {
+        else {
             return false;
         }
     }
     return false;
 }
 
-bool MORRF::calc_cost(POS2D& pos_a, POS2D& pos_b, double * p_cost)
-{
-    if (p_cost==NULL)
-    {
+bool MORRF::calc_cost(POS2D& pos_a, POS2D& pos_b, double * p_cost) {
+    if (p_cost==NULL) {
         return false;
     }
-    for(int k=0;k<_objective_num;k++)
-    {
+    for(int k=0;k<_objective_num;k++) {
         p_cost[k] = calc_cost(pos_a, pos_b, k);
     }
     return true;
 }
 
-double MORRF::calc_cost(POS2D& pos_a, POS2D& pos_b, int k)
-{
+double MORRF::calc_cost(POS2D& pos_a, POS2D& pos_b, int k) {
     int dimension[2];
     dimension[0] = _sampling_width;
     dimension[1] = _sampling_height;
     return _funcs[k](pos_a, pos_b, _fitness_distributions[k], dimension);
 }
 
-double MORRF::calc_fitness(double * p_cost, double * p_weight, POS2D& pos)
-{
+double MORRF::calc_fitness(double * p_cost, double * p_weight, POS2D& pos) {
     double fitness = 0.0;
-    if(p_cost == NULL || p_weight==NULL)
-    {
+    if(p_cost == NULL || p_weight==NULL) {
         return fitness;
     }
-    if(_type==MORRF::WEIGHTED_SUM)
-    {
-        for(int k=0;k<_objective_num;k++)
-        {
+    if(_type==MORRF::WEIGHTED_SUM) {
+        for(int k=0;k<_objective_num;k++) {
             fitness += p_cost[k] * p_weight[k];
         }
     }
@@ -413,8 +374,7 @@ double MORRF::calc_fitness(double * p_cost, double * p_weight, POS2D& pos)
     return fitness;
 }
 
-bool MORRF::getUtopiaReferenceVector(POS2D& pos, double * p_utopia)
-{
+bool MORRF::getUtopiaReferenceVector(POS2D& pos, double * p_utopia) {
     if ( p_utopia==NULL ) {
         return false;
     }
@@ -430,8 +390,7 @@ bool MORRF::getUtopiaReferenceVector(POS2D& pos, double * p_utopia)
     return true;
 }
 
-ReferenceTree* MORRF::get_reference_tree(int k)
-{
+ReferenceTree* MORRF::get_reference_tree(int k) {
     if(k<0 || k>=_objective_num) {
         return NULL;
     }

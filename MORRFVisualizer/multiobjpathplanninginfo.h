@@ -15,10 +15,10 @@ class MultiObjPathPlanningInfo {
 public:
     MultiObjPathPlanningInfo();
 
-    bool getObstacleInfo(int**& obstacleInfo);
-    std::vector<int**>& getFitnessDistributions();
+    bool getObstacleInfo(int** obstacleInfo);
+    std::vector<int**> getFitnessDistributions();
 
-    bool getPixInfo(QString filename, int**& pixInfo);
+    bool getPixInfo(QString filename, int** pixInfo);
     void initFuncsParams();
 
     bool saveToFile(QString filename);
@@ -37,7 +37,7 @@ public:
         double delta_x = fabs(pos_a[0]-pos_b[0]);
         double delta_y = fabs(pos_a[1]-pos_b[1]);
         dist = sqrt(delta_x*delta_x+delta_y*delta_y);
-        //dist = (delta_x*delta_x+delta_y*delta_y);
+
         if(dist < 0.0) {
             qWarning() << "Dist negative " << dist ;
         }
