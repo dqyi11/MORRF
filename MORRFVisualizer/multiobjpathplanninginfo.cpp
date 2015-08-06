@@ -216,7 +216,7 @@ void MultiObjPathPlanningInfo::exportPaths(QString filename)
             Path* p = *it;
             for(int k=0;k<mObjectiveNum;k++)
             {
-                stream << p->mpCost[k] << "\t";
+                stream << p->mp_cost[k] << "\t";
             }
             stream << "\n";
         }
@@ -227,9 +227,9 @@ void MultiObjPathPlanningInfo::exportPaths(QString filename)
         for(std::vector<Path*>::iterator it=mFoundPaths.begin(); it!=mFoundPaths.end(); it++)
         {
             Path* p = *it;
-            for(int i=0;i<p->mWaypoints.size();i++)
+            for(int i=0;i<p->m_waypoints.size();i++)
             {
-                stream << p->mWaypoints[i][0] << " " << p->mWaypoints[i][1] << "\t";
+                stream << p->m_waypoints[i][0] << " " << p->m_waypoints[i][1] << "\t";
             }
             stream << "\n";
         }

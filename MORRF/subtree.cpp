@@ -2,154 +2,154 @@
 #include "morrf.h"
 #include <limits>
 
-RRTNode::RRTNode(POS2D pos, int objective_num) {
-    mPos = pos;
-    mObjectiveNum = objective_num;
+RRTNode::RRTNode( POS2D pos, int objective_num ) {
+    m_pos = pos;
+    m_objective_num = objective_num;
 
-    mpCost = new double[mObjectiveNum];
-    for(int k=0;k<mObjectiveNum;k++) {
-        mpCost[k] = 0.0;
+    mp_cost = new double[m_objective_num];
+    for( int k=0; k<m_objective_num; k++ ) {
+        mp_cost[k] = 0.0;
     }
-    mFitness = 0.0;
-    mpParent = NULL;
+    m_fitness = 0.0;
+    mp_parent = NULL;
 }
 
-bool RRTNode::operator==(const RRTNode &other) {
-    return mPos==other.mPos;
+bool RRTNode::operator==( const RRTNode &other ) {
+    return m_pos==other.m_pos;
 }
 
-Path::Path(POS2D start, POS2D goal, int objectiveNum) {
-    mStart = start;
-    mGoal = goal;
-    mObjectiveNum = objectiveNum;
-    mpCost = new double[mObjectiveNum];
-    mpWeight = new double[mObjectiveNum];
-    mFitness = 0.0;
-    for(int k=0;k<mObjectiveNum;k++) {
-        mpCost[k] = 0.0;
-        mpWeight[k] = 0.0;
+Path::Path( POS2D start, POS2D goal, int objectiveNum ) {
+    m_start = start;
+    m_goal = goal;
+    m_objective_num = objectiveNum;
+    mp_cost = new double[m_objective_num];
+    mp_weight = new double[m_objective_num];
+    m_fitness = 0.0;
+    for( int k=0; k<m_objective_num; k++ ) {
+        mp_cost[k] = 0.0;
+        mp_weight[k] = 0.0;
     }
 }
 
 Path::~Path() {
-    if(mpCost) {
-        delete mpCost;
-        mpCost = NULL;
+    if( mp_cost ) {
+        delete mp_cost;
+        mp_cost = NULL;
     }
-    if(mpWeight) {
-        delete mpWeight;
-        mpWeight = NULL;
+    if( mp_weight ) {
+        delete mp_weight;
+        mp_weight = NULL;
     }
 }
 
-RRTree::RRTree(MORRF* parent, int objective_num, double * p_weight) {
-    mpParent = parent;
-    mType = REFERENCE;
-    mObjectiveNum = objective_num;
-    mIndex = -1;
-    mpWeight = new double[mObjectiveNum];
-    if(p_weight) {
-        for(int k=0;k<mObjectiveNum;k++) {
-            mpWeight[k] = p_weight[k];
+RRTree::RRTree( MORRF* parent, int objective_num, double * p_weight ) {
+    mp_parent = parent;
+    m_type = REFERENCE;
+    m_objective_num = objective_num;
+    m_index = -1;
+    mp_weight = new double[m_objective_num];
+    if( p_weight ) {
+        for( int k=0; k<m_objective_num; k++ ) {
+            mp_weight[k] = p_weight[k];
         }
     }
-    mpRoot = NULL;
-    mNodes.clear();
+    mp_root = NULL;
+    m_nodes.clear();
 }
 
-RRTNode* RRTree::init(POS2D start, POS2D goal) {
-    if(mpRoot) {
-        delete mpRoot;
-        mpRoot = NULL;
+RRTNode* RRTree::init( POS2D start, POS2D goal ) {
+    if(mp_root) {
+        delete mp_root;
+        mp_root = NULL;
     }
-    mStart = start;
-    mGoal = goal;
-    mpRoot = new RRTNode(start, mObjectiveNum);
-    mNodes.push_back(mpRoot);
+    m_start = start;
+    m_goal = goal;
+    mp_root = new RRTNode( start, m_objective_num );
+    m_nodes.push_back(mp_root);
 
-    return mpRoot;
+    return mp_root;
 }
 
-RRTNode*  RRTree::createNewNode(POS2D pos) {
-    RRTNode * pNode = new RRTNode(pos, mObjectiveNum);
-    mNodes.push_back(pNode);
+RRTNode*  RRTree::create_new_node( POS2D pos ) {
+    RRTNode * pNode = new RRTNode( pos, m_objective_num );
+    m_nodes.push_back(pNode);
 
     return pNode;
 }
 
-bool RRTree::removeEdge(RRTNode* pNode_p, RRTNode*  pNode_c) {
-    if(pNode_p==NULL) {
+bool RRTree::remove_edge( RRTNode* p_node_p, RRTNode*  p_node_c ) {
+    if(p_node_p==NULL) {
         return false;
     }
 
-    pNode_c->mpParent = NULL;
+    p_node_c->mp_parent = NULL;
     bool removed = false;
-    for(std::list<RRTNode*>::iterator it=pNode_p->mChildNodes.begin();it!=pNode_p->mChildNodes.end();it++) {
+    for( std::list<RRTNode*>::iterator it = p_node_p->m_child_nodes.begin(); it != p_node_p->m_child_nodes.end(); it++ ) {
         RRTNode* pCurrent = (RRTNode*)(*it);
-        if (pCurrent==pNode_c || pCurrent->mPos==pNode_c->mPos)
-        {
-            pCurrent->mpParent = NULL;
-            it = pNode_p->mChildNodes.erase(it);
+        if ( pCurrent==p_node_c || pCurrent->m_pos==p_node_c->m_pos ) {
+            pCurrent->mp_parent = NULL;
+            it = p_node_p->m_child_nodes.erase(it);
             removed = true;
         }
     }
     return removed;
 }
 
-bool RRTree::hasEdge(RRTNode* pNode_p, RRTNode* pNode_c) {
-    if (pNode_p==NULL || pNode_c==NULL)
+bool RRTree::has_edge( RRTNode* p_node_p, RRTNode* p_node_c ) {
+    if ( p_node_p==NULL || p_node_c==NULL ) {
         return false;
-    for(std::list<RRTNode*>::iterator it=pNode_p->mChildNodes.begin();it!=pNode_p->mChildNodes.end();it++) {
-        RRTNode* pCurrNode = (*it);
-        if(pCurrNode==pNode_c) {
+    }
+    for( std::list<RRTNode*>::iterator it=p_node_p->m_child_nodes.begin(); it!=p_node_p->m_child_nodes.end(); it++ ) {
+        RRTNode* p_curr_node = (*it);
+        if( p_curr_node==p_node_c ) {
             return true;
         }
     }
     /*
-    if (pNode_p == pNode_c->mpParent)
+    if ( p_node_p == p_node_c->mp_parent)
         return true;
     */
     return false;
 }
 
-bool RRTree::addEdge(RRTNode* pNode_p, RRTNode* pNode_c) {
-    if(pNode_p==NULL || pNode_c==NULL || pNode_p==pNode_c) {
+bool RRTree::add_edge( RRTNode* p_node_p, RRTNode* p_node_c ) {
+    if( p_node_p==NULL || p_node_c==NULL || p_node_p==p_node_c ) {
         return false;
     }
-    if (pNode_p->mPos == pNode_c->mPos) {
+    if ( p_node_p->m_pos == p_node_c->m_pos ) {
         return false;
     }
-    if (true == hasEdge(pNode_p, pNode_c)) {
-        pNode_c->mpParent = pNode_p;
+    if ( true == has_edge( p_node_p, p_node_c ) ) {
+        p_node_c->mp_parent = p_node_p;
     }
     else {
-        pNode_p->mChildNodes.push_back(pNode_c);
-        pNode_c->mpParent = pNode_p;
+        p_node_p->m_child_nodes.push_back( p_node_c );
+        p_node_c->mp_parent = p_node_p;
     }
-    pNode_c->mChildNodes.unique();
+    p_node_c->m_child_nodes.unique();
 
     return true;
 }
 
 
-std::list<RRTNode*> RRTree::findAllChildren(RRTNode* pNode) {
+std::list<RRTNode*> RRTree::find_all_children( RRTNode* p_node ) {
     int level = 0;
     bool finished = false;
     std::list<RRTNode*> child_list;
 
     std::list<RRTNode*> current_level_nodes;
-    current_level_nodes.push_back(pNode);
-    while(false==finished) {
+    current_level_nodes.push_back( p_node );
+    while( false==finished ) {
         std::list<RRTNode*> current_level_children;
         int child_list_num = child_list.size();
 
-        for(std::list<RRTNode*>::iterator it=current_level_nodes.begin(); it!=current_level_nodes.end(); it++) {
-            RRTNode* pCurrentNode = (*it);
-            for(std::list<RRTNode*>::iterator itc=pCurrentNode->mChildNodes.begin(); itc!=pCurrentNode->mChildNodes.end();itc++) {
-                RRTNode *pChildNode= (*itc);
-                if(pChildNode) {
-                    current_level_children.push_back(pChildNode);
-                    child_list.push_back(pChildNode);
+        for( std::list<RRTNode*>::iterator it=current_level_nodes.begin(); it!=current_level_nodes.end(); it++ ) {
+            RRTNode* p_current_node = (*it);
+            for( std::list<RRTNode*>::iterator itc = p_current_node->m_child_nodes.begin(); itc != p_current_node->m_child_nodes.end(); itc++ ) {
+                RRTNode *p_child_node = (*itc);
+                if( p_child_node ) {
+                    current_level_children.push_back( p_child_node );
+                    child_list.push_back( p_child_node );
                 }
             }
         }
@@ -157,24 +157,24 @@ std::list<RRTNode*> RRTree::findAllChildren(RRTNode* pNode) {
         child_list.unique();
         current_level_children.unique();
 
-        if (current_level_children.size()==0) {
+        if ( current_level_children.size() == 0 ) {
             finished = true;
         }
-        else if (child_list.size()==child_list_num) {
+        else if ( child_list.size() == child_list_num ) {
             finished = true;
         }
         else {
             current_level_nodes.clear();
-            for(std::list<RRTNode*>::iterator itt=current_level_children.begin();itt!=current_level_children.end();itt++) {
-                RRTNode * pTempNode = (*itt);
-                if(pTempNode) {
-                    current_level_nodes.push_back(pTempNode);
+            for( std::list<RRTNode*>::iterator itt = current_level_children.begin(); itt != current_level_children.end(); itt++ ) {
+                RRTNode * p_temp_node = (*itt);
+                if( p_temp_node ) {
+                    current_level_nodes.push_back( p_temp_node );
                 }
             }
-            level +=1;
+            level += 1;
         }
 
-        if(level>100) {
+        if( level > 100 ) {
             break;
         }
     }
@@ -183,13 +183,13 @@ std::list<RRTNode*> RRTree::findAllChildren(RRTNode* pNode) {
 }
 
 bool RRTree::is_structure_correct() {
-    for(std::list<RRTNode*>::iterator it=mNodes.begin();it!=mNodes.end();it++) {
-        RRTNode * pNode = (*it);
-        if(pNode) {
-            for(std::list<RRTNode*>::iterator itc=pNode->mChildNodes.begin();itc!=pNode->mChildNodes.end();itc++) {
-                RRTNode * pChildNode = (*itc);
-                if(pChildNode) {
-                    if(pChildNode->mFitness < pNode->mFitness) {
+    for( std::list<RRTNode*>::iterator it = m_nodes.begin(); it != m_nodes.end(); it++ ) {
+        RRTNode * p_node = (*it);
+        if( p_node ) {
+            for( std::list<RRTNode*>::iterator itc=p_node->m_child_nodes.begin(); itc!=p_node->m_child_nodes.end(); itc++ ) {
+                RRTNode * p_child_node = (*itc);
+                if( p_child_node ) {
+                    if( p_child_node->m_fitness < p_node->m_fitness ) {
                         return false;
                     }
                 }
@@ -199,44 +199,44 @@ bool RRTree::is_structure_correct() {
     return true;
 }
 
-RRTNode* RRTree::find_ancestor(RRTNode *pNode) {
-    return getAncestor(pNode);
+RRTNode* RRTree::find_ancestor( RRTNode* p_node ) {
+    return get_ancestor( p_node );
 }
 
 Path* RRTree::find_path() {
-    Path* pNewPath = new Path(mStart, mGoal, mObjectiveNum);
+    Path* p_new_path = new Path( m_start, m_goal, m_objective_num );
 
     std::list<RRTNode*> node_list;
 
-    RRTNode * pFirstNode = NULL;
-    double deltaCost[mObjectiveNum];
-    double deltaFitness = 0.0;
-    pFirstNode = get_closet_to_goal(deltaCost, deltaFitness);
+    RRTNode * p_first_node = NULL;
+    double p_delta_cost[m_objective_num];
+    double delta_fitness = 0.0;
+    p_first_node = get_closet_to_goal( p_delta_cost, delta_fitness );
 
-    if(pFirstNode!=NULL) {
-        getParentNodeList(pFirstNode, node_list);
-        for(std::list<RRTNode*>::reverse_iterator rit=node_list.rbegin();
-            rit!=node_list.rend(); ++rit) {
+    if( p_first_node!=NULL ) {
+        get_parent_node_list( p_first_node, node_list );
+        for( std::list<RRTNode*>::reverse_iterator rit=node_list.rbegin();
+            rit!=node_list.rend(); ++rit ) {
             RRTNode* pNode = (*rit);
-            pNewPath->mWaypoints.push_back(pNode->mPos);
+            p_new_path->m_waypoints.push_back( pNode->m_pos );
         }
-        pNewPath->mWaypoints.push_back(mGoal);
+        p_new_path->m_waypoints.push_back( m_goal );
 
-        for(int k=0;k<mObjectiveNum;k++) {
-            pNewPath->mpCost[k] = pFirstNode->mpCost[k] + deltaCost[k];
-            pNewPath->mpWeight[k] = mpWeight[k];
+        for( int k=0; k<m_objective_num; k++ ) {
+            p_new_path->mp_cost[k] = p_first_node->mp_cost[k] + p_delta_cost[k];
+            p_new_path->mp_weight[k] = mp_weight[k];
         }
-        pNewPath->mFitness = pFirstNode->mFitness + deltaFitness;
+        p_new_path->m_fitness = p_first_node->m_fitness + delta_fitness;
     }
 
-    return pNewPath;
+    return p_new_path;
 }
 
 bool RRTree::are_all_nodes_tractable() {
-    for(std::list<RRTNode*>::iterator it=mNodes.begin();it!=mNodes.end();it++) {
-        RRTNode * pNode = (*it);
-        if(pNode) {
-            if(mpRoot != find_ancestor(pNode)) {
+    for( std::list<RRTNode*>::iterator it=m_nodes.begin(); it!=m_nodes.end(); it++ ) {
+        RRTNode * p_node = (*it);
+        if( p_node ) {
+            if( mp_root != find_ancestor( p_node ) ) {
                 return false;
             }
         }
@@ -245,10 +245,10 @@ bool RRTree::are_all_nodes_tractable() {
 }
 
 bool RRTree::are_all_nodes_fitness_positive() {
-    for(std::list<RRTNode*>::iterator it=mNodes.begin();it!=mNodes.end();it++) {
-        RRTNode * pNode = (*it);
-        if(pNode) {
-            if(pNode->mFitness < 0.0) {
+    for( std::list<RRTNode*>::iterator it=m_nodes.begin(); it!=m_nodes.end(); it++ ) {
+        RRTNode * p_node = (*it);
+        if( p_node ) {
+            if( p_node->m_fitness < 0.0 ) {
                 return false;
             }
         }
@@ -257,57 +257,57 @@ bool RRTree::are_all_nodes_fitness_positive() {
 }
 
 
-ReferenceTree::ReferenceTree(MORRF* parent, int objective_num, int index)
-    : RRTree(parent, objective_num, NULL) {
-    mIndex = index;
+ReferenceTree::ReferenceTree( MORRF* parent, int objective_num, int index )
+    : RRTree( parent, objective_num, NULL ) {
+    m_index = index;
 }
 
 ReferenceTree::~ReferenceTree() {
 
 }
 
-void ReferenceTree::attach_new_node(RRTNode* pNode_new, RRTNode* pNearestNode, std::list<RRTNode*> near_nodes) {
-    double min_new_node_fitness = pNearestNode->mFitness + mpParent->calc_cost(pNearestNode->mPos, pNode_new->mPos, mIndex);
-    RRTNode* pMinNode = pNearestNode;
+void ReferenceTree::attach_new_node( RRTNode* p_node_new, RRTNode* p_nearest_node, std::list<RRTNode*> near_nodes ) {
+    double min_new_node_fitness = p_nearest_node->m_fitness + mp_parent->calc_cost( p_nearest_node->m_pos, p_node_new->m_pos, m_index );
+    RRTNode* p_min_node = p_nearest_node;
 
-    for(std::list<RRTNode*>::iterator it=near_nodes.begin();it!=near_nodes.end();it++) {
+    for( std::list<RRTNode*>::iterator it=near_nodes.begin(); it!=near_nodes.end(); it++ ) {
         RRTNode* pNearNode = *it;
-        if (true == mpParent->_is_obstacle_free(pNearNode->mPos, pNode_new->mPos)) {
-            double fitness = pNearNode->mFitness + mpParent->calc_cost(pNearNode->mPos, pNode_new->mPos, mIndex);
+        if ( true == mp_parent->_is_obstacle_free( pNearNode->m_pos, p_node_new->m_pos ) ) {
+            double fitness = pNearNode->m_fitness + mp_parent->calc_cost( pNearNode->m_pos, p_node_new->m_pos, m_index );
             if (fitness < min_new_node_fitness) {
-                pMinNode = pNearNode;
+                p_min_node = pNearNode;
                 min_new_node_fitness = fitness;
             }
         }
     }
 
-    bool added = addEdge(pMinNode, pNode_new);
+    bool added = add_edge(p_min_node, p_node_new);
     if(added) {
-        pNode_new->mFitness = min_new_node_fitness;
-        pNode_new->mpCost[mIndex] = pNode_new->mFitness;
+        p_node_new->m_fitness = min_new_node_fitness;
+        p_node_new->mp_cost[m_index] = p_node_new->m_fitness;
     }
 }
 
-void ReferenceTree::rewire_near_nodes(RRTNode* pNode_new, std::list<RRTNode*> near_nodes) {
-    for(std::list<RRTNode*>::iterator it=near_nodes.begin(); it!=near_nodes.end(); it++) {
-        RRTNode * pNearNode = (*it);
+void ReferenceTree::rewire_near_nodes( RRTNode* p_node_new, std::list<RRTNode*> near_nodes ) {
+    for( std::list<RRTNode*>::iterator it=near_nodes.begin(); it!=near_nodes.end(); it++ ) {
+        RRTNode * p_near_node = (*it);
 
-        if(pNearNode->mPos ==pNode_new->mPos ||  pNearNode->mPos==mpRoot->mPos || pNode_new->mpParent->mPos==pNearNode->mPos) {
+        if( p_near_node->m_pos ==p_node_new->m_pos ||  p_near_node->m_pos==mp_root->m_pos || p_node_new->mp_parent->m_pos==p_near_node->m_pos ) {
             continue;
         }
 
-        if(true==mpParent->_is_obstacle_free(pNode_new->mPos, pNearNode->mPos)) {
-            double temp_fitness_from_new_node = pNode_new->mFitness + mpParent->calc_cost(pNode_new->mPos, pNearNode->mPos, mIndex);
-            if(temp_fitness_from_new_node < pNearNode->mFitness) {
-                double delta_fitness = pNearNode->mFitness - temp_fitness_from_new_node;
-                RRTNode * pParentNode = pNearNode->mpParent;
-                bool removed = removeEdge(pParentNode, pNearNode);
-                if(removed) {
-                    bool added = addEdge(pNode_new, pNearNode);
-                    if(added) {
-                        pNearNode->mFitness = temp_fitness_from_new_node;
-                        pNearNode->mpCost[mIndex] = pNearNode->mFitness;
-                        updateFitnessToChildren(pNearNode, delta_fitness);
+        if( true == mp_parent->_is_obstacle_free( p_node_new->m_pos, p_near_node->m_pos ) ) {
+            double temp_fitness_from_new_node = p_node_new->m_fitness + mp_parent->calc_cost( p_node_new->m_pos, p_near_node->m_pos, m_index );
+            if(temp_fitness_from_new_node < p_near_node->m_fitness) {
+                double delta_fitness = p_near_node->m_fitness - temp_fitness_from_new_node;
+                RRTNode * p_parent_node = p_near_node->mp_parent;
+                bool removed = remove_edge( p_parent_node, p_near_node );
+                if( removed ) {
+                    bool added = add_edge( p_node_new, p_near_node );
+                    if( added ) {
+                        p_near_node->m_fitness = temp_fitness_from_new_node;
+                        p_near_node->mp_cost[m_index] = p_near_node->m_fitness;
+                        update_fitness_to_children(p_near_node, delta_fitness);
                     }
                 }
                 else {
@@ -318,198 +318,194 @@ void ReferenceTree::rewire_near_nodes(RRTNode* pNode_new, std::list<RRTNode*> ne
     }
 }
 
-void ReferenceTree::updateFitnessToChildren(RRTNode* pNode, double delta_fitness) {
-    std::list<RRTNode*> child_list = findAllChildren(pNode);
-    for(std::list<RRTNode*>::iterator it=child_list.begin();it!=child_list.end();it++) {
-        RRTNode* pChildNode = (*it);
-        if(pChildNode) {
-            pChildNode->mFitness -= delta_fitness;
-            pChildNode->mpCost[mIndex] = pChildNode->mFitness;
+void ReferenceTree::update_fitness_to_children( RRTNode* p_node, double delta_fitness ) {
+    std::list<RRTNode*> child_list = find_all_children(p_node);
+    for( std::list<RRTNode*>::iterator it=child_list.begin(); it!=child_list.end(); it++ ) {
+        RRTNode* p_child_node = (*it);
+        if( p_child_node ) {
+            p_child_node->m_fitness -= delta_fitness;
+            p_child_node->mp_cost[m_index] = p_child_node->m_fitness;
         }
     }
 }
 
-RRTNode * ReferenceTree::get_closet_to_goal(double * deltaCost, double& deltaFitness) {
-    RRTNode* pClosestNode = NULL;
-    if(mpParent) {
-        std::list<KDNode2D> near_nodes = mpParent->find_near(mGoal);
+RRTNode * ReferenceTree::get_closet_to_goal( double * p_delta_cost, double& delta_fitness ) {
+    RRTNode* p_closest_node = NULL;
+    if( mp_parent ) {
+        std::list<KDNode2D> near_nodes = mp_parent->find_near( m_goal );
         double min_total_fitness = std::numeric_limits<double>::max();
         double min_delta_fitness = 0.0;
-        RRTNode * pMinPrevNode = NULL;
-        for(std::list<KDNode2D>::iterator it=near_nodes.begin();
-            it!=near_nodes.end();it++) {
+        RRTNode * p_min_prev_node = NULL;
+        for( std::list<KDNode2D>::iterator it=near_nodes.begin();
+            it!=near_nodes.end(); it++ ) {
             KDNode2D kd_node = (*it);
-            RRTNode* pNode = kd_node.mNodeList[mIndex];
-            double delta_fitness = mpParent->calc_cost(pNode->mPos, mGoal, mIndex);
-            double new_total_fitness = pNode->mFitness + delta_fitness;
-            if (new_total_fitness < min_total_fitness) {
-                pMinPrevNode = pNode;
+            RRTNode* p_node = kd_node.m_node_list[m_index];
+            double delta_fitness = mp_parent->calc_cost( p_node->m_pos, m_goal, m_index );
+            double new_total_fitness = p_node->m_fitness + delta_fitness;
+            if ( new_total_fitness < min_total_fitness ) {
+                p_min_prev_node = p_node;
                 min_delta_fitness = delta_fitness;
                 min_total_fitness = new_total_fitness;
             }
         }
-        pClosestNode = pMinPrevNode;
-        deltaFitness = min_delta_fitness;
-        for(int k=0;k<mObjectiveNum;k++) {
-            if(k==mIndex) {
-                deltaCost[k] = deltaFitness;
+        p_closest_node = p_min_prev_node;
+        delta_fitness = min_delta_fitness;
+        for( int k=0; k<m_objective_num; k++ ) {
+            if( k == m_index ) {
+                p_delta_cost[k] = delta_fitness;
             }
             else {
-                deltaCost[k] = 0.0;
+                p_delta_cost[k] = 0.0;
             }
         }
     }
-    return pClosestNode;
+    return p_closest_node;
 }
 
 Path* ReferenceTree::find_path() {
-    Path* pNewPath = RRTree::find_path();
-    if(mpParent) {
-        mpParent->update_path_cost(pNewPath);
+    Path* p_new_path = RRTree::find_path();
+    if( mp_parent ) {
+        mp_parent->update_path_cost( p_new_path );
     }
-    return pNewPath;
+    return p_new_path;
 }
 
 
-SubproblemTree::SubproblemTree(MORRF* parent, int objective_num, double * p_weight, int index)
+SubproblemTree::SubproblemTree( MORRF* parent, int objective_num, double * p_weight, int index )
     : RRTree(parent, objective_num, p_weight) {
-    mIndex = index;
+    m_index = index;
 }
 
 SubproblemTree::~SubproblemTree() {
 
 }
 
-
-void SubproblemTree::attach_new_node(RRTNode* pNode_new, RRTNode* pNearestNode, std::list<RRTNode*> near_nodes) {
-    double p_min_new_node_cost[mObjectiveNum];
-    double p_min_new_node_cost_delta[mObjectiveNum];
-    mpParent->calc_cost(pNearestNode->mPos, pNode_new->mPos, p_min_new_node_cost_delta);
-    for(int k=0;k<mObjectiveNum;k++) {
-        p_min_new_node_cost[k] = pNearestNode->mpCost[k] + p_min_new_node_cost_delta[k];
+void SubproblemTree::attach_new_node( RRTNode* p_node_new, RRTNode* p_nearest_node, std::list<RRTNode*> near_nodes ) {
+    double p_min_new_node_cost[m_objective_num];
+    double p_min_new_node_cost_delta[m_objective_num];
+    mp_parent->calc_cost( p_nearest_node->m_pos, p_node_new->m_pos, p_min_new_node_cost_delta );
+    for( int k = 0; k < m_objective_num; k++ ) {
+        p_min_new_node_cost[k] = p_nearest_node->mp_cost[k] + p_min_new_node_cost_delta[k];
     }
-    double min_new_node_fitness = mpParent->calc_fitness(p_min_new_node_cost, mpWeight, pNode_new->mPos);
+    double min_new_node_fitness = mp_parent->calc_fitness( p_min_new_node_cost, mp_weight, p_node_new->m_pos );
 
-    RRTNode* pMinNode = pNearestNode;
+    RRTNode* p_min_node = p_nearest_node;
 
-    for(std::list<RRTNode*>::iterator it=near_nodes.begin();it!=near_nodes.end();it++) {
-        RRTNode* pNearNode = (*it);
-        if (true == mpParent->_is_obstacle_free(pNearNode->mPos, pNode_new->mPos)) {
-            double p_cost_temp[mObjectiveNum];
-            double p_cost_delta[mObjectiveNum];
-            mpParent->calc_cost(pNearNode->mPos, pNode_new->mPos, p_cost_delta);
-            for(int k=0;k<mObjectiveNum;k++) {
-                p_cost_temp[k] = pNearNode->mpCost[k] + p_cost_delta[k];
+    for( std::list<RRTNode*>::iterator it = near_nodes.begin(); it != near_nodes.end(); it++ ) {
+        RRTNode* p_near_node = (*it);
+        if ( true == mp_parent->_is_obstacle_free(p_near_node->m_pos, p_node_new->m_pos) ) {
+            double p_cost_temp[m_objective_num];
+            double p_cost_delta[m_objective_num];
+            mp_parent->calc_cost(p_near_node->m_pos, p_node_new->m_pos, p_cost_delta);
+            for( int k=0; k < m_objective_num; k++ ) {
+                p_cost_temp[k] = p_near_node->mp_cost[k] + p_cost_delta[k];
             }
-            double fitness = mpParent->calc_fitness(p_cost_temp, mpWeight, pNode_new->mPos);
-            if (fitness < min_new_node_fitness) {
-                pMinNode = pNearNode;
+            double fitness = mp_parent->calc_fitness(p_cost_temp, mp_weight, p_node_new->m_pos);
+            if ( fitness < min_new_node_fitness ) {
+                p_min_node = p_near_node;
                 min_new_node_fitness = fitness;
-                for(int k=0;k<mObjectiveNum;k++) {
+                for( int k = 0; k < m_objective_num; k++ ) {
                     p_min_new_node_cost[k] = p_cost_temp[k];
                 }
             }
         }
     }
 
-    bool added = addEdge(pMinNode, pNode_new);
-    if(added) {
-        pNode_new->mFitness = min_new_node_fitness;
-        for(int k=0;k<mObjectiveNum;k++) {
-           pNode_new->mpCost[k] = p_min_new_node_cost[k];
+    bool added = add_edge( p_min_node, p_node_new );
+    if( added ) {
+        p_node_new->m_fitness = min_new_node_fitness;
+        for( int k = 0; k < m_objective_num; k++ ) {
+           p_node_new->mp_cost[k] = p_min_new_node_cost[k];
         }
     }
 }
 
-void SubproblemTree::rewire_near_nodes(RRTNode* pNode_new, std::list<RRTNode*> near_nodes) {
-    for(std::list<RRTNode*>::iterator it=near_nodes.begin(); it!=near_nodes.end(); it++) {
-        RRTNode * pNearNode = (*it);
+void SubproblemTree::rewire_near_nodes( RRTNode* p_node_new, std::list<RRTNode*> near_nodes ) {
+    for( std::list<RRTNode*>::iterator it = near_nodes.begin(); it != near_nodes.end(); it++ ) {
+        RRTNode * p_near_node = (*it);
 
-        if(pNearNode->mPos == pNode_new->mPos ||  pNearNode->mPos == mpRoot->mPos || pNode_new->mpParent->mPos == pNearNode->mPos) {
+        if( p_near_node->m_pos == p_node_new->m_pos ||  p_near_node->m_pos == mp_root->m_pos || p_node_new->mp_parent->m_pos == p_near_node->m_pos ) {
             continue;
         }
 
-        if(true==mpParent->_is_obstacle_free(pNode_new->mPos, pNearNode->mPos)) {
+        if( true == mp_parent->_is_obstacle_free( p_node_new->m_pos, p_near_node->m_pos ) ) {
             // update pNearNode fitness
-            pNearNode->mFitness = mpParent->calc_fitness(pNearNode->mpCost, mpWeight, pNearNode->mPos);
+            p_near_node->m_fitness = mp_parent->calc_fitness( p_near_node->mp_cost, mp_weight, p_near_node->m_pos );
 
-            double temp_cost_from_new_node[mObjectiveNum];
-            double temp_delta_cost_from_new_node[mObjectiveNum];
+            double temp_cost_from_new_node[m_objective_num];
+            double temp_delta_cost_from_new_node[m_objective_num];
 
-            mpParent->calc_cost(pNode_new->mPos, pNearNode->mPos, temp_delta_cost_from_new_node);
-            for(int k=0;k<mObjectiveNum;k++) {
-                temp_cost_from_new_node[k] = pNode_new->mpCost[k] + temp_delta_cost_from_new_node[k];
+            mp_parent->calc_cost( p_node_new->m_pos, p_near_node->m_pos, temp_delta_cost_from_new_node );
+            for( int k=0; k<m_objective_num; k++ ) {
+                temp_cost_from_new_node[k] = p_node_new->mp_cost[k] + temp_delta_cost_from_new_node[k];
             }
-            double temp_fitness_from_new_node = mpParent->calc_fitness(temp_cost_from_new_node, mpWeight, pNearNode->mPos);
+            double temp_fitness_from_new_node = mp_parent->calc_fitness( temp_cost_from_new_node, mp_weight, p_near_node->m_pos );
 
-            if(temp_fitness_from_new_node < pNearNode->mFitness) {
-                RRTNode * pParentNode = pNearNode->mpParent;
-                bool removed = removeEdge(pParentNode, pNearNode);
-                if(removed) {
-                    bool added = addEdge(pNode_new, pNearNode);
-                    if(added) {
-                        double delta_cost[mObjectiveNum];
-                        for(int k=0;k<mObjectiveNum;k++) {
-                            delta_cost[k] = pNearNode->mpCost[k] - temp_cost_from_new_node[k];
-                            pNearNode->mpCost[k] = temp_cost_from_new_node[k];
-                            pNearNode->mFitness = temp_fitness_from_new_node;
+            if( temp_fitness_from_new_node < p_near_node->m_fitness ) {
+                RRTNode * p_parent_node = p_near_node->mp_parent;
+                bool removed = remove_edge( p_parent_node, p_near_node );
+                if( removed ) {
+                    bool added = add_edge( p_node_new, p_near_node );
+                    if( added ) {
+                        double delta_cost[m_objective_num];
+                        for( int k=0; k<m_objective_num; k++ ) {
+                            delta_cost[k] = p_near_node->mp_cost[k] - temp_cost_from_new_node[k];
+                            p_near_node->mp_cost[k] = temp_cost_from_new_node[k];
+                            p_near_node->m_fitness = temp_fitness_from_new_node;
                         }
-                        updateCostToChildren(pNearNode, delta_cost);
+                        update_cost_to_children( p_near_node, delta_cost );
                     }
                 }
             }
         }
-
     }
-
 }
 
-void SubproblemTree::updateCostToChildren(RRTNode* pNode, double* pDelta_cost) {
-    std::list<RRTNode*> child_list = findAllChildren(pNode);
-    for(std::list<RRTNode*>::iterator it=child_list.begin();it!=child_list.end();it++) {
-        RRTNode* pChildNode = (*it);
-        if(pChildNode) {
-            for(int k=0;k<mObjectiveNum;k++) {
-                pChildNode->mpCost[k] -= pDelta_cost[k];
+void SubproblemTree::update_cost_to_children( RRTNode* p_node, double* p_delta_cost ) {
+    std::list<RRTNode*> child_list = find_all_children( p_node );
+    for( std::list<RRTNode*>::iterator it=child_list.begin(); it!=child_list.end(); it++ ) {
+        RRTNode* p_child_node = (*it);
+        if( p_child_node ) {
+            for( int k=0; k<m_objective_num; k++ ) {
+                p_child_node->mp_cost[k] -= p_delta_cost[k];
             }
-            pChildNode->mFitness = mpParent->calc_fitness(pChildNode->mpCost, mpWeight, pChildNode->mPos);
+            p_child_node->m_fitness = mp_parent->calc_fitness( p_child_node->mp_cost, mp_weight, p_child_node->m_pos );
         }
     }
 }
 
-RRTNode * SubproblemTree::get_closet_to_goal(double * deltaCost, double& deltaFitness) {
-    RRTNode * pClosestNode = NULL;
-    if(mpParent) {
-        std::list<KDNode2D> near_nodes = mpParent->find_near(mGoal);
+RRTNode * SubproblemTree::get_closet_to_goal( double * p_delta_cost, double& delta_fitness ) {
+    RRTNode * p_closest_node = NULL;
+    if( mp_parent ) {
+        std::list<KDNode2D> near_nodes = mp_parent->find_near( m_goal );
         double min_total_fitness = std::numeric_limits<double>::max();
         double min_delta_fitness = 0.0;
-        double min_delta_cost[mObjectiveNum];
-        RRTNode * pMinPrevNode = NULL;
-        for(std::list<KDNode2D>::iterator it=near_nodes.begin();
-            it!=near_nodes.end();it++) {
+        double min_delta_cost[m_objective_num];
+        RRTNode * p_min_prev_node = NULL;
+        for( std::list<KDNode2D>::iterator it=near_nodes.begin();
+            it != near_nodes.end(); it++ ) {
             KDNode2D kd_node = (*it);
-            int index = mIndex + mObjectiveNum;
-            RRTNode* pNode = kd_node.mNodeList[index];
-            double new_delta_cost[mObjectiveNum];
-            mpParent->calc_cost(pNode->mPos, mGoal, new_delta_cost);
-            double new_delta_fitness = mpParent->calc_fitness(new_delta_cost, mpWeight, mGoal);
-            double new_total_fitness = pNode->mFitness + new_delta_fitness;
-            if (new_total_fitness < min_total_fitness) {
-                pMinPrevNode = pNode;
+            int index = m_index + m_objective_num;
+            RRTNode* p_node = kd_node.m_node_list[index];
+            double new_delta_cost[m_objective_num];
+            mp_parent->calc_cost( p_node->m_pos, m_goal, new_delta_cost );
+            double new_delta_fitness = mp_parent->calc_fitness( new_delta_cost, mp_weight, m_goal );
+            double new_total_fitness = p_node->m_fitness + new_delta_fitness;
+            if ( new_total_fitness < min_total_fitness ) {
+                p_min_prev_node = p_node;
                 min_delta_fitness = new_delta_fitness;
                 min_total_fitness = new_total_fitness;
-                for(int k=0;k<mObjectiveNum;k++) {
+                for( int k=0; k<m_objective_num; k++ ) {
                     min_delta_cost[k] = new_delta_cost[k];
                 }
             }
         }
-        pClosestNode = pMinPrevNode;
-        deltaFitness = min_delta_fitness;
-        for(int k=0;k<mObjectiveNum;k++) {
-            deltaCost[k] = min_delta_cost[k];
+        p_closest_node = p_min_prev_node;
+        delta_fitness = min_delta_fitness;
+        for( int k=0; k<m_objective_num; k++ ) {
+            p_delta_cost[k] = min_delta_cost[k];
         }
 
     }
-    return pClosestNode;
+    return p_closest_node;
 }
-

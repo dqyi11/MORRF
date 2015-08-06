@@ -66,17 +66,17 @@ void MORRFVisualizer::paintEvent(QPaintEvent * e)
             paintpen.setWidth(1);
             painter.setPen(paintpen);
 
-            for(std::list<RRTNode*>::iterator it= pTree->mNodes.begin(); it!=pTree->mNodes.end();it++)
+            for(std::list<RRTNode*>::iterator it= pTree->m_nodes.begin(); it!=pTree->m_nodes.end();it++)
             {
                 RRTNode* pNode = (*it);
                 if(pNode)
                 {
-                    for(std::list<RRTNode*>::iterator itc= pNode->mChildNodes.begin(); itc!=pNode->mChildNodes.end();itc++)
+                    for(std::list<RRTNode*>::iterator itc= pNode->m_child_nodes.begin(); itc!=pNode->m_child_nodes.end();itc++)
                     {
                         RRTNode* pChildNode = (*itc);
                         if(pChildNode)
                         {
-                            painter.drawLine(QPoint(pNode->mPos[0], pNode->mPos[1]), QPoint(pChildNode->mPos[0], pChildNode->mPos[1]));
+                            painter.drawLine(QPoint(pNode->m_pos[0], pNode->m_pos[1]), QPoint(pChildNode->m_pos[0], pChildNode->m_pos[1]));
                         }
                     }
                 }
@@ -91,13 +91,13 @@ void MORRFVisualizer::paintEvent(QPaintEvent * e)
             paintpen.setWidth(2);
             painter.setPen(paintpen);
 
-            int point_num = p->mWaypoints.size();
+            int point_num = p->m_waypoints.size();
 
             if(point_num > 0)
             {
                 for(int i=0;i<point_num-1;i++)
                 {
-                    painter.drawLine(QPoint(p->mWaypoints[i][0], p->mWaypoints[i][1]), QPoint(p->mWaypoints[i+1][0], p->mWaypoints[i+1][1]));
+                    painter.drawLine(QPoint(p->m_waypoints[i][0], p->m_waypoints[i][1]), QPoint(p->m_waypoints[i+1][0], p->m_waypoints[i+1][1]));
                 }
             }
         }

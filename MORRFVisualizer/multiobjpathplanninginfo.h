@@ -30,7 +30,7 @@ public:
     void loadPaths(std::vector<Path*> paths);
     void exportPaths(QString filename);
 
-    static double calcDist(POS2D pos_a, POS2D pos_b, int** distribution, int* dimension) {
+    static double calcDist(POS2D pos_a, POS2D pos_b, int** distribution) {
         double dist = 0.0;
         if (pos_a == pos_b)
             return dist;
@@ -44,70 +44,52 @@ public:
         return dist;
     }
 
-    static double calcCost(POS2D pos_a, POS2D pos_b, int** distribution, int* dimension) {
+    static double calcCost(POS2D pos_a, POS2D pos_b, int** pp_distribution) {
         double cost = 0.0;
-        if (pos_a == pos_b)
+        if ( pos_a == pos_b ) {
             return cost;
-        if(distribution==NULL)
-            return cost;
-
-        int width = dimension[0];
-        int height = dimension[1];
-
-        double x_dist = pos_a[0]-pos_b[0];
-        double y_dist = pos_a[1]-pos_b[1];
-        if (fabs(x_dist) > fabs(y_dist)) {
-            int startX = 0, endX = 0, startY = 0, endY = 0;
-            double k = y_dist / x_dist;
-            if (pos_a[0] < pos_b[0]) {
-                startX = (int)floor(pos_a[0]);
-                endX = (int)floor(pos_b[0]);
-                startY = (int)floor(pos_a[1]);
-                endY = (int)floor(pos_b[1]);
-            }
-            else {
-                startX = (int)floor(pos_b[0]);
-                endX = (int)floor(pos_a[0]);
-                startY = (int)floor(pos_b[1]);
-                endY = (int)floor(pos_a[1]);
-            }
-            for(int coordX = startX; coordX < endX; coordX++) {
-                int coordY = (int)floor(k*(coordX-startX)+startY);
-                if (coordX < 0 || coordX >= width || coordY < 0 || coordY >= height) {
-                    continue;
-                }
-                double fitnessVal = (double)distribution[coordX][coordY];
-                if(fitnessVal < 0) {
-                    qWarning() << "Cost negative " << fitnessVal;
-                }
-                cost += fitnessVal/255.0;
-            }
         }
-        else {
-            int startY = 0, endY = 0, startX = 0, endX = 0;
-            double k = x_dist / y_dist;
-            if (pos_a[0] < pos_b[0]) {
-                startY = (int)floor(pos_a[1]);
-                endY = (int)floor(pos_b[1]);
-                startX = (int)floor(pos_a[0]);
-                endX = (int)floor(pos_b[0]);
+        if( pp_distribution == NULL ) {
+            return cost;
+        }
+
+        float x1 = pos_a[0];
+        float y1 = pos_a[1];
+        float x2 = pos_b[0];
+        float y2 = pos_b[1];
+
+        const bool steep = (fabs(y2 - y1) > fabs(x2 - x1));
+        if (steep) {
+            std::swap(x1, y1);
+            std::swap(x2, y2);
+        }
+
+        if (x1 > x2) {
+            std::swap(x1, x2);
+            std::swap(y1, y2);
+        }
+
+        const float dx = x2 - x1;
+        const float dy = fabs(y2 - y1);
+
+        float error = dx / 2.0f;
+        const int ystep = (y1 < y2) ? 1 : -1;
+        int y = (int)y1;
+
+        const int maxX = (int)x2;
+
+        for(int x=(int)x1; x<maxX; x++) {
+            if(steep) {
+                cost += pp_distribution[y][x];
             }
             else {
-                startY = (int)floor(pos_b[1]);
-                endY = (int)floor(pos_a[1]);
-                startX = (int)floor(pos_b[0]);
-                endX = (int)floor(pos_a[0]);
+                cost += pp_distribution[x][y];
             }
-            for(int coordY = startY; coordY < endY; coordY++) {
-                int coordX = (int)floor(k*(coordY-startY)+startX);
-                if (coordX < 0 || coordX >= width || coordY < 0 || coordY >= height) {
-                    continue;
-                }
-                double fitnessVal = (double)distribution[coordX][coordY];
-                if(fitnessVal < 0) {
-                    qWarning() << "Cost negative " << fitnessVal;
-                }
-                cost += fitnessVal/255.0;
+
+            error -= dy;
+            if(error < 0) {
+                y += ystep;
+                error += dx;
             }
         }
 

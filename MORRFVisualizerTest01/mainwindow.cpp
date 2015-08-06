@@ -57,7 +57,6 @@ void MainWindow::createMenuBar() {
 
     mpContextMenu->addAction(mpAddStartAction);
     mpContextMenu->addAction(mpAddGoalAction);
-
 }
 
 void MainWindow::createActions() {
@@ -202,56 +201,56 @@ void MainWindow::onRun() {
 
     while(mpMORRF->get_current_iteration() <= mpViz->mMOPPInfo.mMaxIterationNum) {
         QString msg = "CurrentIteration " + QString::number(mpMORRF->get_current_iteration()) + " ";
-        if(true == mpMORRF->areReferenceStructuresCorrect()) {
+        if(true == mpMORRF->are_reference_structures_correct()) {
             msg += "R(T) ";
         }
         else {
             msg += "R(F) ";
         }
-        if(true == mpMORRF->areSubproblemStructuresCorrect()) {
+        if(true == mpMORRF->are_subproblem_structures_correct()) {
             msg += "S(T) ";
         }
         else {
             msg += "S(F) ";
         }
-        if(true == mpMORRF->areAllReferenceNodesTractable()) {
+        if(true == mpMORRF->are_all_reference_nodes_tractable()) {
             msg += "R(T) ";
         }
         else {
             msg += "R(F) ";
         }
-        if(true == mpMORRF->areAllSubproblemNodesTractable()) {
+        if(true == mpMORRF->are_all_subproblem_nodes_tractable()) {
             msg += "S(T) ";
         }
         else {
             msg += "S(F) ";
         }
-        if(true == mpMORRF->areAllReferenceNodesFitnessPositive()) {
+        if(true == mpMORRF->are_all_reference_nodes_fitness_positive()) {
             msg += "R(T) ";
         }
         else {
             msg += "R(F) ";
         }
-        if(true == mpMORRF->areAllSubproblemNodesFitnessPositive()) {
+        if(true == mpMORRF->are_all_subproblem_nodes_fitness_positive()) {
             msg += "S(T) ";
         }
         else {
             msg += "S(F) ";
         }
-        if(true == mpMORRF->isNodeNumberIdentical()) {
+        if(true == mpMORRF->is_node_number_identical()) {
             msg += "T ";
         }
         else {
             msg += "F ";
         }
-        if(true == mpMORRF->isRefTreeMinCost()) {
+        if(true == mpMORRF->is_ref_tree_min_cost()) {
             msg += "T ";
         }
         else {
             msg += "F ";
         }
         for(int k=0;k<mpViz->mMOPPInfo.mObjectiveNum;k++) {
-            std::list<RRTNode*> list = mpMORRF->get_reference_tree(k)->findAllChildren(mpMORRF->get_reference_tree(k)->mpRoot);
+            std::list<RRTNode*> list = mpMORRF->get_reference_tree(k)->find_all_children(mpMORRF->get_reference_tree(k)->mp_root);
             int num = list.size();
             msg += QString::number(num) + " ";
         }

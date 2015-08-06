@@ -9,117 +9,117 @@ class MORRF;
 
 class RRTNode {
 public:
-    RRTNode(POS2D pos, int objective_num);
+    RRTNode( POS2D pos, int objective_num );
 
-    bool operator==(const RRTNode &other);
+    bool operator==( const RRTNode &other );
 
-    int mObjectiveNum;
-    double * mpCost;
-    double mFitness;
-    RRTNode * mpParent;
-    POS2D mPos;
+    int m_objective_num;
+    double * mp_cost;
+    double m_fitness;
+    RRTNode * mp_parent;
+    POS2D m_pos;
 
-    std::list<RRTNode*> mChildNodes;
+    std::list<RRTNode*> m_child_nodes;
 };
 
 class Path {
 public:
-    Path(POS2D start, POS2D goal, int objectiveNum);
+    Path( POS2D start, POS2D goal, int objectiveNum );
     ~Path();
 
-    int mObjectiveNum;
-    double * mpCost;
-    double * mpWeight;
-    double mFitness;
-    POS2D mStart;
-    POS2D mGoal;
-    std::vector<POS2D> mWaypoints;
+    int m_objective_num;
+    double * mp_cost;
+    double * mp_weight;
+    double m_fitness;
+    POS2D m_start;
+    POS2D m_goal;
+    std::vector<POS2D> m_waypoints;
 };
 
 class RRTree {
 public:
     enum TREE_TYPE{ SUBPROBLEM, REFERENCE };
-    RRTree(MORRF* parent, int objective_num, double * p_weight);
+    RRTree( MORRF* parent, int objective_num, double * p_weight );
 
-    RRTNode* init(POS2D start, POS2D goal);
-    RRTNode* createNewNode(POS2D pos);
-    bool removeEdge(RRTNode* pNode_p, RRTNode* pNode_c);
-    bool hasEdge(RRTNode* pNode_p, RRTNode* pNode_c);
-    bool addEdge(RRTNode* pNode_p, RRTNode* pNode_c);
+    RRTNode* init( POS2D start, POS2D goal );
+    RRTNode* create_new_node( POS2D pos );
+    bool remove_edge( RRTNode* p_node_p, RRTNode* p_node_c );
+    bool has_edge( RRTNode* p_node_p, RRTNode* p_node_c );
+    bool add_edge( RRTNode* p_node_p, RRTNode* p_node_c );
 
-    std::list<RRTNode*> findAllChildren(RRTNode* pNode);
+    std::list<RRTNode*> find_all_children( RRTNode* pNode );
 
-    virtual void attach_new_node(RRTNode* pNode_new, RRTNode* pNearestNode, std::list<RRTNode*> near_nodes) = 0;
-    virtual void rewire_near_nodes(RRTNode* pNode_new, std::list<RRTNode*> near_nodes) = 0;
-    virtual RRTNode * get_closet_to_goal(double * deltaCost, double& deltaFitness) = 0;
+    virtual void attach_new_node( RRTNode* p_node_new, RRTNode* p_nearest_node, std::list<RRTNode*> near_nodes ) = 0;
+    virtual void rewire_near_nodes( RRTNode* p_node_new, std::list<RRTNode*> near_nodes ) = 0;
+    virtual RRTNode * get_closet_to_goal( double * p_delta_cost, double& delta_fitness ) = 0;
 
     bool is_structure_correct();
     bool are_all_nodes_tractable();
     bool are_all_nodes_fitness_positive();
-    RRTNode* find_ancestor(RRTNode *pNode);
+    RRTNode* find_ancestor( RRTNode* p_node );
 
     Path* find_path();
 
 
-    TREE_TYPE mType;
-    int mIndex;
-    int mObjectiveNum;
+    TREE_TYPE m_type;
+    int m_index;
+    int m_objective_num;
 
-    POS2D mStart;
-    POS2D mGoal;
+    POS2D m_start;
+    POS2D m_goal;
 
-    MORRF* mpParent;
-    RRTNode * mpRoot;
-    double * mpWeight;
+    MORRF* mp_parent;
+    RRTNode * mp_root;
+    double * mp_weight;
 
-    std::list<RRTNode*> mNodes;
+    std::list<RRTNode*> m_nodes;
 };
 
 class ReferenceTree : public RRTree {
 public:
-    ReferenceTree(MORRF* parent, int objective_num, int index);
+    ReferenceTree( MORRF* parent, int objective_num, int index );
     ~ReferenceTree();
 
-    virtual void attach_new_node(RRTNode* pNode_new, RRTNode* pNearestNode, std::list<RRTNode*> near_nodes);
-    virtual void rewire_near_nodes(RRTNode* pNode_new, std::list<RRTNode*> near_nodes);
-    virtual RRTNode * get_closet_to_goal(double * deltaCost, double& deltaFitness);
+    virtual void attach_new_node( RRTNode* p_node_new, RRTNode* p_nearest_node, std::list<RRTNode*> near_nodes );
+    virtual void rewire_near_nodes( RRTNode* p_node_new, std::list<RRTNode*> near_nodes );
+    virtual RRTNode * get_closet_to_goal( double * p_delta_cost, double& delta_fitness );
 
     Path* find_path();
 protected:
-    void updateFitnessToChildren(RRTNode* pNode, double delta_fitness);
+    void update_fitness_to_children( RRTNode* pNode, double delta_fitness );
 };
 
 class SubproblemTree : public RRTree {
 public:
-    SubproblemTree(MORRF* parent, int objective_num, double * p_weight, int index);
+    SubproblemTree( MORRF* parent, int objective_num, double * p_weight, int index );
     ~SubproblemTree();
 
-    virtual void attach_new_node(RRTNode* pNode_new, RRTNode* pNearestNode, std::list<RRTNode*> near_nodes);
-    virtual void rewire_near_nodes(RRTNode* pNode_new, std::list<RRTNode*> near_nodes);
-    virtual RRTNode * get_closet_to_goal(double * deltaCost, double& deltaFitness);
+    virtual void attach_new_node( RRTNode* p_node_new, RRTNode* p_nearest_node, std::list<RRTNode*> near_nodes );
+    virtual void rewire_near_nodes( RRTNode* p_node_new, std::list<RRTNode*> near_nodes );
+    virtual RRTNode * get_closet_to_goal( double * p_delta_cost, double& delta_fitness );
 protected:
-    void updateCostToChildren(RRTNode* pNode, double* pDelta_cost);
+    void update_cost_to_children(RRTNode* p_node, double* p_delta_cost);
 
 };
 
-inline RRTNode* getAncestor(RRTNode * pNode) {
-    if(NULL == pNode) {
+inline RRTNode* get_ancestor( RRTNode * p_node ) {
+    if( NULL == p_node ) {
         return NULL;
     }
-    if(NULL == pNode->mpParent) {
-        return pNode;
+    if( NULL == p_node->mp_parent ) {
+        return p_node;
     }
     else {
-        return getAncestor(pNode->mpParent);
+        return get_ancestor( p_node->mp_parent );
     }
 }
 
-inline void getParentNodeList(RRTNode * pNode, std::list<RRTNode*>& mPath) {
-    if(pNode==NULL) {
+inline void get_parent_node_list( RRTNode * p_node, std::list<RRTNode*>& path ) {
+    if( p_node==NULL ) {
         return;
     }
-    mPath.push_back(pNode);
-    getParentNodeList(pNode->mpParent, mPath);
+    path.push_back( p_node );
+    get_parent_node_list( p_node->mp_parent, path );
     return;
 }
 

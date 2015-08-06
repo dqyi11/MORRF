@@ -4,7 +4,7 @@
 #include "KDTree2D.h"
 #include "subtree.h"
 
-typedef double (*COST_FUNC_PTR)(POS2D, POS2D,int**, int*);
+typedef double (*COST_FUNC_PTR)(POS2D, POS2D,int**);
 
 
 class MORRF {
@@ -33,7 +33,7 @@ public:
     double calc_cost( POS2D& pos_a, POS2D& pos_b, int k );
     double calc_fitness( double * p_cost, double * p_weight, POS2D& pos );
 
-    bool getUtopiaReferenceVector( POS2D& pos, double * p_utopia );
+    bool get_utopia_reference_vector( POS2D& pos, double * p_utopia );
 
     int get_sampling_width() { return _sampling_width; }
     int get_sampling_height() { return _sampling_height; }
@@ -51,14 +51,14 @@ public:
 
     void dump_map_info( std::string filename );
 
-    bool areReferenceStructuresCorrect();
-    bool areSubproblemStructuresCorrect();
-    bool areAllReferenceNodesTractable();
-    bool areAllSubproblemNodesTractable();
-    bool areAllReferenceNodesFitnessPositive();
-    bool areAllSubproblemNodesFitnessPositive();
-    bool isNodeNumberIdentical();
-    bool isRefTreeMinCost();
+    bool are_reference_structures_correct();
+    bool are_subproblem_structures_correct();
+    bool are_all_reference_nodes_tractable();
+    bool are_all_subproblem_nodes_tractable();
+    bool are_all_reference_nodes_fitness_positive();
+    bool are_all_subproblem_nodes_fitness_positive();
+    bool is_node_number_identical();
+    bool is_ref_tree_min_cost();
     double get_ball_radius() { return _ball_radius; }
     bool update_path_cost( Path *p );
 protected:
