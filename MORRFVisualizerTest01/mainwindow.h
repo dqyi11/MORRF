@@ -21,6 +21,7 @@ public:
 
     MORRFVisualizer * mpViz;
 
+    bool planPath(QString filename);
 protected:
     void createMenuBar();
     void createActions();
@@ -28,28 +29,31 @@ protected:
 
     void keyPressEvent(QKeyEvent *event);
     void updateStatus();
-private:
 
+    bool setupPlanning(QString filename);
+    bool exportPaths(QString filename);
+    void initMORRF();
+
+    bool loadConfiguration(QString filename);
+    bool saveConfiguration(QString filename);
+
+private:
     void updateTitle();
 
-    QMenu *mpFileMenu;
-    QAction *mpOpenAction;
-    QAction *mpSaveAction;
-    QAction *mpExportAction;
-
-    QMenu *mpEditMenu;
-    QAction *mpLoadMapAction;
-    QAction *mpLoadObjAction;
-    QAction *mpRunAction;
-
-    QMenu *mpContextMenu;
-    QAction *mpAddStartAction;
-    QAction *mpAddGoalAction;
-
-    QLabel * mpStatusLabel;
-    QProgressBar * mpStatusProgressBar;
-
-    QPixmap * mpMap;
+    QMenu*        mpFileMenu;
+    QAction*      mpOpenAction;
+    QAction*      mpSaveAction;
+    QAction*      mpExportAction;
+    QMenu*        mpEditMenu;
+    QAction*      mpLoadMapAction;
+    QAction*      mpLoadObjAction;
+    QAction*      mpRunAction;
+    QMenu*        mpContextMenu;
+    QAction*      mpAddStartAction;
+    QAction*      mpAddGoalAction;
+    QLabel*       mpStatusLabel;
+    QProgressBar* mpStatusProgressBar;
+    QPixmap*      mpMap;
 
     QPoint mCursorPoint;
 

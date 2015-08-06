@@ -18,12 +18,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     mpConfigObjDialog = new ConfigObjDialog(this);
     mpConfigObjDialog->hide();
-
     setCentralWidget(mpViz);
 
     mpStatusLabel = new QLabel();
     mpStatusProgressBar = new QProgressBar();
-
     statusBar()->addWidget(mpStatusProgressBar);
     statusBar()->addWidget(mpStatusLabel);
 
@@ -79,16 +77,13 @@ void MainWindow::createActions() {
 
     connect(mpAddStartAction, SIGNAL(triggered()), this, SLOT(onAddStart()));
     connect(mpAddGoalAction, SIGNAL(triggered()), this, SLOT(onAddGoal()));
-
     connect(this, SIGNAL(customContextMenuRequested(const QPoint)),this, SLOT(contextMenuRequested(QPoint)));
 }
 
 void MainWindow::onOpen() {
     QString tempFilename = QFileDialog::getOpenFileName(this,
              tr("Open File"), "./", tr("Json Files (*.json)"));
-
-    if(mpViz) {
-        mpViz->mMOPPInfo.loadFromFile(tempFilename);
+    if( loadConfiguration( tempFilename ) ) {
         openMap(mpViz->mMOPPInfo.mMapFullpath);
         if(mpConfigObjDialog) {
             mpConfigObjDialog->updateDisplay();
@@ -99,18 +94,12 @@ void MainWindow::onOpen() {
 
 void MainWindow::onSave() {
     QString tempFilename = QFileDialog::getSaveFileName(this, tr("Save File"), "./", tr("Json Files (*.json)"));
-
-    if(mpViz) {
-        mpViz->mMOPPInfo.saveToFile(tempFilename);
-    }
+    saveConfiguration( tempFilename );
 }
 
 void MainWindow::onExport() {
     QString pathFilename = QFileDialog::getSaveFileName(this, tr("Save File"), "./", tr("Txt Files (*.txt)"));
-
-    if(mpViz) {
-        mpViz->mMOPPInfo.exportPaths(pathFilename);
-    }
+    exportPaths(pathFilename);
 }
 
 void MainWindow::onLoadMap() {
@@ -138,9 +127,10 @@ bool MainWindow::openMap(QString filename) {
         mpViz->mMOPPInfo.mMapWidth = mpMap->width();
         mpViz->mMOPPInfo.mMapHeight = mpMap->height();
         mpViz->setPixmap(*mpMap);
+        updateTitle();
+        return true;
     }
-
-    updateTitle();
+    return false;
 }
 
 void MainWindow::onLoadObj() {
@@ -201,6 +191,7 @@ void MainWindow::onRun() {
 
     while(mpMORRF->get_current_iteration() <= mpViz->mMOPPInfo.mMaxIterationNum) {
         QString msg = "CurrentIteration " + QString::number(mpMORRF->get_current_iteration()) + " ";
+        /*
         if(true == mpMORRF->are_reference_structures_correct()) {
             msg += "R(T) ";
         }
@@ -249,6 +240,7 @@ void MainWindow::onRun() {
         else {
             msg += "F ";
         }
+        */
         for(int k=0;k<mpViz->mMOPPInfo.mObjectiveNum;k++) {
             std::list<RRTNode*> list = mpMORRF->get_reference_tree(k)->find_all_children(mpMORRF->get_reference_tree(k)->mp_root);
             int num = list.size();
@@ -321,4 +313,74 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
             repaint();
         }
     }
+}
+
+bool MainWindow::setupPlanning(QString filename) {
+    if(mpViz) {
+        mpViz->mMOPPInfo.loadFromFile(filename);
+        return true;
+    }
+    return false;
+}
+
+bool MainWindow::exportPaths(QString filename) {
+    if(mpViz) {
+        mpViz->mMOPPInfo.exportPaths(filename);
+        return true;
+    }
+    return false;
+}
+
+bool MainWindow::planPath(QString filename) {
+
+    if( true == setupPlanning(filename) ) {
+
+        initMORRF();
+        while(mpMORRF->get_current_iteration() <= mpViz->mMOPPInfo.mMaxIterationNum) {
+            mpMORRF->extend();
+        }
+
+        QString output_filename = filename + ".txt";
+        if( true == exportPaths(output_filename) ) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void MainWindow::initMORRF() {
+    if(mpMORRF) {
+        delete mpMORRF;
+        mpMORRF = NULL;
+    }
+    mpViz->mMOPPInfo.initFuncsParams();
+    QString msg = "RUNNING MORRF ... \n";
+    msg += "ObjNum( " + QString::number(mpViz->mMOPPInfo.mObjectiveNum) + " ) \n";
+    msg += "SubproblemNum( " + QString::number(mpViz->mMOPPInfo.mSubproblemNum) + " ) \n";
+    msg += "SegmentLen( " + QString::number(mpViz->mMOPPInfo.mSegmentLength) + " ) \n";
+    msg += "MaxIterationNum( " + QString::number(mpViz->mMOPPInfo.mMaxIterationNum) + " ) \n";
+    qDebug(msg.toStdString().c_str());
+
+    mpMORRF = new MORRF(mpMap->width(), mpMap->height(), mpViz->mMOPPInfo.mObjectiveNum, mpViz->mMOPPInfo.mSubproblemNum, mpViz->mMOPPInfo.mSegmentLength, mpViz->mMOPPInfo.mMethodType);
+    mpMORRF->add_funcs(mpViz->mMOPPInfo.mFuncs, mpViz->mMOPPInfo.mDistributions);
+    POS2D start(mpViz->mMOPPInfo.mStart.x(), mpViz->mMOPPInfo.mStart.y());
+    POS2D goal(mpViz->mMOPPInfo.mGoal.x(), mpViz->mMOPPInfo.mGoal.y());
+
+    mpMORRF->init(start, goal);
+    mpViz->mMOPPInfo.getObstacleInfo(mpMORRF->get_map_info());
+    mpViz->setMORRF(mpMORRF);
+}
+
+bool MainWindow::loadConfiguration(QString filename) {
+    if(mpViz) {
+        return mpViz->mMOPPInfo.loadFromFile(filename);
+    }
+    return false;
+}
+
+bool MainWindow::saveConfiguration(QString filename) {
+    if(mpViz) {
+        return mpViz->mMOPPInfo.saveToFile(filename);
+    }
+    return false;
 }
