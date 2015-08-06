@@ -6,7 +6,7 @@
 #include <QJsonObject>
 #include <list>
 #include <vector>
-#include <qDebug>
+#include <QDebug>
 #include <math.h>
 
 #include "morrf.h"
