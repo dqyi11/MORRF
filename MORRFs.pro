@@ -1,6 +1,6 @@
 
 TEMPLATE = subdirs
 
-SUBDIRS = MORRF MORRFVisualizer MORRFVisualizerTest01
+SUBDIRS = MORRF MORRFViz MORRFVizDemo
 
 CONFIG += ordered

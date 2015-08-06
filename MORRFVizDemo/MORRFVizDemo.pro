@@ -7,13 +7,13 @@
 QT       += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = MORRFVisualizerTest01
+TARGET = MORRFVizDemo
 TEMPLATE = app
 
 DESTDIR = ../bin
 
 INCLUDEPATH += ../MORRF \
-               ../MORRFVisualizer
+               ../MORRFViz
 
 LIBS += -L../lib -lMORRF -lMORRFViz
 

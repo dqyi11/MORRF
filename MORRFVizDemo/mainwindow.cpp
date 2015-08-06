@@ -240,13 +240,12 @@ void MainWindow::onRun() {
         else {
             msg += "F ";
         }
-        */
         for(int k=0;k<mpViz->mMOPPInfo.mObjectiveNum;k++) {
             std::list<RRTNode*> list = mpMORRF->get_reference_tree(k)->find_all_children(mpMORRF->get_reference_tree(k)->mp_root);
             int num = list.size();
             msg += QString::number(num) + " ";
-        }
-        msg += QString::number(mpMORRF->get_ball_radius());
+        } */
+        msg += "(" + QString::number(mpMORRF->get_ball_radius()) + ")";
         qDebug(msg.toStdString().c_str());
 
         mpMORRF->extend();

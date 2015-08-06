@@ -298,7 +298,7 @@ std::list<KDNode2D> MORRF::find_near( POS2D pos ) {
 
     int numVertices = _p_kd_tree->size();
     int numDimensions = 2;
-    _ball_radius = _range * pow( log((double)(numVertices + 1.0))/((double)(numVertices + 1.0)), 1.0/((double)numDimensions) );
+    _ball_radius = _theta * _range * pow( log((double)(numVertices + 1.0))/((double)(numVertices + 1.0)), 1.0/((double)numDimensions) );
 
     _p_kd_tree->find_within_range( node, _ball_radius, std::back_inserter(near_list) );
 
