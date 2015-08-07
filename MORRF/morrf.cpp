@@ -185,13 +185,17 @@ bool MORRF::_is_obstacle_free( POS2D pos_a, POS2D pos_b ) {
 
     for( int x=(int)x1; x<maxX; x++ ) {
         if( steep ) {
-            if ( _pp_map_info[y][x] < OBSTACLE_THRESHOLD ) {
-                return false;
+            if ( y >= 0 && y < _sampling_width && x >= 0 && x < _sampling_height ) {
+                if ( _pp_map_info[y][x] < OBSTACLE_THRESHOLD ) {
+                    return false;
+                }
             }
         }
         else {
-            if ( _pp_map_info[x][y] < OBSTACLE_THRESHOLD ) {
-                return false;
+            if ( x >= 0 && x < _sampling_width && y >= 0 && y < _sampling_height ) {
+                if ( _pp_map_info[x][y] < OBSTACLE_THRESHOLD ) {
+                    return false;
+                }
             }
         }
 
@@ -226,13 +230,13 @@ void MORRF::extend() {
             KDNode2D new_node( new_pos );
 
             // create new nodes of reference trees
-            for( int k=0; k<_objective_num; k++ ) {
+            for( int k=0; k < _objective_num; k++ ) {
                 RRTNode * p_new_ref_node = _references[k]->create_new_node( new_pos );
                 new_node.m_node_list.push_back( p_new_ref_node );
             }
 
             // create new nodes of subproblem trees
-            for ( int m=0; m<_subproblem_num; m++ ) {
+            for ( int m=0; m < _subproblem_num; m++ ) {
                 RRTNode * p_new_sub_node = _subproblems[m]->create_new_node( new_pos );
                 new_node.m_node_list.push_back( p_new_sub_node );
             }
