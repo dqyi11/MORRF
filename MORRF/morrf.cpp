@@ -1,8 +1,8 @@
-#include "morrf.h"
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <limits>
+#include "morrf.h"
 
 #define OBSTACLE_THRESHOLD 200
 
@@ -82,6 +82,7 @@ void MORRF::_deinit_weights() {
 }
 
 void MORRF::init(POS2D start, POS2D goal) {
+
     _init_weights();
 
     KDNode2D root(start);

@@ -1,9 +1,11 @@
-#include "multiobjpathplanninginfo.h"
+#include <iostream>
+#include <fstream>
 #include <QPixmap>
 #include <QJsonArray>
 #include <QFile>
 #include <QJsonDocument>
 #include <list>
+#include "multiobjpathplanninginfo.h"
 
 MultiObjPathPlanningInfo::MultiObjPathPlanningInfo() {
     mInfoFilename = "";
@@ -24,15 +26,40 @@ MultiObjPathPlanningInfo::MultiObjPathPlanningInfo() {
     mMapWidth = 0;
     mMapHeight = 0;
 
+    mppObstacle = NULL;
+
     mMethodType = MORRF::WEIGHTED_SUM;
 }
 
-bool MultiObjPathPlanningInfo::getObstacleInfo(int** obstacleInfo) {
-    if(obstacleInfo==NULL) {
+bool MultiObjPathPlanningInfo::initObstacleInfo() {
+    mppObstacle = new int*[mMapWidth];
+    for(int i=0;i<mMapWidth;i++) {
+        mppObstacle[i] = new int[mMapHeight];
+        for(int j=0;j<mMapHeight;j++) {
+            mppObstacle[i][j] = 255;
+        }
+    }
+    bool ret = getPixInfo(mMapFilename, mppObstacle);
+    dumpObstacleInfo("testMap.txt");
+    return ret;
+}
+
+bool MultiObjPathPlanningInfo::dumpObstacleInfo( QString filename ) {
+    if( mppObstacle == NULL ) {
         return false;
     }
-    return getPixInfo(mMapFilename, obstacleInfo);
+    std::ofstream mapInfoFile;
+    mapInfoFile.open(filename.toStdString().c_str());
+    for( int j=0; j<mMapWidth; j++ ) {
+        for( int i=0; i<mMapHeight; i++ ) {
+            mapInfoFile << mppObstacle[i][j] << " ";
+        }
+        mapInfoFile << std::endl;
+    }
+    mapInfoFile.close();
+    return true;
 }
+
 
 std::vector<int**> MultiObjPathPlanningInfo::getFitnessDistributions() {
     std::vector<int**> fitnessDistributions;
@@ -41,8 +68,7 @@ std::vector<int**> MultiObjPathPlanningInfo::getFitnessDistributions() {
         int** fitness = new int*[mMapWidth];
         for(int i=0;i<mMapWidth;i++) {
             fitness[i] = new int[mMapHeight];
-            for(int j=0;j<mMapHeight;j++)
-            {
+            for(int j=0;j<mMapHeight;j++) {
                 fitness[i][j] = 0;
             }
         }
@@ -52,12 +78,13 @@ std::vector<int**> MultiObjPathPlanningInfo::getFitnessDistributions() {
     return fitnessDistributions;
 }
 
-bool MultiObjPathPlanningInfo::getPixInfo(QString filename, int ** pixInfo) {
+bool MultiObjPathPlanningInfo::getPixInfo(QString filename, int** pixInfo) {
     if(pixInfo==NULL) {
         return false;
     }
     QPixmap map(filename);
     QImage grayImg = map.toImage();
+    //grayImg = grayImg.convertToFormat(QImage::Format_RGB32);
     int width = map.width();
     int height = map.height();
 
@@ -65,9 +92,10 @@ bool MultiObjPathPlanningInfo::getPixInfo(QString filename, int ** pixInfo) {
         for(int j=0;j<height;j++) {
             QRgb col = grayImg.pixel(i,j);
             int gVal = qGray(col);
-            if(gVal < 0 || gVal > 255)
-            {
+            if(gVal < 0 || gVal > 255) {
                 qWarning() << "gray value out of range";
+            } else if ( gVal >= 0 && gVal < 255 ) {
+                qDebug() << " val " << gVal;
             }
             pixInfo[i][j] = gVal;
         }
@@ -76,26 +104,23 @@ bool MultiObjPathPlanningInfo::getPixInfo(QString filename, int ** pixInfo) {
 }
 
 void MultiObjPathPlanningInfo::initFuncsParams() {
+
+
     mFuncs.clear();
     mDistributions.clear();
-
     std::vector<int**> fitnessDistributions = getFitnessDistributions();
 
-    if(mMinDistEnabled==true)
-    {
+    if(mMinDistEnabled==true) {
         mFuncs.push_back(MultiObjPathPlanningInfo::calcDist);
         mDistributions.push_back(NULL);
 
-        for(int k=0;k<mObjectiveNum-1;k++)
-        {
+        for(int k=0;k<mObjectiveNum-1;k++) {
             mFuncs.push_back(MultiObjPathPlanningInfo::calcCost);
             mDistributions.push_back(fitnessDistributions[k]);
         }
     }
-    else
-    {
-        for(int k=0;k<mObjectiveNum;k++)
-        {
+    else {
+        for(int k=0;k<mObjectiveNum;k++) {
             mFuncs.push_back(MultiObjPathPlanningInfo::calcCost);
             mDistributions.push_back(fitnessDistributions[k]);
         }
@@ -118,8 +143,7 @@ void MultiObjPathPlanningInfo::read(const QJsonObject &json) {
     mMinDistEnabled = json["minDistEnabled"].toBool();
     mObjectiveFiles.clear();
     QJsonArray objArray = json["objectiveFiles"].toArray();
-    for(int objIdx = 0; objIdx < objArray.size(); objIdx++)
-    {
+    for(int objIdx = 0; objIdx < objArray.size(); objIdx++) {
         QJsonObject objObject = objArray[objIdx].toObject();
         QString objFile = objObject["filepath"].toString();
         mObjectiveFiles.push_back(objFile);
@@ -130,8 +154,7 @@ void MultiObjPathPlanningInfo::read(const QJsonObject &json) {
     mSegmentLength = json["segmentLength"].toDouble();
 }
 
-void MultiObjPathPlanningInfo::write(QJsonObject &json) const
-{
+void MultiObjPathPlanningInfo::write(QJsonObject &json) const {
     json["mapFilename"] = mMapFilename;
     json["mapFullpath"] = mMapFullpath;
     json["mapWidth"] = mMapWidth;
@@ -146,8 +169,7 @@ void MultiObjPathPlanningInfo::write(QJsonObject &json) const
 
     json["minDistEnabled"] = mMinDistEnabled;
     QJsonArray objArray;
-    for(int i=0;i<mObjectiveFiles.size();i++)
-    {
+    for(int i=0;i<mObjectiveFiles.size();i++) {
         QString filepath = mObjectiveFiles[i];
         QJsonObject objObject;
         objObject["filepath"] = filepath;
@@ -160,12 +182,10 @@ void MultiObjPathPlanningInfo::write(QJsonObject &json) const
     json["segmentLength"] = mSegmentLength;
 }
 
-bool MultiObjPathPlanningInfo::saveToFile(QString filename)
-{
+bool MultiObjPathPlanningInfo::saveToFile( QString filename ) {
     QFile saveFile(filename);
 
-    if(false==saveFile.open(QIODevice::WriteOnly))
-    {
+    if( false == saveFile.open(QIODevice::WriteOnly) ) {
         qWarning("Couldn't open file.");
         return false;
     }
@@ -178,44 +198,37 @@ bool MultiObjPathPlanningInfo::saveToFile(QString filename)
 
 }
 
-bool MultiObjPathPlanningInfo::loadFromFile(QString filename)
-{
+bool MultiObjPathPlanningInfo::loadFromFile( QString filename ) {
     QFile loadFile(filename);
 
-    if(false==loadFile.open(QIODevice::ReadOnly))
-    {
+    if( false==loadFile.open(QIODevice::ReadOnly) ) {
         qWarning("Couldn't open file.");
         return false;
     }
 
     QByteArray saveData = loadFile.readAll();
-    QJsonDocument loadDoc = QJsonDocument::fromJson(saveData);
+    QJsonDocument loadDoc = QJsonDocument::fromJson( saveData );
     read(loadDoc.object());
     return true;
 }
 
-void MultiObjPathPlanningInfo::loadPaths(std::vector<Path*> paths)
-{
+void MultiObjPathPlanningInfo::loadPaths( std::vector<Path*> paths ) {
     mFoundPaths.clear();
-    for(std::vector<Path*>::iterator it=paths.begin(); it!=paths.end(); it++)
-    {
+    for(std::vector<Path*>::iterator it=paths.begin(); it!=paths.end(); it++) {
         Path* p = *it;
         mFoundPaths.push_back(p);
     }
 }
 
-void MultiObjPathPlanningInfo::exportPaths(QString filename)
-{
+void MultiObjPathPlanningInfo::exportPaths( QString filename ) {
     QFile file(filename);
     if( file.open(QIODevice::ReadWrite) )
     {
         QTextStream stream( & file );
         // Save scores
-        for(std::vector<Path*>::iterator it=mFoundPaths.begin(); it!=mFoundPaths.end(); it++)
-        {
+        for( std::vector<Path*>::iterator it=mFoundPaths.begin(); it!=mFoundPaths.end(); it++ ) {
             Path* p = *it;
-            for(int k=0;k<mObjectiveNum;k++)
-            {
+            for(int k=0;k<mObjectiveNum;k++) {
                 stream << p->mp_cost[k] << "\t";
             }
             stream << "\n";
@@ -224,11 +237,9 @@ void MultiObjPathPlanningInfo::exportPaths(QString filename)
         stream << "\n";
 
         // Save paths
-        for(std::vector<Path*>::iterator it=mFoundPaths.begin(); it!=mFoundPaths.end(); it++)
-        {
+        for( std::vector<Path*>::iterator it=mFoundPaths.begin(); it!=mFoundPaths.end(); it++ ) {
             Path* p = *it;
-            for(int i=0;i<p->m_waypoints.size();i++)
-            {
+            for(int i=0;i<p->m_waypoints.size();i++) {
                 stream << p->m_waypoints[i][0] << " " << p->m_waypoints[i][1] << "\t";
             }
             stream << "\n";

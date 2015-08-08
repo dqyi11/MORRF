@@ -168,6 +168,7 @@ void MainWindow::onRun() {
         mpMORRF = NULL;
     }
 
+    mpViz->mMOPPInfo.initObstacleInfo();
     mpViz->mMOPPInfo.initFuncsParams();
     QString msg = "RUNNING MORRF ... \n";
     msg += "ObjNum( " + QString::number(mpViz->mMOPPInfo.mObjectiveNum) + " ) \n";
@@ -183,68 +184,15 @@ void MainWindow::onRun() {
     POS2D goal(mpViz->mMOPPInfo.mGoal.x(), mpViz->mMOPPInfo.mGoal.y());
 
     mpMORRF->init(start, goal);
-    //mpMORRF->dump_map_info("map1.txt");
-    mpViz->mMOPPInfo.getObstacleInfo(mpMORRF->get_map_info());
+
+    mpViz->mMOPPInfo.dumpObstacleInfo("map1.txt");
+    mpMORRF->load_map(mpViz->mMOPPInfo.mppObstacle);
     mpViz->setMORRF(mpMORRF);
 
-    //mpMORRF->dump_map_info("map.txt");
+    mpMORRF->dump_map_info("map.txt");
 
     while(mpMORRF->get_current_iteration() <= mpViz->mMOPPInfo.mMaxIterationNum) {
         QString msg = "CurrentIteration " + QString::number(mpMORRF->get_current_iteration()) + " ";
-        /*
-        if(true == mpMORRF->are_reference_structures_correct()) {
-            msg += "R(T) ";
-        }
-        else {
-            msg += "R(F) ";
-        }
-        if(true == mpMORRF->are_subproblem_structures_correct()) {
-            msg += "S(T) ";
-        }
-        else {
-            msg += "S(F) ";
-        }
-        if(true == mpMORRF->are_all_reference_nodes_tractable()) {
-            msg += "R(T) ";
-        }
-        else {
-            msg += "R(F) ";
-        }
-        if(true == mpMORRF->are_all_subproblem_nodes_tractable()) {
-            msg += "S(T) ";
-        }
-        else {
-            msg += "S(F) ";
-        }
-        if(true == mpMORRF->are_all_reference_nodes_fitness_positive()) {
-            msg += "R(T) ";
-        }
-        else {
-            msg += "R(F) ";
-        }
-        if(true == mpMORRF->are_all_subproblem_nodes_fitness_positive()) {
-            msg += "S(T) ";
-        }
-        else {
-            msg += "S(F) ";
-        }
-        if(true == mpMORRF->is_node_number_identical()) {
-            msg += "T ";
-        }
-        else {
-            msg += "F ";
-        }
-        if(true == mpMORRF->is_ref_tree_min_cost()) {
-            msg += "T ";
-        }
-        else {
-            msg += "F ";
-        }
-        for(int k=0;k<mpViz->mMOPPInfo.mObjectiveNum;k++) {
-            std::list<RRTNode*> list = mpMORRF->get_reference_tree(k)->find_all_children(mpMORRF->get_reference_tree(k)->mp_root);
-            int num = list.size();
-            msg += QString::number(num) + " ";
-        } */
         msg += "(" + QString::number(mpMORRF->get_ball_radius()) + ")";
         qDebug(msg.toStdString().c_str());
 
@@ -352,6 +300,7 @@ void MainWindow::initMORRF() {
         delete mpMORRF;
         mpMORRF = NULL;
     }
+    mpViz->mMOPPInfo.initObstacleInfo();
     mpViz->mMOPPInfo.initFuncsParams();
     QString msg = "RUNNING MORRF ... \n";
     msg += "ObjNum( " + QString::number(mpViz->mMOPPInfo.mObjectiveNum) + " ) \n";
@@ -366,7 +315,7 @@ void MainWindow::initMORRF() {
     POS2D goal(mpViz->mMOPPInfo.mGoal.x(), mpViz->mMOPPInfo.mGoal.y());
 
     mpMORRF->init(start, goal);
-    mpViz->mMOPPInfo.getObstacleInfo(mpMORRF->get_map_info());
+    mpMORRF->load_map(mpViz->mMOPPInfo.mppObstacle);
     mpViz->setMORRF(mpMORRF);
 }
 

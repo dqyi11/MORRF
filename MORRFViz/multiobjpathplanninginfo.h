@@ -15,7 +15,8 @@ class MultiObjPathPlanningInfo {
 public:
     MultiObjPathPlanningInfo();
 
-    bool getObstacleInfo(int** obstacleInfo);
+    bool initObstacleInfo();
+    bool dumpObstacleInfo(QString filename);
     std::vector<int**> getFitnessDistributions();
 
     bool getPixInfo(QString filename, int** pixInfo);
@@ -112,6 +113,8 @@ public:
 
     std::vector<COST_FUNC_PTR> mFuncs;
     std::vector<int**>         mDistributions;
+
+    int** mppObstacle;
 
     int mSubproblemNum;
     int mMaxIterationNum;
