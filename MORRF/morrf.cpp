@@ -22,7 +22,7 @@ MORRF::MORRF(int width, int height, int objective_num, int subproblem_num, int s
     _segment_length = segmentLength;
 
     _pp_weights = NULL;
-    _theta = 5;
+    _theta = 3;
 
     _pp_map_info = new int*[_sampling_width];
     for( int i=0; i<_sampling_width; i++ ) {
@@ -378,9 +378,10 @@ double MORRF::calc_fitness( double * p_cost, double * p_weight, POS2D& pos ) {
             fitness = d1 + _theta * d2;
         }
     }
+    /*
     if(fitness < 0.0) {
         std::cout << "Negative fitness " << fitness << std::endl;
-    }
+    } */
     return fitness;
 }
 

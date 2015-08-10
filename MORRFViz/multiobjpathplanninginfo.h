@@ -99,6 +99,11 @@ public:
             }
         }
 
+
+        if ( cost < 0.0 ) {
+            qWarning() << "Negative cost " <<  cost;
+        }
+
         return cost;
     }
 
