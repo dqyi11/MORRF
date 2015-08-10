@@ -11,11 +11,11 @@ class RRTNode;
 
 class POS2D {
 public:
-    typedef double value_type;
+    typedef int value_type;
 
     POS2D() {
         d[0] = 0;
-        d[1] = 1;
+        d[1] = 0;
     }
 
     POS2D( value_type x, value_type y ) {

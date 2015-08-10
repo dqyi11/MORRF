@@ -491,16 +491,19 @@ RRTNode * SubproblemTree::get_closet_to_goal( double * p_delta_cost, double& del
             KDNode2D kd_node = (*it);
             int index = m_index + m_objective_num;
             RRTNode* p_node = kd_node.m_node_list[index];
-            double new_delta_cost[m_objective_num];
-            mp_parent->calc_cost( p_node->m_pos, m_goal, new_delta_cost );
-            double new_delta_fitness = mp_parent->calc_fitness( new_delta_cost, mp_weight, m_goal );
-            double new_total_fitness = p_node->m_fitness + new_delta_fitness;
-            if ( new_total_fitness < min_total_fitness ) {
-                p_min_prev_node = p_node;
-                min_delta_fitness = new_delta_fitness;
-                min_total_fitness = new_total_fitness;
-                for( int k=0; k<m_objective_num; k++ ) {
-                    min_delta_cost[k] = new_delta_cost[k];
+
+            if( mp_parent->_is_obstacle_free( p_node->m_pos, m_goal ) ) {
+                double new_delta_cost[m_objective_num];
+                mp_parent->calc_cost( p_node->m_pos, m_goal, new_delta_cost );
+                double new_delta_fitness = mp_parent->calc_fitness( new_delta_cost, mp_weight, m_goal );
+                double new_total_fitness = p_node->m_fitness + new_delta_fitness;
+                if ( new_total_fitness < min_total_fitness ) {
+                    p_min_prev_node = p_node;
+                    min_delta_fitness = new_delta_fitness;
+                    min_total_fitness = new_total_fitness;
+                    for( int k=0; k<m_objective_num; k++ ) {
+                        min_delta_cost[k] = new_delta_cost[k];
+                    }
                 }
             }
         }
