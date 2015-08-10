@@ -50,8 +50,8 @@ bool MultiObjPathPlanningInfo::dumpObstacleInfo( QString filename ) {
     }
     std::ofstream mapInfoFile;
     mapInfoFile.open(filename.toStdString().c_str());
-    for( int j=0; j<mMapWidth; j++ ) {
-        for( int i=0; i<mMapHeight; i++ ) {
+    for( int i=0; i<mMapWidth; i++ ) {
+        for( int j=0; j<mMapHeight; j++ ) {
             mapInfoFile << mppObstacle[i][j] << " ";
         }
         mapInfoFile << std::endl;
@@ -78,7 +78,7 @@ std::vector<int**> MultiObjPathPlanningInfo::getFitnessDistributions() {
     return fitnessDistributions;
 }
 
-bool MultiObjPathPlanningInfo::getPixInfo(QString filename, int** pixInfo) {
+bool MultiObjPathPlanningInfo::getPixInfo(QString filename, int**& pixInfo) {
     if(pixInfo==NULL) {
         return false;
     }
@@ -94,9 +94,9 @@ bool MultiObjPathPlanningInfo::getPixInfo(QString filename, int** pixInfo) {
             int gVal = qGray(col);
             if(gVal < 0 || gVal > 255) {
                 qWarning() << "gray value out of range";
-            } else if ( gVal >= 0 && gVal < 255 ) {
+            }/* else if ( gVal >= 0 && gVal < 255 ) {
                 qDebug() << " val " << gVal;
-            }
+            }*/
             pixInfo[i][j] = gVal;
         }
     }

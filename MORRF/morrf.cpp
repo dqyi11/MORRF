@@ -418,8 +418,8 @@ void MORRF::dump_map_info( std::string filename ) {
     std::ofstream mapInfoFile;
     mapInfoFile.open(filename.c_str());
     if( _pp_map_info ) {
-        for( int j=0; j<_sampling_height; j++ ) {
-            for( int i=0; i<_sampling_width; i++ ) {
+        for( int i=0; i<_sampling_width; i++ ) {
+            for( int j=0; j<_sampling_height; j++ ) {
                 mapInfoFile << _pp_map_info[i][j] << " ";
             }
             mapInfoFile << std::endl;
