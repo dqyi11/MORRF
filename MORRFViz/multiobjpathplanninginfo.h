@@ -84,11 +84,17 @@ public:
             if(steep) {
                 if( y>=0 && y<morrf->get_sampling_width() && x>=0 && x<morrf->get_sampling_height() ) {
                     cost += pp_distribution[y][x];
+                    if (pp_distribution[y][x] < 0.0) {
+                        qWarning() << "NEG FIT " << y << " " << x;
+                    }
                 }
             }
             else {
-                if( x>=0 && x<morrf->get_sampling_width() && y>=0 && y<=morrf->get_sampling_height() ) {
+                if( x>=0 && x<morrf->get_sampling_width() && y>=0 && y<morrf->get_sampling_height() ) {
                     cost += pp_distribution[x][y];
+                    if (pp_distribution[x][y] < 0.0) {
+                        qWarning() << "NEG FIT " << x << " " << y;
+                    }
                 }
             }
 
