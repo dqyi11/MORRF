@@ -31,7 +31,7 @@ public:
     void loadPaths(std::vector<Path*> paths);
     void exportPaths(QString filename);
 
-    static double calcDist(POS2D pos_a, POS2D pos_b, int** distribution) {
+    static double calcDist(POS2D pos_a, POS2D pos_b, int** distribution, void* tree) {
         double dist = 0.0;
         if (pos_a == pos_b)
             return dist;
@@ -45,7 +45,8 @@ public:
         return dist;
     }
 
-    static double calcCost(POS2D pos_a, POS2D pos_b, int** pp_distribution) {
+    static double calcCost(POS2D pos_a, POS2D pos_b, int** pp_distribution, void* tree) {
+        MORRF* morrf = (MORRF*)tree;
         double cost = 0.0;
         if ( pos_a == pos_b ) {
             return cost;
@@ -81,10 +82,14 @@ public:
 
         for(int x=(int)x1; x<maxX; x++) {
             if(steep) {
-                cost += pp_distribution[y][x];
+                if( y>=0 && y<morrf->get_sampling_width() && x>=0 && x<morrf->get_sampling_height() ) {
+                    cost += pp_distribution[y][x];
+                }
             }
             else {
-                cost += pp_distribution[x][y];
+                if( x>=0 && x<morrf->get_sampling_width() && y>=0 && y<=morrf->get_sampling_height() ) {
+                    cost += pp_distribution[x][y];
+                }
             }
 
             error -= dy;

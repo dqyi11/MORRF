@@ -336,7 +336,7 @@ bool MORRF::calc_cost(POS2D& pos_a, POS2D& pos_b, double * p_cost) {
 }
 
 double MORRF::calc_cost( POS2D& pos_a, POS2D& pos_b, int k ) {
-    return _funcs[k]( pos_a, pos_b, _fitness_distributions[k] );
+    return _funcs[k]( pos_a, pos_b, _fitness_distributions[k], (void*)this );
 }
 
 double MORRF::calc_fitness( double * p_cost, double * p_weight, POS2D& pos ) {

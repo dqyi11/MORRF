@@ -4,7 +4,7 @@
 #include "KDTree2D.h"
 #include "subtree.h"
 
-typedef double (*COST_FUNC_PTR)(POS2D, POS2D,int**);
+typedef double (*COST_FUNC_PTR)(POS2D, POS2D, int**, void*);
 
 
 class MORRF {
