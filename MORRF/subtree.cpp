@@ -338,14 +338,18 @@ RRTNode * ReferenceTree::get_closet_to_goal( double * p_delta_cost, double& delt
         RRTNode * p_min_prev_node = NULL;
         for( std::list<KDNode2D>::iterator it=near_nodes.begin();
             it!=near_nodes.end(); it++ ) {
+
             KDNode2D kd_node = (*it);
-            RRTNode* p_node = kd_node.m_node_list[m_index];
-            double delta_fitness = mp_parent->calc_cost( p_node->m_pos, m_goal, m_index );
-            double new_total_fitness = p_node->m_fitness + delta_fitness;
-            if ( new_total_fitness < min_total_fitness ) {
-                p_min_prev_node = p_node;
-                min_delta_fitness = delta_fitness;
-                min_total_fitness = new_total_fitness;
+            RRTNode* p_node = kd_node.m_node_list[m_index];           
+            if( mp_parent->_is_obstacle_free( p_node->m_pos, m_goal ) ) {
+
+                double delta_fitness = mp_parent->calc_cost( p_node->m_pos, m_goal, m_index );
+                double new_total_fitness = p_node->m_fitness + delta_fitness;
+                if ( new_total_fitness < min_total_fitness ) {
+                    p_min_prev_node = p_node;
+                    min_delta_fitness = delta_fitness;
+                    min_total_fitness = new_total_fitness;
+                }
             }
         }
         p_closest_node = p_min_prev_node;
