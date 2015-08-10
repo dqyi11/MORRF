@@ -10,6 +10,7 @@
 MultiObjPathPlanningInfo::MultiObjPathPlanningInfo() {
     mInfoFilename = "";
     mMapFilename = "";
+    mMapFullpath = "";
     mObjectiveNum = 0;
 
     mStart.setX(-1);
@@ -39,8 +40,8 @@ bool MultiObjPathPlanningInfo::initObstacleInfo() {
             mppObstacle[i][j] = 255;
         }
     }
-    bool ret = getPixInfo(mMapFilename, mppObstacle);
-    dumpObstacleInfo("testMap.txt");
+    bool ret = getPixInfo(mMapFullpath, mppObstacle);
+    //dumpObstacleInfo("testMap.txt");
     return ret;
 }
 
@@ -83,8 +84,8 @@ bool MultiObjPathPlanningInfo::getPixInfo(QString filename, int**& pixInfo) {
         return false;
     }
     QPixmap map(filename);
+    //qDebug() << "GET PIX INFO " << filename;
     QImage grayImg = map.toImage();
-    //grayImg = grayImg.convertToFormat(QImage::Format_RGB32);
     int width = map.width();
     int height = map.height();
 
@@ -96,7 +97,7 @@ bool MultiObjPathPlanningInfo::getPixInfo(QString filename, int**& pixInfo) {
                 qWarning() << "gray value out of range";
             }/* else if ( gVal >= 0 && gVal < 255 ) {
                 qDebug() << " val " << gVal;
-            }*/
+            } */
             pixInfo[i][j] = gVal;
         }
     }
@@ -104,7 +105,6 @@ bool MultiObjPathPlanningInfo::getPixInfo(QString filename, int**& pixInfo) {
 }
 
 void MultiObjPathPlanningInfo::initFuncsParams() {
-
 
     mFuncs.clear();
     mDistributions.clear();
@@ -222,8 +222,7 @@ void MultiObjPathPlanningInfo::loadPaths( std::vector<Path*> paths ) {
 
 void MultiObjPathPlanningInfo::exportPaths( QString filename ) {
     QFile file(filename);
-    if( file.open(QIODevice::ReadWrite) )
-    {
+    if( file.open(QIODevice::ReadWrite) )  {
         QTextStream stream( & file );
         // Save scores
         for( std::vector<Path*>::iterator it=mFoundPaths.begin(); it!=mFoundPaths.end(); it++ ) {
@@ -233,9 +232,7 @@ void MultiObjPathPlanningInfo::exportPaths( QString filename ) {
             }
             stream << "\n";
         }
-
         stream << "\n";
-
         // Save paths
         for( std::vector<Path*>::iterator it=mFoundPaths.begin(); it!=mFoundPaths.end(); it++ ) {
             Path* p = *it;
