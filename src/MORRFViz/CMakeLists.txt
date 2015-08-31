@@ -11,4 +11,11 @@ add_library(${LIB} SHARED
             morrfvisualizer.cpp
            )
 
-target_link_libraries(${LIB} morrf ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
+include_directories(
+                    ${Qt5Widgets_INCLUDE_DIRS}
+                   )
+
+target_link_libraries(${LIB} 
+                      morrf
+                      ${Qt5Widgets_LIBRARIES}
+                     )

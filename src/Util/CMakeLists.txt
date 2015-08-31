@@ -1,4 +1,4 @@
 
-add_executable(test_morrf.cpp)
+add_executable(morrf-test test_morrf.cpp)
 
-target_link_libraries(morrf)
+target_link_libraries(morrf-test morrf)
