@@ -83,7 +83,7 @@ public:
         for(int x=(int)x1; x<maxX; x++) {
             if(steep) {
                 if( y>=0 && y<morrf->get_sampling_width() && x>=0 && x<morrf->get_sampling_height() ) {
-                    double dist = dynamic_cast<double>( pp_distribution[y][x] );
+                    double dist = static_cast<double>( pp_distribution[y][x] );
                     cost += dist / 255.0;
                     if (pp_distribution[y][x] < 0.0) {
                         qWarning() << "NEG FIT " << y << " " << x;
@@ -92,7 +92,7 @@ public:
             }
             else {
                 if( x>=0 && x<morrf->get_sampling_width() && y>=0 && y<morrf->get_sampling_height() ) {
-                    double dist = dynamic_cast<double>( pp_distribution[x][y] );
+                    double dist = static_cast<double>( pp_distribution[x][y] );
                     cost += dist;
                     if (pp_distribution[x][y] < 0.0) {
                         qWarning() << "NEG FIT " << x << " " << y;
