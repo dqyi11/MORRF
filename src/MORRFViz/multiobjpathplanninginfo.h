@@ -93,7 +93,7 @@ public:
             else {
                 if( x>=0 && x<morrf->get_sampling_width() && y>=0 && y<morrf->get_sampling_height() ) {
                     double dist = static_cast<double>( pp_distribution[x][y] );
-                    cost += dist;
+                    cost += dist / 255.0;
                     if (pp_distribution[x][y] < 0.0) {
                         qWarning() << "NEG FIT " << x << " " << y;
                     }
