@@ -7,6 +7,7 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 find_package(Qt5Core)
 if( NOT Qt5Core_FOUND )
   message( FATAL_ERROR "Qt5Core not found\n" )
+  return()
 endif()
 
 find_package(Qt5Widgets)
@@ -14,8 +15,6 @@ if( NOT Qt5Widgets_FOUND )
   message( FATAL_ERROR "Qt5Widgets not found\n" )
   return()
 endif()
-
-
 
 # add the include directories to the build
 include_directories(${PROJECT_SOURCE_DIR}/src/MORRF
