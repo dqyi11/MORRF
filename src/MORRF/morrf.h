@@ -50,6 +50,7 @@ public:
     int** get_map_info() { return _pp_map_info; }
 
     void dump_map_info( std::string filename );
+    void dump_weights( std::string filename );
 
     bool are_reference_structures_correct();
     bool are_subproblem_structures_correct();

@@ -190,6 +190,7 @@ void MainWindow::onRun() {
     mpViz->setMORRF(mpMORRF);
 
     //mpMORRF->dump_map_info("map.txt");
+    mpMORRF->dump_weights("weights.txt");
 
     while(mpMORRF->get_current_iteration() <= mpViz->mMOPPInfo.mMaxIterationNum) {
         QString msg = "CurrentIteration " + QString::number(mpMORRF->get_current_iteration()) + " ";

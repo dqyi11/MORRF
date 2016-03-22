@@ -52,6 +52,7 @@ void MORRF::_init_weights() {
 
     _pp_weights = new double*[_subproblem_num];
 
+    /*
     if ( _objective_num == 2 ) {
         for( int i=0; i<_subproblem_num; i++ ) {
             _pp_weights[i] = new double[_objective_num];
@@ -66,6 +67,20 @@ void MORRF::_init_weights() {
                 _pp_weights[i][j] = (double)rand()/RAND_MAX;
             }
         }
+    }
+    */
+    for( int i=0; i<_subproblem_num; i++ ) {
+        _pp_weights[i] = new double[_objective_num];
+        std::vector<float> temp_array;
+        temp_array.push_back(0.0);
+        for( int j=0; j<_objective_num; j++ ) {
+            temp_array.push_back( static_cast<float>(rand())/static_cast<float>(RAND_MAX) );
+        }
+        temp_array.push_back(1.0);
+        sort(temp_array.begin(), temp_array.end());
+        for( int j=0; j<_objective_num; j++ ) {
+            _pp_weights[i][j] = temp_array[j+1] - temp_array[j];   
+        } 
     }
 }
 
@@ -427,6 +442,20 @@ void MORRF::dump_map_info( std::string filename ) {
         }
     }
     mapInfoFile.close();
+}
+
+void MORRF::dump_weights( std::string filename ) {
+    std::ofstream weightFile;
+    weightFile.open(filename.c_str());
+    if( _pp_weights ) {
+        for( int i=0; i<_subproblem_num; i++ ) {
+            for( int j=0; j<_objective_num; j++ ) {
+                weightFile << _pp_weights[i][j] << " ";
+            }
+            weightFile << std::endl;
+        }
+    }
+    weightFile.close();
 }
 
 bool MORRF::are_reference_structures_correct() {
