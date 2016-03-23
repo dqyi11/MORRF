@@ -62,6 +62,8 @@ public:
     bool is_ref_tree_min_cost();
     double get_ball_radius() { return _ball_radius; }
     bool update_path_cost( Path *p );
+
+    void optimize();
 protected:
     void _init_weights();
     void _deinit_weights();

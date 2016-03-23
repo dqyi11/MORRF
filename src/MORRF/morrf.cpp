@@ -22,7 +22,7 @@ MORRF::MORRF(int width, int height, int objective_num, int subproblem_num, int s
     _segment_length = segmentLength;
 
     _pp_weights = NULL;
-    _theta = 3;
+    _theta = 2;
 
     _pp_map_info = new int*[_sampling_width];
     for( int i=0; i<_sampling_width; i++ ) {
@@ -73,7 +73,7 @@ void MORRF::_init_weights() {
         _pp_weights[i] = new double[_objective_num];
         std::vector<float> temp_array;
         temp_array.push_back(0.0);
-        for( int j=0; j<_objective_num; j++ ) {
+        for( int j=0; j<_objective_num-1; j++ ) {
             temp_array.push_back( static_cast<float>(rand())/static_cast<float>(RAND_MAX) );
         }
         temp_array.push_back(1.0);
@@ -301,6 +301,11 @@ void MORRF::extend() {
             }
         }
     }
+
+    if(_current_iteration % 10 == 0) {
+        optimize();
+    }
+
     _current_iteration++;
 }
 
@@ -428,6 +433,12 @@ SubproblemTree* MORRF::get_subproblem_tree( int m ) {
         return NULL;
     }
     return _subproblems[m];
+}
+
+void MORRF::optimize() {
+    if(_p_kd_tree) {
+        _p_kd_tree->optimize();
+    }
 }
 
 void MORRF::dump_map_info( std::string filename ) {

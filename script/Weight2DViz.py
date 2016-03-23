@@ -5,7 +5,7 @@ import sys
 def viz(weights):
     fig = plt.figure()     
     ax = fig.add_subplot(111)
-    pl = ax.scatter(weights[:,0], weights[:,1], 'bs')
+    pl = ax.plot(weights[:,0], weights[:,1], 'bs')
     ax.set_xlabel("Weight 1", fontsize='x-large')
     ax.set_ylabel("Weight 2", fontsize='x-large')
     plt.show()
@@ -19,7 +19,7 @@ def load(filename):
             line = line.replace('\n','')      
             ss = line.split(' ')
             print ss
-            weights.append([ float(ss[0]), float(ss[1]), float(ss[2]) ])
+            weights.append([ float(ss[0]), float(ss[1]) ])
     return np.array(weights);
 
 if __name__ == '__main__':
