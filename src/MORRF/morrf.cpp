@@ -392,11 +392,12 @@ double MORRF::calc_fitness( double * p_cost, double * p_weight, POS2D& pos ) {
     else if( _type==MORRF::TCHEBYCHEFF ) {
         double p_utopia[_objective_num];
         if( true == get_utopia_reference_vector( pos, p_utopia ) ) {
+            std::vector<float> vals;
             for( int k=0; k<_objective_num; k++ ) {
                double weighted_dist = p_weight[k] * fabs( p_cost[k] - p_utopia[k] );
-               if ( weighted_dist > fitness ) {
-                   fitness = weighted_dist;
-               }
+               vals.push_back(weighted_dist);
+               sort(vals.begin(), vals.end());
+               fitness = vals.back();
             }
         }
     }
