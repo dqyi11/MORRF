@@ -391,15 +391,23 @@ double MORRF::calc_fitness( double * p_cost, double * p_weight, POS2D& pos ) {
     }
     else if( _type==MORRF::TCHEBYCHEFF ) {
         double p_utopia[_objective_num];
-        if( true == get_utopia_reference_vector( pos, p_utopia ) ) {
-            std::vector<float> vals;
-            for( int k=0; k<_objective_num; k++ ) {
-               double weighted_dist = p_weight[k] * fabs( p_cost[k] - p_utopia[k] );
-               vals.push_back(weighted_dist);
-               sort(vals.begin(), vals.end());
-               fitness = vals.back();
-            }
+        get_utopia_reference_vector( pos, p_utopia );
+
+        std::vector<float> weighted_distance(_objective_num, 0.0);
+        for( int k=0; k<_objective_num; k++ ) {
+           weighted_distance[k] = p_weight[k] * fabs( p_cost[k] - p_utopia[k] );
         }
+        sort(weighted_distance.begin(), weighted_distance.end());
+        fitness = weighted_distance.back();
+
+        /*
+        for( int k=0; k<_objective_num; k++ ) {
+            std::cout << weighted_distance[k] << " ";
+        }
+
+        std::cout << "(" << fitness << ")";
+        std::cout << std::endl; */
+
     }
     else {
         double p_utopia[_objective_num];
@@ -438,6 +446,7 @@ bool MORRF::get_utopia_reference_vector( POS2D& pos, double * p_utopia ) {
     for( int k=0; k<_objective_num; k++ ) {
         RRTNode* pRRTNode = ref_node.m_node_list[k];
         p_utopia[k] = pRRTNode->m_fitness;
+        //p_utopia[k] = pRRTNode->mp_cost[k];
     }
     return true;
 }
