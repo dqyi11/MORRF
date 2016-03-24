@@ -1,7 +1,6 @@
 #ifndef MORRF_H
 #define MORRF_H
 
-#include "KDTree2D.h"
 #include "subtree.h"
 
 typedef double (*COST_FUNC_PTR)(POS2D, POS2D, int**, void*);

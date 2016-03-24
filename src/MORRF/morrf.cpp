@@ -13,7 +13,11 @@ MORRF::MORRF(int width, int height, int objective_num, int subproblem_num, int s
     _subproblem_num = subproblem_num;
     _type = type;
 
+#ifndef USE_FLANN
     _p_kd_tree = new KDTree2D( std::ptr_fun(tac) );
+#else
+    _p_kd_tree = new KDTree2D();
+#endif
 
     _range = ( _sampling_width > _sampling_height ) ? _sampling_width:_sampling_height;
     _ball_radius = _range;
@@ -311,10 +315,17 @@ void MORRF::extend() {
 
 KDNode2D MORRF::find_nearest( POS2D pos ) {
     KDNode2D node( pos );
-
+#ifndef USE_FLANN
     std::pair<KDTree2D::const_iterator,double> found = _p_kd_tree->find_nearest( node );
-    KDNode2D near_node = *found.first;
-    return near_node;
+    KDNode2D nearest_node = *found.first;
+    return nearest_node;
+#else
+    KDNode2D *p_result = _p_kd_tree->find_nearest( node );
+    if( p_result ) {
+        return *p_result;
+    }
+    return node;
+#endif
 }
 
 std::list<KDNode2D> MORRF::find_near( POS2D pos ) {
@@ -324,8 +335,11 @@ std::list<KDNode2D> MORRF::find_near( POS2D pos ) {
     int numVertices = _p_kd_tree->size();
     int numDimensions = 2;
     _ball_radius = _theta * _range * pow( log((double)(numVertices + 1.0))/((double)(numVertices + 1.0)), 1.0/((double)numDimensions) );
-
+#ifndef USE_FLANN
     _p_kd_tree->find_within_range( node, _ball_radius, std::back_inserter(near_list) );
+#else
+    _p_kd_tree->find_within_range( node, _ball_radius, near_list );
+#endif
 
     return near_list;
 }
@@ -334,6 +348,7 @@ std::list<KDNode2D> MORRF::find_near( POS2D pos ) {
 bool MORRF::_contains( POS2D pos ) {
     if( _p_kd_tree ) {
         KDNode2D node( pos[0], pos[1] );
+#ifndef USE_FLANN
         KDTree2D::const_iterator it = _p_kd_tree->find( node );
         if( it != _p_kd_tree->end() ) {
             return true;
@@ -341,6 +356,11 @@ bool MORRF::_contains( POS2D pos ) {
         else {
             return false;
         }
+#else
+        if( _p_kd_tree->find( node ) ) {
+            return true;
+        }
+#endif
     }
     return false;
 }
@@ -436,9 +456,11 @@ SubproblemTree* MORRF::get_subproblem_tree( int m ) {
 }
 
 void MORRF::optimize() {
+#ifndef USE_FLANN
     if(_p_kd_tree) {
         _p_kd_tree->optimize();
     }
+#endif
 }
 
 void MORRF::dump_map_info( std::string filename ) {
@@ -611,6 +633,7 @@ bool MORRF::update_path_cost( Path *p ) {
 
 bool MORRF::is_ref_tree_min_cost() {
     if(_p_kd_tree) {
+#ifndef USE_FLANN
         for(KDTree2D::const_iterator it = _p_kd_tree->begin(); it!= _p_kd_tree->end(); it++) {
             KDNode2D node = (*it);
             double minCost[_objective_num];
@@ -632,6 +655,7 @@ bool MORRF::is_ref_tree_min_cost() {
                 }
             }
         }
+#endif
     }
     return true;
 }

@@ -1,7 +1,11 @@
 #ifndef SUBTREE_H
 #define SUBTREE_H
 
-#include "KDTree2D.h"
+#ifndef USE_FLANN
+  #include "KDTree2D.h"
+#else
+  #include "KDTree2D_flann.h"
+#endif
 #include <vector>
 #include <list>
 
