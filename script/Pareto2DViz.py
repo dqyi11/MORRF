@@ -14,6 +14,7 @@ def viz(score):
     plt.show()
 
 
+
 def load(filename):
  
     scores = []

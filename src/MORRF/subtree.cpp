@@ -434,8 +434,6 @@ void SubproblemTree::rewire_near_nodes( RRTNode* p_node_new, std::list<RRTNode*>
         }
 
         if( true == mp_parent->_is_obstacle_free( p_node_new->m_pos, p_near_node->m_pos ) ) {
-            // update pNearNode fitness
-            //p_near_node->m_fitness = mp_parent->calc_fitness( p_near_node->mp_cost, mp_weight, p_near_node->m_pos );
 
             double temp_cost_from_new_node[m_objective_num];
             double temp_delta_cost_from_new_node[m_objective_num];
@@ -513,7 +511,6 @@ RRTNode * SubproblemTree::get_closet_to_goal( double * p_delta_cost, double& del
         for( int k=0; k<m_objective_num; k++ ) {
             p_delta_cost[k] = min_delta_cost[k];
         }
-
     }
     return p_closest_node;
 }

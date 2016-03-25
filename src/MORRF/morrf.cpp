@@ -399,14 +399,6 @@ double MORRF::calc_fitness( double * p_cost, double * p_weight, RRTNode* node ) 
         double p_utopia[_objective_num];
         get_utopia_reference_vector( node, p_utopia );
         fitness = calc_fitness_by_tchebycheff( p_cost, p_weight, p_utopia );
-
-        /*
-        for( int k=0; k<_objective_num; k++ ) {
-            std::cout << weighted_distance[k] << " ";
-        }
-
-        std::cout << "(" << fitness << ")";
-        std::cout << std::endl; */
     }
     else {
         double p_utopia[_objective_num];
@@ -475,7 +467,7 @@ float MORRF::calc_fitness_by_boundary_intersection( double* cost, double* weight
         vectorD2[k] = cost[k] - (utopia_reference[k] + d1* weight[k]);
         d2 += vectorD2[k]*vectorD2[k];
     }
-    d2 = fabs(sqrt(d2));
+    d2 = sqrt(d2);
     return d1 + _theta * d2;
 }
 
@@ -493,7 +485,6 @@ bool MORRF::get_utopia_reference_vector(POS2D&  pos, double * p_utopia ) {
     for( int k=0; k<_objective_num; k++ ) {
         RRTNode* pRRTNode = ref_node.m_node_list[k];
         p_utopia[k] = pRRTNode->m_fitness;
-        //p_utopia[k] = pRRTNode->mp_cost[k];
     }
     return true;
 }
@@ -505,7 +496,6 @@ bool MORRF::get_utopia_reference_vector( RRTNode* p_node, double * p_utopia ) {
     if( p_node && p_node->mp_host_node ) {
         for( int k=0; k<_objective_num; k++ ) {
             p_utopia[k] = p_node->mp_host_node->m_nodes[k]->m_fitness;
-            //p_utopia[k] = pRRTNode->mp_cost[k];
         }
     }
 }
