@@ -5,6 +5,15 @@
 
 typedef double (*COST_FUNC_PTR)(POS2D, POS2D, int**, void*);
 
+class MORRFNode {
+public:
+    MORRFNode( POS2D pos ) {
+        m_pos = pos;
+    }
+
+    POS2D m_pos;
+    std::vector< RRTNode*> m_nodes;
+};
 
 class MORRF {
 public:
@@ -30,9 +39,11 @@ public:
 
     bool calc_cost( POS2D& pos_a, POS2D& pos_b, double * p_cost );
     double calc_cost( POS2D& pos_a, POS2D& pos_b, int k );
+    double calc_fitness( double * p_cost, double * p_weight, RRTNode* node );
     double calc_fitness( double * p_cost, double * p_weight, POS2D& pos );
 
     bool get_utopia_reference_vector( POS2D& pos, double * p_utopia );
+    bool get_utopia_reference_vector( RRTNode* p_node, double * p_utopia );
 
     int get_sampling_width() { return _sampling_width; }
     int get_sampling_height() { return _sampling_height; }
@@ -91,6 +102,8 @@ private:
     double _ball_radius;
     double _segment_length;
     int _obs_check_resolution;
+
+    std::list<MORRFNode*> _morrf_nodes;
 
     double _theta;
     int _current_iteration;

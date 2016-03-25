@@ -249,17 +249,25 @@ void MORRF::extend() {
             std::list<KDNode2D> near_nodes = find_near( new_pos );
             KDNode2D new_node( new_pos );
 
+            MORRFNode* p_morrf_node = new MORRFNode( new_pos );
+
             // create new nodes of reference trees
             for( int k=0; k < _objective_num; k++ ) {
                 RRTNode * p_new_ref_node = _references[k]->create_new_node( new_pos );
+                p_new_ref_node->mp_host_node = p_morrf_node;
+                p_morrf_node->m_nodes.push_back(p_new_ref_node);
                 new_node.m_node_list.push_back( p_new_ref_node );
             }
 
             // create new nodes of subproblem trees
             for ( int m=0; m < _subproblem_num; m++ ) {
                 RRTNode * p_new_sub_node = _subproblems[m]->create_new_node( new_pos );
+                p_new_sub_node->mp_host_node = p_morrf_node;
+                p_morrf_node->m_nodes.push_back(p_new_sub_node);
                 new_node.m_node_list.push_back( p_new_sub_node );
             }
+
+            _morrf_nodes.push_back(p_morrf_node);
 
             _p_kd_tree->insert(new_node);
             node_inserted = true;
@@ -379,7 +387,7 @@ double MORRF::calc_cost( POS2D& pos_a, POS2D& pos_b, int k ) {
     return _funcs[k]( pos_a, pos_b, _fitness_distributions[k], (void*)this );
 }
 
-double MORRF::calc_fitness( double * p_cost, double * p_weight, POS2D& pos ) {
+double MORRF::calc_fitness( double * p_cost, double * p_weight, RRTNode* node ) {
     double fitness = 0.0;
     if( p_cost == NULL || p_weight==NULL ) {
         return fitness;
@@ -391,7 +399,7 @@ double MORRF::calc_fitness( double * p_cost, double * p_weight, POS2D& pos ) {
     }
     else if( _type==MORRF::TCHEBYCHEFF ) {
         double p_utopia[_objective_num];
-        get_utopia_reference_vector( pos, p_utopia );
+        get_utopia_reference_vector( node, p_utopia );
 
         std::vector<float> weighted_distance(_objective_num, 0.0);
         for( int k=0; k<_objective_num; k++ ) {
@@ -411,7 +419,7 @@ double MORRF::calc_fitness( double * p_cost, double * p_weight, POS2D& pos ) {
     }
     else {
         double p_utopia[_objective_num];
-        if( true == get_utopia_reference_vector( pos, p_utopia ) ) {
+        if( true == get_utopia_reference_vector( node, p_utopia ) ) {
             double d1 = 0.0, d2 = 0.0;
             for( int k=0; k<_objective_num; k++ ) {
                double weighted_dist = p_weight[k] * (p_cost[k] - p_utopia[k]);
@@ -434,10 +442,15 @@ double MORRF::calc_fitness( double * p_cost, double * p_weight, POS2D& pos ) {
     return fitness;
 }
 
-bool MORRF::get_utopia_reference_vector( POS2D& pos, double * p_utopia ) {
+double MORRF::calc_fitness( double * p_cost, double * p_weight, POS2D& pos ) {
+    return 0.0;
+}
+
+bool MORRF::get_utopia_reference_vector(POS2D&  pos, double * p_utopia ) {
     if ( p_utopia==NULL ) {
         return false;
     }
+
     KDNode2D ref_node = find_nearest(pos);
     if( ref_node.m_node_list.size()<_objective_num ) {
         return false;
@@ -449,6 +462,18 @@ bool MORRF::get_utopia_reference_vector( POS2D& pos, double * p_utopia ) {
         //p_utopia[k] = pRRTNode->mp_cost[k];
     }
     return true;
+}
+
+bool MORRF::get_utopia_reference_vector( RRTNode* p_node, double * p_utopia ) {
+    if ( p_utopia==NULL ) {
+        return false;
+    }
+    if( p_node && p_node->mp_host_node ) {
+        for( int k=0; k<_objective_num; k++ ) {
+            p_utopia[k] = p_node->mp_host_node->m_nodes[k]->m_fitness;
+            //p_utopia[k] = pRRTNode->mp_cost[k];
+        }
+    }
 }
 
 ReferenceTree* MORRF::get_reference_tree(int k) {

@@ -12,6 +12,7 @@ RRTNode::RRTNode( POS2D pos, int objective_num ) {
     }
     m_fitness = 0.0;
     mp_parent = NULL;
+    mp_host_node = NULL;
 }
 
 bool RRTNode::operator==( const RRTNode &other ) {
@@ -391,7 +392,7 @@ void SubproblemTree::attach_new_node( RRTNode* p_node_new, RRTNode* p_nearest_no
     for( int k = 0; k < m_objective_num; k++ ) {
         p_min_new_node_cost[k] = p_nearest_node->mp_cost[k] + p_min_new_node_cost_delta[k];
     }
-    double min_new_node_fitness = mp_parent->calc_fitness( p_min_new_node_cost, mp_weight, p_node_new->m_pos );
+    double min_new_node_fitness = mp_parent->calc_fitness( p_min_new_node_cost, mp_weight, p_node_new );
 
     RRTNode* p_min_node = p_nearest_node;
 
@@ -404,7 +405,7 @@ void SubproblemTree::attach_new_node( RRTNode* p_node_new, RRTNode* p_nearest_no
             for( int k=0; k < m_objective_num; k++ ) {
                 p_cost_temp[k] = p_near_node->mp_cost[k] + p_cost_delta[k];
             }
-            double fitness = mp_parent->calc_fitness(p_cost_temp, mp_weight, p_node_new->m_pos);
+            double fitness = mp_parent->calc_fitness(p_cost_temp, mp_weight, p_node_new);
             if ( fitness < min_new_node_fitness ) {
                 p_min_node = p_near_node;
                 min_new_node_fitness = fitness;
@@ -443,7 +444,7 @@ void SubproblemTree::rewire_near_nodes( RRTNode* p_node_new, std::list<RRTNode*>
             for( int k=0; k<m_objective_num; k++ ) {
                 temp_cost_from_new_node[k] = p_node_new->mp_cost[k] + temp_delta_cost_from_new_node[k];
             }
-            double temp_fitness_from_new_node = mp_parent->calc_fitness( temp_cost_from_new_node, mp_weight, p_near_node->m_pos );
+            double temp_fitness_from_new_node = mp_parent->calc_fitness( temp_cost_from_new_node, mp_weight, p_near_node );
 
             if( temp_fitness_from_new_node < p_near_node->m_fitness ) {
                 RRTNode * p_parent_node = p_near_node->mp_parent;
@@ -473,7 +474,7 @@ void SubproblemTree::update_cost_to_children( RRTNode* p_node, double* p_delta_c
             for( int k=0; k<m_objective_num; k++ ) {
                 p_child_node->mp_cost[k] -= p_delta_cost[k];
             }
-            p_child_node->m_fitness = mp_parent->calc_fitness( p_child_node->mp_cost, mp_weight, p_child_node->m_pos );
+            p_child_node->m_fitness = mp_parent->calc_fitness( p_child_node->mp_cost, mp_weight, p_child_node );
         }
     }
 }

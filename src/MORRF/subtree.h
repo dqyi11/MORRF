@@ -9,6 +9,7 @@
 #include <vector>
 #include <list>
 
+class MORRFNode;
 class MORRF;
 
 class RRTNode {
@@ -22,6 +23,7 @@ public:
     double m_fitness;
     RRTNode * mp_parent;
     POS2D m_pos;
+    MORRFNode* mp_host_node;
 
     std::list<RRTNode*> m_child_nodes;
 };
