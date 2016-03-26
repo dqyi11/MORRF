@@ -26,7 +26,7 @@ MORRF::MORRF(int width, int height, int objective_num, int subproblem_num, int s
     _segment_length = segmentLength;
 
     _pp_weights = NULL;
-    _theta = 2;
+    _theta = 4;
 
     _pp_map_info = new int*[_sampling_width];
     for( int i=0; i<_sampling_width; i++ ) {

@@ -6,13 +6,13 @@ import sys
 def viz(score):
     fig = plt.figure()     
     ax = fig.add_subplot(111, projection='3d')
-    pl = ax.scatter(scores[:,0], scores[:,1], scores[:,2], 'bs',label="Score of Path")
+    ul = ax.scatter(scores[0,0], scores[1,1], scores[2,2], c='r', marker = 'o' )    
+    pl = ax.scatter(scores[:,0], scores[:,1], scores[:,2], c='b', marker = 's' )
         
-    ul = ax.scatter(scores[0,0], scores[1,1], scores[2,2], 'ro', label="Utopia Reference Vector")    
     ax.set_xlabel("Objective 1", fontsize='x-large')
     ax.set_ylabel("Objective 2", fontsize='x-large')
     ax.set_zlabel("Objective 2", fontsize='x-large')
-    ax.legend( numpoints=1, loc='upper right', shadow=True, fontsize='x-large')    
+    ax.legend([pl, ul], ["Score of Path", "Utopia Reference Vector"], numpoints=1, loc='upper right', shadow=True, fontsize='x-large')    
     plt.show()
 
 
