@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np  
+from Dominate import *
 import sys         
 
 def viz(score):
@@ -31,4 +32,6 @@ if __name__ == '__main__':
     filename = sys.argv[1]
 
     scores = load(filename)
+    print non_dominate_rate(scores)
     viz(scores)
+
