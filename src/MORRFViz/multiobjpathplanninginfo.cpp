@@ -226,8 +226,8 @@ void MultiObjPathPlanningInfo::exportPaths( QString filename ) {
         // Save scores
         for( std::vector<Path*>::iterator it=mFoundPaths.begin(); it!=mFoundPaths.end(); it++ ) {
             Path* p = *it;
-            for(int k=0;k<mObjectiveNum;k++) {
-                stream << p->mp_cost[k] << "\t";
+            for(unsigned int k=0;k<mObjectiveNum;k++) {
+                stream << p->m_cost[k] << "\t";
             }
             stream << "\n";
         }

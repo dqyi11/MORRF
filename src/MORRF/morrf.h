@@ -37,13 +37,13 @@ public:
     bool _is_in_obstacle( POS2D pos );
     bool _contains( POS2D pos );
 
-    bool calc_cost( POS2D& pos_a, POS2D& pos_b, double * p_cost );
-    double calc_cost( POS2D& pos_a, POS2D& pos_b, int k );
-    double calc_fitness( double * p_cost, double * p_weight, RRTNode* node );
-    double calc_fitness( double * p_cost, double * p_weight, POS2D& pos );
+    bool calc_cost( POS2D& pos_a, POS2D& pos_b, std::vector<double>& cost );
+    double calc_kth_cost( POS2D& pos_a, POS2D& pos_b, unsigned int k );
+    double calc_fitness( std::vector<double>& cost, std::vector<double>& weight, RRTNode* node );
+    double calc_fitness( std::vector<double>& cost, std::vector<double>& weight, POS2D& pos );
 
-    bool get_utopia_reference_vector( POS2D& pos, double * p_utopia );
-    bool get_utopia_reference_vector( RRTNode* p_node, double * p_utopia );
+    bool get_utopia_reference_vector( POS2D& pos, std::vector<double>& utopia );
+    bool get_utopia_reference_vector( RRTNode* p_node, std::vector<double>& utopia );
 
     int get_sampling_width() { return _sampling_width; }
     int get_sampling_height() { return _sampling_height; }
@@ -52,8 +52,8 @@ public:
 
     int get_current_iteration() { return _current_iteration; }
 
-    ReferenceTree* get_reference_tree( int k );
-    SubproblemTree* get_subproblem_tree( int m );
+    ReferenceTree* get_reference_tree( unsigned int k );
+    SubproblemTree* get_subproblem_tree( unsigned int m );
 
     std::vector<Path*> get_paths();
 
@@ -62,9 +62,9 @@ public:
     void dump_map_info( std::string filename );
     void dump_weights( std::string filename );
 
-    float calc_fitness_by_weighted_sum( double* cost, double* weight );
-    float calc_fitness_by_tchebycheff( double* cost, double* weight, double* utopia_reference );
-    float calc_fitness_by_boundary_intersection( double* cost, double* weight, double* utopia_reference );
+    float calc_fitness_by_weighted_sum( std::vector<double>& cost, std::vector<double>& weight );
+    float calc_fitness_by_tchebycheff( std::vector<double>& cost, std::vector<double>& weight, std::vector<double>& utopia_reference );
+    float calc_fitness_by_boundary_intersection( std::vector<double>& cost, std::vector<double>& weight, std::vector<double>& utopia_reference );
 
     bool are_reference_structures_correct();
     bool are_subproblem_structures_correct();
@@ -89,15 +89,15 @@ private:
     int _sampling_width;
     int _sampling_height;
 
-    int _objective_num;
-    int _subproblem_num;
+    unsigned int _objective_num;
+    unsigned int _subproblem_num;
 
     KDTree2D * _p_kd_tree;
 
     std::vector<COST_FUNC_PTR> _funcs;
     std::vector<int**> _fitness_distributions;
 
-    double** _pp_weights;
+    std::vector< std::vector<double> > _weights;
 
     std::vector<SubproblemTree*> _subproblems;
     std::vector<ReferenceTree*> _references;

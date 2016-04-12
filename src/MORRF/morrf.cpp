@@ -6,6 +6,8 @@
 
 #define OBSTACLE_THRESHOLD 200
 
+using namespace std;
+
 MORRF::MORRF(int width, int height, int objective_num, int subproblem_num, int segmentLength, MORRF_TYPE type) {
     _sampling_width = width;
     _sampling_height = height;
@@ -25,7 +27,6 @@ MORRF::MORRF(int width, int height, int objective_num, int subproblem_num, int s
     _current_iteration = 0;
     _segment_length = segmentLength;
 
-    _pp_weights = NULL;
     _theta = 4;
 
     _pp_map_info = new int*[_sampling_width];
@@ -54,50 +55,26 @@ void MORRF::add_funcs( std::vector<COST_FUNC_PTR> funcs, std::vector<int**> fitn
 void MORRF::_init_weights() {
     _deinit_weights();
 
-    _pp_weights = new double*[_subproblem_num];
+    _weights.clear();
 
-    /*
-    if ( _objective_num == 2 ) {
-        for( int i=0; i<_subproblem_num; i++ ) {
-            _pp_weights[i] = new double[_objective_num];
-            _pp_weights[i][0] = (double)(i+1) / (double)(_subproblem_num+2);
-            _pp_weights[i][1] = (double)(_subproblem_num-i+1) / (double)(_subproblem_num+2);
-        }
-    }
-    else {
-        for( int i=0; i<_subproblem_num; i++ ) {
-            _pp_weights[i] = new double[_objective_num];
-            for( int j=0; j<_objective_num; j++) {
-                _pp_weights[i][j] = (double)rand()/RAND_MAX;
-            }
-        }
-    }
-    */
-    for( int i=0; i<_subproblem_num; i++ ) {
-        _pp_weights[i] = new double[_objective_num];
+    for( unsigned int i=0; i<_subproblem_num; i++ ) {
+        vector<double> weight( _objective_num, 0.0 );
         std::vector<float> temp_array;
         temp_array.push_back(0.0);
-        for( int j=0; j<_objective_num-1; j++ ) {
+        for( unsigned int j=0; j<_objective_num-1; j++ ) {
             temp_array.push_back( static_cast<float>(rand())/static_cast<float>(RAND_MAX) );
         }
         temp_array.push_back(1.0);
         sort(temp_array.begin(), temp_array.end());
-        for( int j=0; j<_objective_num; j++ ) {
-            _pp_weights[i][j] = temp_array[j+1] - temp_array[j];   
+        for( unsigned int j=0; j<_objective_num; j++ ) {
+            weight[j] = temp_array[j+1] - temp_array[j];
         } 
+        _weights.push_back( weight );
     }
 }
 
 void MORRF::_deinit_weights() {
-    if( _pp_weights ) {
-        int size = sizeof(_pp_weights)/sizeof(double*);
-        for( int i=0; i<size; i++ ) {
-            if( _pp_weights[i] ) {
-                delete _pp_weights[i];
-                _pp_weights[i] = NULL;
-            }
-        }
-    }
+    _weights.clear();
 }
 
 void MORRF::init(POS2D start, POS2D goal) {
@@ -105,15 +82,17 @@ void MORRF::init(POS2D start, POS2D goal) {
     _init_weights();
 
     KDNode2D root(start);
-    for( int k=0; k<_objective_num; k++ ) {
-        ReferenceTree * p_ref_tree = new ReferenceTree( this, _objective_num, k );
+    for( unsigned int k=0; k<_objective_num; k++ ) {
+        vector<double> weight(_objective_num, 0.0);
+        weight[k] = 1.0;
+        ReferenceTree * p_ref_tree = new ReferenceTree( this, _objective_num, weight, k );
         RRTNode * p_root_node = p_ref_tree->init( start, goal );
         root.m_node_list.push_back( p_root_node );
         _references.push_back( p_ref_tree );
     }
 
-    for( int m=0; m<_subproblem_num; m++ ) {
-        SubproblemTree * p_sub_tree = new SubproblemTree( this, _objective_num, _pp_weights[m], m );
+    for( unsigned int m=0; m<_subproblem_num; m++ ) {
+        SubproblemTree * p_sub_tree = new SubproblemTree( this, _objective_num, _weights[m], m );
         RRTNode * p_root_node = p_sub_tree->init( start, goal );
         root.m_node_list.push_back(p_root_node);
         _subproblems.push_back( p_sub_tree );
@@ -252,7 +231,7 @@ void MORRF::extend() {
             MORRFNode* p_morrf_node = new MORRFNode( new_pos );
 
             // create new nodes of reference trees
-            for( int k=0; k < _objective_num; k++ ) {
+            for( unsigned int k=0; k < _objective_num; k++ ) {
                 RRTNode * p_new_ref_node = _references[k]->create_new_node( new_pos );
                 p_new_ref_node->mp_host_node = p_morrf_node;
                 p_morrf_node->m_nodes.push_back(p_new_ref_node);
@@ -260,7 +239,7 @@ void MORRF::extend() {
             }
 
             // create new nodes of subproblem trees
-            for ( int m=0; m < _subproblem_num; m++ ) {
+            for ( unsigned int m=0; m < _subproblem_num; m++ ) {
                 RRTNode * p_new_sub_node = _subproblems[m]->create_new_node( new_pos );
                 p_new_sub_node->mp_host_node = p_morrf_node;
                 p_morrf_node->m_nodes.push_back(p_new_sub_node);
@@ -274,14 +253,14 @@ void MORRF::extend() {
 
             // attach new node to reference trees
             // rewire near nodes of reference trees
-            for ( int k=0; k<_objective_num; k++ ) {
+            for ( unsigned int k=0; k<_objective_num; k++ ) {
                 // std::cout << "@ " << k << std::endl;
-                int index = k;
+                unsigned int index = k;
                 RRTNode* p_nearest_ref_node = nearest_node.m_node_list[index];
                 RRTNode* p_new_ref_node = new_node.m_node_list[index];
-                std::list<RRTNode*> near_ref_nodes;
+                list<RRTNode*> near_ref_nodes;
                 near_ref_nodes.clear();
-                for( std::list<KDNode2D>::iterator itr = near_nodes.begin();
+                for( list<KDNode2D>::iterator itr = near_nodes.begin();
                     itr != near_nodes.end(); itr++) {
                     KDNode2D kd_node = (*itr);
                     RRTNode* pRefNode = kd_node.m_node_list[index];
@@ -294,7 +273,7 @@ void MORRF::extend() {
 
             // attach new nodes to subproblem trees
             // rewire near nodes of subproblem trees
-            for( int m=0; m<_subproblem_num; m++ ) {
+            for( unsigned int m=0; m<_subproblem_num; m++ ) {
                 // std::cout << "@ " << m+mObjectiveNum << std::endl;
                 int index = m + _objective_num;
                 RRTNode* p_nearest_sub_node = nearest_node.m_node_list[index];
@@ -373,37 +352,32 @@ bool MORRF::_contains( POS2D pos ) {
     return false;
 }
 
-bool MORRF::calc_cost(POS2D& pos_a, POS2D& pos_b, double * p_cost) {
-    if ( p_cost == NULL ) {
-        return false;
-    }
-    for( int k = 0; k < _objective_num; k++ ) {
-        p_cost[k] = calc_cost( pos_a, pos_b, k );
+bool MORRF::calc_cost(POS2D& pos_a, POS2D& pos_b, std::vector<double>& cost) {
+    for( unsigned int k = 0; k < _objective_num; k++ ) {
+        cost[k] = calc_kth_cost( pos_a, pos_b, k );
     }
     return true;
 }
 
-double MORRF::calc_cost( POS2D& pos_a, POS2D& pos_b, int k ) {
+double MORRF::calc_kth_cost( POS2D& pos_a, POS2D& pos_b, unsigned int k ) {
     return _funcs[k]( pos_a, pos_b, _fitness_distributions[k], (void*)this );
 }
 
-double MORRF::calc_fitness( double * p_cost, double * p_weight, RRTNode* node ) {
+double MORRF::calc_fitness( vector<double>& cost, vector<double>& weight, RRTNode* node ) {
     double fitness = 0.0;
-    if( p_cost == NULL || p_weight==NULL ) {
-        return fitness;
-    }
+
     if( _type==MORRF::WEIGHTED_SUM ) {
-        fitness = calc_fitness_by_weighted_sum( p_cost, p_weight );
+        fitness = calc_fitness_by_weighted_sum( cost, weight );
     }
     else if( _type==MORRF::TCHEBYCHEFF ) {
-        double p_utopia[_objective_num];
-        get_utopia_reference_vector( node, p_utopia );
-        fitness = calc_fitness_by_tchebycheff( p_cost, p_weight, p_utopia );
+        vector<double> utopia(_objective_num, 0.0);
+        get_utopia_reference_vector( node, utopia );
+        fitness = calc_fitness_by_tchebycheff( cost, weight, utopia );
     }
     else {
-        double p_utopia[_objective_num];
-        get_utopia_reference_vector( node, p_utopia );
-        fitness = calc_fitness_by_boundary_intersection( p_cost, p_weight, p_utopia );
+        vector<double> utopia(_objective_num, 0.0);
+        get_utopia_reference_vector( node, utopia );
+        fitness = calc_fitness_by_boundary_intersection( cost, weight, utopia );
     }
     /*
     if(fitness < 0.0) {
@@ -412,23 +386,21 @@ double MORRF::calc_fitness( double * p_cost, double * p_weight, RRTNode* node ) 
     return fitness;
 }
 
-double MORRF::calc_fitness( double * p_cost, double * p_weight, POS2D& pos ) {
+double MORRF::calc_fitness( vector<double>& cost, vector<double>& weight, POS2D& pos ) {
     double fitness = 0.0;
-    if( p_cost == NULL || p_weight==NULL ) {
-        return fitness;
-    }
+
     if( _type==MORRF::WEIGHTED_SUM ) {
-        fitness = calc_fitness_by_weighted_sum( p_cost, p_weight );
+        fitness = calc_fitness_by_weighted_sum( cost, weight );
     }
     else if( _type==MORRF::TCHEBYCHEFF ) {
-        double p_utopia[_objective_num];
-        get_utopia_reference_vector( pos, p_utopia );
-        fitness = calc_fitness_by_tchebycheff( p_cost, p_weight, p_utopia );
+        vector<double> utopia(_objective_num, 0.0);
+        get_utopia_reference_vector( pos, utopia );
+        fitness = calc_fitness_by_tchebycheff( cost, weight, utopia );
     }
     else {
-        double p_utopia[_objective_num];
-        get_utopia_reference_vector( pos, p_utopia );
-        fitness = calc_fitness_by_boundary_intersection( p_cost, p_weight, p_utopia );
+         vector<double> utopia(_objective_num, 0.0);
+        get_utopia_reference_vector( pos, utopia );
+        fitness = calc_fitness_by_boundary_intersection( cost, weight, utopia );
     }
     /*
     if(fitness < 0.0) {
@@ -438,32 +410,32 @@ double MORRF::calc_fitness( double * p_cost, double * p_weight, POS2D& pos ) {
 }
 
 
-float MORRF::calc_fitness_by_weighted_sum( double* cost, double* weight ) {
+float MORRF::calc_fitness_by_weighted_sum( vector<double>& cost, vector<double>& weight ) {
     double fitness = 0.0;
-    for( int k=0; k<_objective_num; k++ ) {
+    for( unsigned int k=0; k<_objective_num; k++ ) {
         fitness += cost[k] * weight[k];
     }
     return fitness;
 }
 
-float MORRF::calc_fitness_by_tchebycheff( double* cost, double* weight, double* utopia_reference ) {
+float MORRF::calc_fitness_by_tchebycheff( vector<double>& cost, vector<double>& weight, vector<double>& utopia_reference ) {
     std::vector<float> weighted_distance(_objective_num, 0.0);
-    for( int k=0; k<_objective_num; k++ ) {
+    for( unsigned int k=0; k<_objective_num; k++ ) {
        weighted_distance[k] = weight[k] * fabs( cost[k] - utopia_reference[k] );
     }
     sort(weighted_distance.begin(), weighted_distance.end());
     return weighted_distance.back();
 }
 
-float MORRF::calc_fitness_by_boundary_intersection( double* cost, double* weight, double* utopia_reference ) {
+float MORRF::calc_fitness_by_boundary_intersection( vector<double>& cost, vector<double>& weight, vector<double>& utopia_reference ) {
     double d1 = 0.0, d2 = 0.0;
-    for( int k=0; k<_objective_num; k++ ) {
+    for( unsigned int k=0; k<_objective_num; k++ ) {
        double weighted_dist = weight[k] * (cost[k] - utopia_reference[k]);
        d1 += weighted_dist;
     }
     d1 = fabs(d1);
-    double vectorD2[_objective_num];
-    for( int k=0; k<_objective_num; k++ ) {
+    vector<double> vectorD2(_objective_num, 0.0);
+    for( unsigned int k=0; k<_objective_num; k++ ) {
         vectorD2[k] = cost[k] - (utopia_reference[k] + d1* weight[k]);
         d2 += vectorD2[k]*vectorD2[k];
     }
@@ -472,42 +444,40 @@ float MORRF::calc_fitness_by_boundary_intersection( double* cost, double* weight
 }
 
 
-bool MORRF::get_utopia_reference_vector(POS2D&  pos, double * p_utopia ) {
-    if ( p_utopia==NULL ) {
-        return false;
-    }
+bool MORRF::get_utopia_reference_vector(POS2D&  pos, vector<double>& utopia ) {
 
     KDNode2D ref_node = find_nearest(pos);
     if( ref_node.m_node_list.size()<_objective_num ) {
         return false;
     }
 
-    for( int k=0; k<_objective_num; k++ ) {
+    for( unsigned int k=0; k<_objective_num; k++ ) {
         RRTNode* pRRTNode = ref_node.m_node_list[k];
-        p_utopia[k] = pRRTNode->m_fitness;
+        utopia[k] = pRRTNode->m_fitness;
     }
     return true;
 }
 
-bool MORRF::get_utopia_reference_vector( RRTNode* p_node, double * p_utopia ) {
-    if ( p_utopia==NULL ) {
-        return false;
+bool MORRF::get_utopia_reference_vector( RRTNode* p_node, vector<double>& utopia ) {
+    if( p_node == NULL ) {
+         return false;
     }
     if( p_node && p_node->mp_host_node ) {
-        for( int k=0; k<_objective_num; k++ ) {
-            p_utopia[k] = p_node->mp_host_node->m_nodes[k]->m_fitness;
+        for( unsigned int k=0; k<_objective_num; k++ ) {
+            utopia[k] = p_node->mp_host_node->m_nodes[k]->m_fitness;
         }
     }
+    return true;
 }
 
-ReferenceTree* MORRF::get_reference_tree(int k) {
+ReferenceTree* MORRF::get_reference_tree(unsigned int k) {
     if( k<0 || k>=_objective_num ) {
         return NULL;
     }
     return _references[k];
 }
 
-SubproblemTree* MORRF::get_subproblem_tree( int m ) {
+SubproblemTree* MORRF::get_subproblem_tree( unsigned int m ) {
     if( m<0 || m>=_subproblem_num ) {
         return NULL;
     }
@@ -539,14 +509,14 @@ void MORRF::dump_map_info( std::string filename ) {
 void MORRF::dump_weights( std::string filename ) {
     std::ofstream weightFile;
     weightFile.open(filename.c_str());
-    if( _pp_weights ) {
-        for( int i=0; i<_subproblem_num; i++ ) {
-            for( int j=0; j<_objective_num; j++ ) {
-                weightFile << _pp_weights[i][j] << " ";
-            }
-            weightFile << std::endl;
+
+    for( unsigned int i=0; i<_subproblem_num; i++ ) {
+        for( unsigned int j=0; j<_objective_num; j++ ) {
+            weightFile << _weights[i][j] << " ";
         }
+        weightFile << std::endl;
     }
+
     weightFile.close();
 }
 
@@ -669,20 +639,17 @@ std::vector<Path*> MORRF::get_paths() {
 bool MORRF::update_path_cost( Path *p ) {
     if(p)
     {
-        for(int k=0;k<_objective_num;k++)
-        {
-            p->mp_cost[k] = 0.0;
+        for(unsigned int k=0;k<_objective_num;k++) {
+            p->m_cost[k] = 0.0;
         }
-        for(int i=0;i<p->m_waypoints.size()-1;i++)
-        {
+        for(unsigned int i=0;i<p->m_waypoints.size()-1;i++) {
             POS2D pos_a = p->m_waypoints[i];
             POS2D pos_b = p->m_waypoints[i+1];
-            double deltaCost[_objective_num];
-            calc_cost(pos_a, pos_b, deltaCost);
+            vector<double> delta_cost(_objective_num, 0.0);
+            calc_cost(pos_a, pos_b, delta_cost);
 
-            for(int k=0;k<_objective_num;k++)
-            {
-                p->mp_cost[k] += deltaCost[k];
+            for(unsigned int k=0;k<_objective_num;k++) {
+                p->m_cost[k] += delta_cost[k];
             }
         }        
         return true;
@@ -695,21 +662,19 @@ bool MORRF::is_ref_tree_min_cost() {
 #ifndef USE_FLANN
         for(KDTree2D::const_iterator it = _p_kd_tree->begin(); it!= _p_kd_tree->end(); it++) {
             KDNode2D node = (*it);
-            double minCost[_objective_num];
-            for(int k=0;k<_objective_num;k++) {
-                minCost[k] = std::numeric_limits<double>::max();
-            }
-            for(int i=_objective_num; i<node.m_node_list.size(); i++) {
+            vector<double> min_cost(_objective_num, std::numeric_limits<double>::max());
+
+            for(unsigned int i=_objective_num; i<node.m_node_list.size(); i++) {
                 RRTNode* pNode = node.m_node_list[i];
-                for(int k=0;k<_objective_num;k++) {
-                    if(pNode->mp_cost[k] < minCost[k]) {
-                        minCost[k] = pNode->mp_cost[k];
+                for(unsigned int k=0;k<_objective_num;k++) {
+                    if(pNode->m_cost[k] < min_cost[k]) {
+                        min_cost[k] = pNode->m_cost[k];
                     }
                 }
             }
-            for(int k=0;k<_objective_num;k++) {
+            for(unsigned int k=0;k<_objective_num;k++) {
                 RRTNode* pRefNode = node.m_node_list[k];
-                if(pRefNode->m_fitness > minCost[k]) {
+                if(pRefNode->m_fitness > min_cost[k]) {
                     return false;
                 }
             }
