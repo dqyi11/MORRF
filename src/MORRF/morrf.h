@@ -18,7 +18,7 @@ public:
 class MORRF {
 public:
     enum MORRF_TYPE{ WEIGHTED_SUM, TCHEBYCHEFF, BOUNDARY_INTERSACTION };
-    MORRF( int width, int height, int objective_num, int subproblem_num, int segment_length, MORRF_TYPE type=WEIGHTED_SUM );
+    MORRF( unsigned int width, unsigned int height, unsigned int objective_num, unsigned int subproblem_num, unsigned int segment_length, MORRF_TYPE type=WEIGHTED_SUM );
     ~MORRF();
 
     void add_funcs( std::vector<COST_FUNC_PTR> funcs, std::vector<int**> fitnessDistributions );
@@ -86,8 +86,8 @@ private:
     int ** _pp_map_info;
 
     MORRF_TYPE _type;
-    int _sampling_width;
-    int _sampling_height;
+    unsigned int _sampling_width;
+    unsigned int _sampling_height;
 
     unsigned int _objective_num;
     unsigned int _subproblem_num;

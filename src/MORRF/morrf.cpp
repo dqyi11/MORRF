@@ -8,7 +8,7 @@
 
 using namespace std;
 
-MORRF::MORRF(int width, int height, int objective_num, int subproblem_num, int segmentLength, MORRF_TYPE type) {
+MORRF::MORRF(unsigned int width, unsigned int height, unsigned int objective_num, unsigned int subproblem_num, unsigned int segmentLength, MORRF_TYPE type) {
     _sampling_width = width;
     _sampling_height = height;
     _objective_num = objective_num;
@@ -30,9 +30,9 @@ MORRF::MORRF(int width, int height, int objective_num, int subproblem_num, int s
     _theta = 4;
 
     _pp_map_info = new int*[_sampling_width];
-    for( int i=0; i<_sampling_width; i++ ) {
+    for( unsigned int i=0; i<_sampling_width; i++ ) {
         _pp_map_info[i] = new int[_sampling_height];
-        for( int j=0; j<_sampling_height; j++) {
+        for( unsigned int j=0; j<_sampling_height; j++) {
             _pp_map_info[i][j] = 255;
         }
     }
@@ -102,8 +102,8 @@ void MORRF::init(POS2D start, POS2D goal) {
 }
 
 void MORRF::load_map(int **map) {
-    for( int i=0; i<_sampling_width; i++ ) {
-        for( int j=0; j<_sampling_height; j++ ) {
+    for( unsigned int i=0; i<_sampling_width; i++ ) {
+        for( unsigned int j=0; j<_sampling_height; j++ ) {
             _pp_map_info[i][j] = map[i][j];
         }
     }
@@ -493,11 +493,11 @@ void MORRF::optimize() {
 }
 
 void MORRF::dump_map_info( std::string filename ) {
-    std::ofstream mapInfoFile;
+    ofstream mapInfoFile;
     mapInfoFile.open(filename.c_str());
     if( _pp_map_info ) {
-        for( int i=0; i<_sampling_width; i++ ) {
-            for( int j=0; j<_sampling_height; j++ ) {
+        for( unsigned int i=0; i<_sampling_width; i++ ) {
+            for( unsigned int j=0; j<_sampling_height; j++ ) {
                 mapInfoFile << _pp_map_info[i][j] << " ";
             }
             mapInfoFile << std::endl;
@@ -507,7 +507,7 @@ void MORRF::dump_map_info( std::string filename ) {
 }
 
 void MORRF::dump_weights( std::string filename ) {
-    std::ofstream weightFile;
+    ofstream weightFile;
     weightFile.open(filename.c_str());
 
     for( unsigned int i=0; i<_subproblem_num; i++ ) {
@@ -521,7 +521,7 @@ void MORRF::dump_weights( std::string filename ) {
 }
 
 bool MORRF::are_reference_structures_correct() {
-    for( std::vector<ReferenceTree*>::iterator it=_references.begin(); it!=_references.end(); it++ ) {
+    for( vector<ReferenceTree*>::iterator it=_references.begin(); it!=_references.end(); it++ ) {
         ReferenceTree* p_ref_tree = (*it);
         if( p_ref_tree ) {
             if( false == p_ref_tree->is_structure_correct() ) {
@@ -533,7 +533,7 @@ bool MORRF::are_reference_structures_correct() {
 }
 
 bool MORRF::are_subproblem_structures_correct() {
-    for( std::vector<SubproblemTree*>::iterator it=_subproblems.begin(); it!=_subproblems.end(); it++ ) {
+    for( vector<SubproblemTree*>::iterator it=_subproblems.begin(); it!=_subproblems.end(); it++ ) {
         SubproblemTree* p_sub_tree = (*it);
         if( p_sub_tree ) {
             if( false == p_sub_tree->is_structure_correct() ) {
@@ -545,7 +545,7 @@ bool MORRF::are_subproblem_structures_correct() {
 }
 
 bool MORRF::are_all_reference_nodes_tractable() {
-    for( std::vector<ReferenceTree*>::iterator it=_references.begin(); it!=_references.end(); it++ ) {
+    for( vector<ReferenceTree*>::iterator it=_references.begin(); it!=_references.end(); it++ ) {
         ReferenceTree* p_ref_tree = (*it);
         if( p_ref_tree ) {
             if( false == p_ref_tree->are_all_nodes_tractable() ) {
@@ -557,7 +557,7 @@ bool MORRF::are_all_reference_nodes_tractable() {
 }
 
 bool MORRF::are_all_subproblem_nodes_tractable() {
-    for( std::vector<SubproblemTree*>::iterator it=_subproblems.begin(); it!=_subproblems.end(); it++ ) {
+    for( vector<SubproblemTree*>::iterator it=_subproblems.begin(); it!=_subproblems.end(); it++ ) {
         SubproblemTree* p_sub_tree = (*it);
         if( p_sub_tree ) {
             if( false == p_sub_tree->are_all_nodes_tractable() ) {
@@ -581,7 +581,7 @@ bool MORRF::are_all_reference_nodes_fitness_positive() {
 }
 
 bool MORRF::are_all_subproblem_nodes_fitness_positive() {
-    for( std::vector<SubproblemTree*>::iterator it=_subproblems.begin(); it!=_subproblems.end(); it++ ) {
+    for( vector<SubproblemTree*>::iterator it=_subproblems.begin(); it!=_subproblems.end(); it++ ) {
         SubproblemTree* p_sub_tree = (*it);
         if( p_sub_tree ) {
             if( false == p_sub_tree->are_all_nodes_fitness_positive() ) {
@@ -593,21 +593,21 @@ bool MORRF::are_all_subproblem_nodes_fitness_positive() {
 }
 
 bool MORRF::is_node_number_identical() {
-    int ref_num = _references[0]->m_nodes.size();
+    unsigned int ref_num = _references[0]->m_nodes.size();
 
-    for(std::vector<ReferenceTree*>::iterator it=_references.begin();it!=_references.end();it++) {
+    for(vector<ReferenceTree*>::iterator it=_references.begin();it!=_references.end();it++) {
         ReferenceTree* pRefTree = (*it);
         if(pRefTree) {
-            int num = pRefTree->m_nodes.size();
+            unsigned int num = pRefTree->m_nodes.size();
             if(num != ref_num) {
                 return false;
             }
         }
     }
-    for(std::vector<SubproblemTree*>::iterator it=_subproblems.begin();it!=_subproblems.end();it++) {
+    for(vector<SubproblemTree*>::iterator it=_subproblems.begin();it!=_subproblems.end();it++) {
         SubproblemTree* pSubTree = (*it);
         if(pSubTree) {
-            int num = pSubTree->m_nodes.size();
+            unsigned int num = pSubTree->m_nodes.size();
             if(num != ref_num) {
                 return false;
             }
@@ -616,17 +616,17 @@ bool MORRF::is_node_number_identical() {
     return true;
 }
 
-std::vector<Path*> MORRF::get_paths() {
-    std::vector<Path*> paths;
+vector<Path*> MORRF::get_paths() {
+    vector<Path*> paths;
 
-    for(std::vector<ReferenceTree*>::iterator it=_references.begin();it!=_references.end();it++) {
+    for(vector<ReferenceTree*>::iterator it=_references.begin();it!=_references.end();it++) {
         ReferenceTree* pRefTree = (*it);
         if(pRefTree) {
             Path* pRefPath = pRefTree->find_path();
             paths.push_back(pRefPath);
         }
     }
-    for(std::vector<SubproblemTree*>::iterator it=_subproblems.begin();it!=_subproblems.end();it++) {
+    for(vector<SubproblemTree*>::iterator it=_subproblems.begin();it!=_subproblems.end();it++) {
         SubproblemTree* pSubTree = (*it);
         if(pSubTree) {
             Path* pSubPath = pSubTree->find_path();
@@ -637,8 +637,7 @@ std::vector<Path*> MORRF::get_paths() {
 }
 
 bool MORRF::update_path_cost( Path *p ) {
-    if(p)
-    {
+    if(p) {
         for(unsigned int k=0;k<_objective_num;k++) {
             p->m_cost[k] = 0.0;
         }
