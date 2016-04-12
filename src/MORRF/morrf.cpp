@@ -275,7 +275,7 @@ void MORRF::extend() {
             // rewire near nodes of subproblem trees
             for( unsigned int m=0; m<_subproblem_num; m++ ) {
                 // std::cout << "@ " << m+mObjectiveNum << std::endl;
-                int index = m + _objective_num;
+                unsigned int index = m + _objective_num;
                 RRTNode* p_nearest_sub_node = nearest_node.m_node_list[index];
                 RRTNode* p_new_sub_node = new_node.m_node_list[index];
                 std::list<RRTNode*> near_sub_nodes;

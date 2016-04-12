@@ -367,9 +367,9 @@ SubproblemTree::~SubproblemTree() {
 
 }
 
-void SubproblemTree::attach_new_node( RRTNode* p_node_new, RRTNode* p_nearest_node, std::list<RRTNode*> near_nodes ) {
-    vector<double> min_new_node_cost(m_objective_num, 0.0);
-    vector<double> min_new_node_cost_delta(m_objective_num, 0.0);
+void SubproblemTree::attach_new_node( RRTNode* p_node_new, RRTNode* p_nearest_node, list<RRTNode*> near_nodes ) {
+    vector<double> min_new_node_cost( m_objective_num, 0.0 );
+    vector<double> min_new_node_cost_delta( m_objective_num, 0.0 );
     mp_parent->calc_cost( p_nearest_node->m_pos, p_node_new->m_pos, min_new_node_cost_delta );
     for( unsigned int k = 0; k < m_objective_num; k++ ) {
         min_new_node_cost[k] = p_nearest_node->m_cost[k] + min_new_node_cost_delta[k];
