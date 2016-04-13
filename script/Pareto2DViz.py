@@ -23,7 +23,7 @@ def load(filename):
         for line in f:
             line = line.replace('\n','')      
             ss = line.split('\t')
-            print ss
+            #print ss
             scores.append([ float(ss[0]), float(ss[1]) ])
     return np.array(scores);
 
@@ -32,6 +32,7 @@ if __name__ == '__main__':
     filename = sys.argv[1]
 
     scores = load(filename)
+    print str(scores)
     print non_dominate_rate(scores)
     viz(scores)
 
