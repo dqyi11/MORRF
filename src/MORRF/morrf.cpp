@@ -94,7 +94,7 @@ void MORRF::init(POS2D start, POS2D goal) {
     for( unsigned int m=0; m<_subproblem_num; m++ ) {
         SubproblemTree * p_sub_tree = new SubproblemTree( this, _objective_num, _weights[m], m );
         RRTNode * p_root_node = p_sub_tree->init( start, goal );
-        root.m_node_list.push_back(p_root_node);
+        root.m_node_list.push_back( p_root_node );
         _subproblems.push_back( p_sub_tree );
     }
     _p_kd_tree->insert( root );
@@ -212,10 +212,10 @@ void MORRF::extend() {
 
     bool node_inserted = false;
     while( false == node_inserted ) {
-        POS2D rndPos = sampling();
-        KDNode2D nearest_node = find_nearest( rndPos );
+        POS2D rnd_pos = sampling();
+        KDNode2D nearest_node = find_nearest( rnd_pos );
 
-        POS2D new_pos = steer( rndPos, nearest_node );
+        POS2D new_pos = steer( rnd_pos, nearest_node );
 
         if(true == _contains( new_pos )) {
             continue;
@@ -234,7 +234,7 @@ void MORRF::extend() {
             for( unsigned int k=0; k < _objective_num; k++ ) {
                 RRTNode * p_new_ref_node = _references[k]->create_new_node( new_pos );
                 p_new_ref_node->mp_host_node = p_morrf_node;
-                p_morrf_node->m_nodes.push_back(p_new_ref_node);
+                p_morrf_node->m_nodes.push_back( p_new_ref_node );
                 new_node.m_node_list.push_back( p_new_ref_node );
             }
 
@@ -242,13 +242,13 @@ void MORRF::extend() {
             for ( unsigned int m=0; m < _subproblem_num; m++ ) {
                 RRTNode * p_new_sub_node = _subproblems[m]->create_new_node( new_pos );
                 p_new_sub_node->mp_host_node = p_morrf_node;
-                p_morrf_node->m_nodes.push_back(p_new_sub_node);
+                p_morrf_node->m_nodes.push_back( p_new_sub_node );
                 new_node.m_node_list.push_back( p_new_sub_node );
             }
 
-            _morrf_nodes.push_back(p_morrf_node);
+            _morrf_nodes.push_back( p_morrf_node );
 
-            _p_kd_tree->insert(new_node);
+            _p_kd_tree->insert( new_node );
             node_inserted = true;
 
             // attach new node to reference trees
@@ -319,9 +319,9 @@ std::list<KDNode2D> MORRF::find_near( POS2D pos ) {
     std::list<KDNode2D> near_list;
     KDNode2D node(pos);
 
-    int numVertices = _p_kd_tree->size();
-    int numDimensions = 2;
-    _ball_radius = _theta * _range * pow( log((double)(numVertices + 1.0))/((double)(numVertices + 1.0)), 1.0/((double)numDimensions) );
+    int num_vertices = _p_kd_tree->size();
+    int num_dimensions = 2;
+    _ball_radius = _theta * _range * pow( log((double)(num_vertices + 1.0))/((double)(num_vertices + 1.0)), 1.0/((double)num_dimensions) );
 #ifndef USE_FLANN
     _p_kd_tree->find_within_range( node, _ball_radius, std::back_inserter(near_list) );
 #else
@@ -370,12 +370,12 @@ double MORRF::calc_fitness( vector<double>& cost, vector<double>& weight, RRTNod
         fitness = calc_fitness_by_weighted_sum( cost, weight );
     }
     else if( _type==MORRF::TCHEBYCHEFF ) {
-        vector<double> utopia(_objective_num, 0.0);
+        vector<double> utopia( _objective_num, 0.0 );
         get_utopia_reference_vector( node, utopia );
         fitness = calc_fitness_by_tchebycheff( cost, weight, utopia );
     }
     else {
-        vector<double> utopia(_objective_num, 0.0);
+        vector<double> utopia( _objective_num, 0.0 );
         get_utopia_reference_vector( node, utopia );
         fitness = calc_fitness_by_boundary_intersection( cost, weight, utopia );
     }
@@ -452,8 +452,8 @@ bool MORRF::get_utopia_reference_vector(POS2D&  pos, vector<double>& utopia ) {
     }
 
     for( unsigned int k=0; k<_objective_num; k++ ) {
-        RRTNode* pRRTNode = ref_node.m_node_list[k];
-        utopia[k] = pRRTNode->m_fitness;
+        RRTNode* p_RRT_node = ref_node.m_node_list[k];
+        utopia[k] = p_RRT_node->m_fitness;
     }
     return true;
 }
@@ -493,31 +493,31 @@ void MORRF::optimize() {
 }
 
 void MORRF::dump_map_info( std::string filename ) {
-    ofstream mapInfoFile;
-    mapInfoFile.open(filename.c_str());
+    ofstream map_info_file;
+    map_info_file.open(filename.c_str());
     if( _pp_map_info ) {
         for( unsigned int i=0; i<_sampling_width; i++ ) {
             for( unsigned int j=0; j<_sampling_height; j++ ) {
-                mapInfoFile << _pp_map_info[i][j] << " ";
+                map_info_file << _pp_map_info[i][j] << " ";
             }
-            mapInfoFile << std::endl;
+            map_info_file << std::endl;
         }
     }
-    mapInfoFile.close();
+    map_info_file.close();
 }
 
 void MORRF::dump_weights( std::string filename ) {
-    ofstream weightFile;
-    weightFile.open(filename.c_str());
+    ofstream weight_file;
+    weight_file.open(filename.c_str());
 
     for( unsigned int i=0; i<_subproblem_num; i++ ) {
         for( unsigned int j=0; j<_objective_num; j++ ) {
-            weightFile << _weights[i][j] << " ";
+            weight_file << _weights[i][j] << " ";
         }
-        weightFile << std::endl;
+        weight_file << std::endl;
     }
 
-    weightFile.close();
+    weight_file.close();
 }
 
 bool MORRF::are_reference_structures_correct() {
@@ -596,18 +596,18 @@ bool MORRF::is_node_number_identical() {
     unsigned int ref_num = _references[0]->m_nodes.size();
 
     for(vector<ReferenceTree*>::iterator it=_references.begin();it!=_references.end();it++) {
-        ReferenceTree* pRefTree = (*it);
-        if(pRefTree) {
-            unsigned int num = pRefTree->m_nodes.size();
+        ReferenceTree* p_ref_tree = (*it);
+        if(p_ref_tree) {
+            unsigned int num = p_ref_tree->m_nodes.size();
             if(num != ref_num) {
                 return false;
             }
         }
     }
     for(vector<SubproblemTree*>::iterator it=_subproblems.begin();it!=_subproblems.end();it++) {
-        SubproblemTree* pSubTree = (*it);
-        if(pSubTree) {
-            unsigned int num = pSubTree->m_nodes.size();
+        SubproblemTree* p_sub_tree = (*it);
+        if(p_sub_tree) {
+            unsigned int num = p_sub_tree->m_nodes.size();
             if(num != ref_num) {
                 return false;
             }
@@ -620,16 +620,16 @@ vector<Path*> MORRF::get_paths() {
     vector<Path*> paths;
 
     for(vector<ReferenceTree*>::iterator it=_references.begin();it!=_references.end();it++) {
-        ReferenceTree* pRefTree = (*it);
-        if(pRefTree) {
-            Path* pRefPath = pRefTree->find_path();
+        ReferenceTree* p_ref_tree = (*it);
+        if(p_ref_tree) {
+            Path* pRefPath = p_ref_tree->find_path();
             paths.push_back(pRefPath);
         }
     }
     for(vector<SubproblemTree*>::iterator it=_subproblems.begin();it!=_subproblems.end();it++) {
-        SubproblemTree* pSubTree = (*it);
-        if(pSubTree) {
-            Path* pSubPath = pSubTree->find_path();
+        SubproblemTree* p_sub_tree = (*it);
+        if(p_sub_tree) {
+            Path* pSubPath = p_sub_tree->find_path();
             paths.push_back(pSubPath);
         }
     }
@@ -664,16 +664,16 @@ bool MORRF::is_ref_tree_min_cost() {
             vector<double> min_cost(_objective_num, std::numeric_limits<double>::max());
 
             for(unsigned int i=_objective_num; i<node.m_node_list.size(); i++) {
-                RRTNode* pNode = node.m_node_list[i];
+                RRTNode* p_node = node.m_node_list[i];
                 for(unsigned int k=0;k<_objective_num;k++) {
-                    if(pNode->m_cost[k] < min_cost[k]) {
-                        min_cost[k] = pNode->m_cost[k];
+                    if(p_node->m_cost[k] < min_cost[k]) {
+                        min_cost[k] = p_node->m_cost[k];
                     }
                 }
             }
             for(unsigned int k=0;k<_objective_num;k++) {
-                RRTNode* pRefNode = node.m_node_list[k];
-                if(pRefNode->m_fitness > min_cost[k]) {
+                RRTNode* p_ref_node = node.m_node_list[k];
+                if(p_ref_node->m_fitness > min_cost[k]) {
                     return false;
                 }
             }

@@ -83,7 +83,6 @@ public:
 class ReferenceTree : public RRTree {
 public:
     ReferenceTree( MORRF* parent, unsigned int objective_num, std::vector<double> weight, unsigned int index );
-    ~ReferenceTree();
 
     virtual void attach_new_node( RRTNode* p_node_new, RRTNode* p_nearest_node, std::list<RRTNode*> near_nodes );
     virtual void rewire_near_nodes( RRTNode* p_node_new, std::list<RRTNode*> near_nodes );
@@ -97,7 +96,6 @@ protected:
 class SubproblemTree : public RRTree {
 public:
     SubproblemTree( MORRF* parent, unsigned int objective_num, std::vector<double> weight, unsigned int index );
-    ~SubproblemTree();
 
     virtual void attach_new_node( RRTNode* p_node_new, RRTNode* p_nearest_node, std::list<RRTNode*> near_nodes );
     virtual void rewire_near_nodes( RRTNode* p_node_new, std::list<RRTNode*> near_nodes );

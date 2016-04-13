@@ -168,10 +168,10 @@ list<RRTNode*> RRTree::find_all_children( RRTNode* p_node ) {
 }
 
 bool RRTree::is_structure_correct() {
-    for( std::list<RRTNode*>::iterator it = m_nodes.begin(); it != m_nodes.end(); it++ ) {
+    for( list<RRTNode*>::iterator it = m_nodes.begin(); it != m_nodes.end(); it++ ) {
         RRTNode * p_node = (*it);
         if( p_node ) {
-            for( std::list<RRTNode*>::iterator itc=p_node->m_child_nodes.begin(); itc!=p_node->m_child_nodes.end(); itc++ ) {
+            for( list<RRTNode*>::iterator itc=p_node->m_child_nodes.begin(); itc!=p_node->m_child_nodes.end(); itc++ ) {
                 RRTNode * p_child_node = (*itc);
                 if( p_child_node ) {
                     if( p_child_node->m_fitness < p_node->m_fitness ) {
@@ -191,7 +191,7 @@ RRTNode* RRTree::find_ancestor( RRTNode* p_node ) {
 Path* RRTree::find_path() {
     Path* p_new_path = new Path( m_start, m_goal, m_objective_num );
 
-    std::list<RRTNode*> node_list;
+    list<RRTNode*> node_list;
 
     RRTNode * p_first_node = NULL;
     vector<double> delta_cost = vector<double>(m_objective_num, 0.0);
@@ -244,11 +244,9 @@ bool RRTree::are_all_nodes_fitness_positive() {
 
 ReferenceTree::ReferenceTree( MORRF* parent, unsigned int objective_num, std::vector<double> weight, unsigned int index )
     : RRTree( parent, objective_num, weight, index ) {
+    m_type = REFERENCE;
 }
 
-ReferenceTree::~ReferenceTree() {
-
-}
 
 void ReferenceTree::attach_new_node( RRTNode* p_node_new, RRTNode* p_nearest_node, std::list<RRTNode*> near_nodes ) {
     double min_new_node_fitness = p_nearest_node->m_fitness + mp_parent->calc_kth_cost( p_nearest_node->m_pos, p_node_new->m_pos, m_index );
@@ -316,7 +314,7 @@ void ReferenceTree::update_fitness_to_children( RRTNode* p_node, double delta_fi
 RRTNode * ReferenceTree::get_closet_to_goal( vector<double>& delta_cost, double& delta_fitness ) {
     RRTNode* p_closest_node = NULL;
     if( mp_parent ) {
-        std::list<KDNode2D> near_nodes = mp_parent->find_near( m_goal );
+        list<KDNode2D> near_nodes = mp_parent->find_near( m_goal );
         double min_total_fitness = std::numeric_limits<double>::max();
         double min_delta_fitness = 0.0;
         RRTNode * p_min_prev_node = NULL;
@@ -361,10 +359,7 @@ Path* ReferenceTree::find_path() {
 
 SubproblemTree::SubproblemTree( MORRF* parent, unsigned int objective_num, vector<double> weight, unsigned int index )
     : RRTree(parent, objective_num, weight, index ) {
-}
-
-SubproblemTree::~SubproblemTree() {
-
+    m_type = SUBPROBLEM;
 }
 
 void SubproblemTree::attach_new_node( RRTNode* p_node_new, RRTNode* p_nearest_node, list<RRTNode*> near_nodes ) {
