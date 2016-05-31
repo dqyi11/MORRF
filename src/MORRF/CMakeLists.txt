@@ -1,21 +1,18 @@
 
 set(LIB morrf)
 
-set(${HDR} include/morrf/kdtree++/allocator.hpp
-           include/morrf/kdtree++/function.hpp
-           include/morrf/kdtree++/iterator.hpp
-           include/morrf/kdtree++/kdtree.hpp
-           include/morrf/kdtree++/node.hpp
-           include/morrf/kdtree++/region.hpp
-           include/morrf/KDTree2D.h
-           include/morrf/utilities.h
-           include/morrf/subtree.h
-           include/morrf/morrf.h
+set(${HDR} morrf/kdtree++/allocator.hpp
+           morrf/kdtree++/function.hpp
+           morrf/kdtree++/iterator.hpp
+           morrf/kdtree++/kdtree.hpp
+           morrf/kdtree++/node.hpp
+           morrf/kdtree++/region.hpp
+           morrf/KDTree2D.h
+           morrf/utilities.h
+           morrf/subtree.h
+           morrf/morrf.h
     )
 
-include_directories(
-                   include
-                   )
 
 add_library(${LIB} SHARED
             ${HDR}
@@ -24,3 +21,11 @@ add_library(${LIB} SHARED
            )
 
 target_link_libraries(${LIB})
+
+install(TARGETS ${LIB}
+        LIBRARY
+        DESTINATION lib
+        ARCHIVE
+        DESTINATION lib)
+
+install(DIRECTORY morrf DESTINATION include)
