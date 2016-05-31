@@ -1,7 +1,7 @@
 #ifndef MORRF_H
 #define MORRF_H
 
-#include "subtree.h"
+#include "morrf/subtree.h"
 
 typedef double (*COST_FUNC_PTR)(POS2D, POS2D, int**, void*);
 

@@ -1,6 +1,6 @@
 #include <list>
 #include <iostream>
-#include "KDTree2D.h"
+#include "morrf/KDTree2D.h"
 
 int main(int argc, char *argv[])
 {

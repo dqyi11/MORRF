@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <limits>
-#include "morrf.h"
+#include "morrf/morrf.h"
 
 #define OBSTACLE_THRESHOLD 200
 

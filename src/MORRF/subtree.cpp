@@ -1,6 +1,6 @@
-#include "subtree.h"
-#include "morrf.h"
 #include <limits>
+#include "morrf/morrf.h"
+#include "morrf/subtree.h"
 
 using namespace std;
 

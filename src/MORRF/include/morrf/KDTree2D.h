@@ -3,9 +3,9 @@
 
 #define KDTREE_DEFINE_OSTREAM_OPERATORS
 
-#include "kdtree++/kdtree.hpp"
 #include <functional>
 #include <iostream>
+#include "kdtree++/kdtree.hpp"
 
 class RRTNode;
 
