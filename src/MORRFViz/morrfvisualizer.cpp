@@ -1,5 +1,5 @@
-#include "morrfvisualizer.h"
 #include <QtGui>
+#include "morrf_viz/morrfvisualizer.h"
 
 MORRFVisualizer::MORRFVisualizer(QWidget *parent) :
     QLabel(parent) {

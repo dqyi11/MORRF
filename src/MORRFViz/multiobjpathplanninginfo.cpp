@@ -5,7 +5,7 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <list>
-#include "multiobjpathplanninginfo.h"
+#include "morrf_viz/multiobjpathplanninginfo.h"
 
 MultiObjPathPlanningInfo::MultiObjPathPlanningInfo() {
     mInfoFilename = "";

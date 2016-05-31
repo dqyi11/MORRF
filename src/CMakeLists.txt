@@ -26,8 +26,8 @@ include_directories(${PROJECT_SOURCE_DIR}/src/MORRF
 add_definitions(-Wall -g -O3)
 
 add_subdirectory(MORRF)
-#add_subdirectory(Util)
-#add_subdirectory(MORRFViz)
-#add_subdirectory(MORRFVizDemo)
+add_subdirectory(Util)
+add_subdirectory(MORRFViz)
+add_subdirectory(MORRFVizDemo)
 
 

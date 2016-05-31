@@ -9,7 +9,7 @@
 #include <QDebug>
 #include <math.h>
 
-#include "morrf.h"
+#include "morrf/morrf.h"
 
 class MultiObjPathPlanningInfo {
 public:

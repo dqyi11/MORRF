@@ -2,8 +2,8 @@
 #define MORRFVISUALIZER_H
 
 #include <QLabel>
-#include "morrf.h"
-#include "multiobjpathplanninginfo.h"
+#include "morrf/morrf.h"
+#include "morrf_viz/multiobjpathplanninginfo.h"
 
 class MORRFVisualizer : public QLabel
 {
