@@ -16,24 +16,6 @@ if( NOT Qt5Widgets_FOUND )
   return()
 endif()
 
-# Find package FLANN
-find_package(PkgConfig)
-pkg_check_modules(PC_FLANN flann)
-if( PC_FLANN_FOUND )
-  message( "FLANN found\n" )
-  #add_definitions( -DUSE_FLANN )
-endif()
-
-set(FLANN_DEFINITIONS ${PC_FLANN_CFLAGS_OTHER})
-
-find_path(FLANN_INCLUDE_DIR flann/flann.hpp
-    HINTS ${PC_FLANN_INCLUDEDIR} ${PC_FLANN_INCLUDE_DIRS})
-
-find_library(FLANN_LIBRARY flann
-    HINTS ${PC_FLANN_LIBDIR} ${PC_FLANN_LIBRARY_DIRS})
-include_directories(${FLANN_INCLUDE_DIR})
-
-
 # add the include directories to the build
 include_directories(${PROJECT_SOURCE_DIR}/src/MORRF
                     ${PROJECT_SOURCE_DIR}/src/Util

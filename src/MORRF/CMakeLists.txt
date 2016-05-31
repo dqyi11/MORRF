@@ -9,7 +9,6 @@ add_library(${LIB} SHARED
             kdtree++/node.hpp
             kdtree++/region.hpp
             KDTree2D.h
-            KDTree2D_flann.h
             utilities.h
             subtree.h
             subtree.cpp
