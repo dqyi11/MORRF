@@ -17,7 +17,7 @@ public:
 
 class MORRF {
 public:
-    enum MORRF_TYPE{ WEIGHTED_SUM, TCHEBYCHEFF, BOUNDARY_INTERSACTION };
+    enum MORRF_TYPE{ WEIGHTED_SUM = 0, TCHEBYCHEFF, BOUNDARY_INTERSACTION };
     MORRF( unsigned int width, unsigned int height, unsigned int objective_num, unsigned int subproblem_num, unsigned int segment_length, MORRF_TYPE type=WEIGHTED_SUM );
     ~MORRF();
 
