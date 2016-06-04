@@ -17,17 +17,17 @@ if( NOT Qt5Widgets_FOUND )
 endif()
 
 # add the include directories to the build
-include_directories(${PROJECT_SOURCE_DIR}/src/MORRF
-                    ${PROJECT_SOURCE_DIR}/src/Util
-                    ${PROJECT_SOURCE_DIR}/src/MORRFViz
-                    ${PROJECT_SOURCE_DIR}/src/MORRFVizDemo
+include_directories(${PROJECT_SOURCE_DIR}/src/morrf
+                    ${PROJECT_SOURCE_DIR}/src/util
+                    ${PROJECT_SOURCE_DIR}/src/morrf_viz
+                    ${PROJECT_SOURCE_DIR}/src/morrf_viz_demo
                    )
 
 add_definitions(-Wall -g -O3)
 
-add_subdirectory(MORRF)
-add_subdirectory(Util)
-add_subdirectory(MORRFViz)
-add_subdirectory(MORRFVizDemo)
+add_subdirectory(morrf)
+add_subdirectory(util)
+add_subdirectory(morrf_viz)
+add_subdirectory(morrf_viz_demo)
 
 
