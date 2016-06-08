@@ -626,14 +626,18 @@ vector<Path*> MORRF::get_paths() {
         ReferenceTree* p_ref_tree = (*it);
         if(p_ref_tree) {
             Path* pRefPath = p_ref_tree->mp_current_best;
-            paths.push_back(pRefPath);
+            if(pRefPath) {
+              paths.push_back(pRefPath);
+            }
         }
     }
     for(vector<SubproblemTree*>::iterator it=_subproblems.begin();it!=_subproblems.end();it++) {
         SubproblemTree* p_sub_tree = (*it);
         if(p_sub_tree) {
             Path* pSubPath = p_sub_tree->mp_current_best;
-            paths.push_back(pSubPath);
+            if(pSubPath) {
+              paths.push_back(pSubPath);
+            }
         }
     }
     return paths;
