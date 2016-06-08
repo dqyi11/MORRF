@@ -16,6 +16,8 @@ public:
 };
 
 class MORRF {
+    friend class SubproblemTree;
+    friend class ReferenceTree;
 public:
     enum MORRF_TYPE{ WEIGHTED_SUM = 0, TCHEBYCHEFF, BOUNDARY_INTERSACTION };
     MORRF( unsigned int width, unsigned int height, unsigned int objective_num, unsigned int subproblem_num, unsigned int segment_length, MORRF_TYPE type=WEIGHTED_SUM );
@@ -31,6 +33,7 @@ public:
     void extend();
 
     KDNode2D find_nearest( POS2D pos );
+    KDNode2D find_exact(POS2D pos);
     std::list<KDNode2D> find_near( POS2D pos );
 
     bool _is_obstacle_free( POS2D pos_a, POS2D pos_b );
@@ -78,6 +81,8 @@ public:
     bool update_path_cost( Path *p );
 
     void optimize();
+
+    std::vector< std::vector< float > > create_weights(unsigned int num);
 protected:
     void _init_weights();
     void _deinit_weights();
@@ -97,17 +102,19 @@ private:
     std::vector<COST_FUNC_PTR> _funcs;
     std::vector<int**> _fitness_distributions;
 
-    std::vector< std::vector<double> > _weights;
+    std::vector< std::vector<float> > _weights;
 
     std::vector<SubproblemTree*> _subproblems;
     std::vector<ReferenceTree*> _references;
+
+    std::vector<POS2D> _sampled_positions;
 
     double _range;
     double _ball_radius;
     double _segment_length;
     int _obs_check_resolution;
 
-    std::list<MORRFNode*> _morrf_nodes;
+    std::vector<MORRFNode*> _morrf_nodes;
 
     double _theta;
     int _current_iteration;

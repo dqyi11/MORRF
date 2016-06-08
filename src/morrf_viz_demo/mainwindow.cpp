@@ -5,6 +5,7 @@
 #include <QtDebug>
 #include <QKeyEvent>
 #include <QStatusBar>
+#include <QApplication>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent) {
@@ -198,6 +199,8 @@ void MainWindow::onRun() {
         qDebug(msg.toStdString().c_str());
 
         mpMORRF->extend();
+
+        QApplication::processEvents();
 
         updateStatus();
         repaint();

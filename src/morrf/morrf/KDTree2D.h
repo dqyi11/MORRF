@@ -8,6 +8,7 @@
 #include "kdtree++/kdtree.hpp"
 
 class RRTNode;
+class MORRFNode;
 
 class POS2D {
 public:
@@ -52,17 +53,20 @@ public:
 
 class KDNode2D : public POS2D {
 public:
-    KDNode2D( value_type x, value_type y ) : POS2D( x, y ) { m_node_list.clear(); }
-    KDNode2D( POS2D & pos ) : POS2D( pos ) { m_node_list.clear(); }
+    KDNode2D( value_type x, value_type y ) : POS2D( x, y ) {
+        mp_morrf_node = NULL;
+    }
 
-    std::vector<RRTNode*> m_node_list;
+    KDNode2D( POS2D & pos ) : POS2D( pos ) {
+        mp_morrf_node = NULL;
+    }
+
+    MORRFNode* mp_morrf_node;
 };
-
 
 inline std::ostream& operator<< ( std::ostream& out, POS2D const& T ) {
     return out << '(' << T.d[0] << ',' << T.d[1] << ')';
 }
-
 
 inline std::ostream& operator<< ( std::ostream& out, KDNode2D const& T ) {
     return out << '(' << T.d[0] << ',' << T.d[1] << ')';

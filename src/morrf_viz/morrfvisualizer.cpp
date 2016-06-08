@@ -62,8 +62,26 @@ void MORRFVisualizer::paintEvent(QPaintEvent * e) {
                     }
                 }
             }
+            painter.drawText(QRect(10, height()-20, 60, 30),Qt::AlignLeft, "Index:"+QString::number(pTree->m_index));
+
+            if( pTree->mp_current_best ) {
+                QPen paintpen(QColor(255,140,0));
+                paintpen.setStyle(Qt::DashLine);
+                paintpen.setWidth(2);
+                painter.setPen(paintpen);
+
+                int point_num = pTree->mp_current_best->m_waypoints.size();
+
+                if( point_num > 0) {
+                    for( int i=0; i<point_num-1; i++) {
+                        painter.drawLine(QPoint(pTree->mp_current_best->m_waypoints[i][0], pTree->mp_current_best->m_waypoints[i][1]),
+                                         QPoint(pTree->mp_current_best->m_waypoints[i+1][0], pTree->mp_current_best->m_waypoints[i+1][1]));
+                    }
+                }
+            }
         }
 
+        /*
         if( mCurrentTreeIdx < mMOPPInfo.mFoundPaths.size() ) {
             Path * p = mMOPPInfo.mFoundPaths[mCurrentTreeIdx];
             QPainter painter(this);
@@ -78,7 +96,7 @@ void MORRFVisualizer::paintEvent(QPaintEvent * e) {
                     painter.drawLine(QPoint(p->m_waypoints[i][0], p->m_waypoints[i][1]), QPoint(p->m_waypoints[i+1][0], p->m_waypoints[i+1][1]));
                 }
             }
-        }
+        }*/
     }
 
     if( mMOPPInfo.mStart.x() >= 0 && mMOPPInfo.mStart.y() >= 0 ) {
