@@ -299,6 +299,13 @@ void MORRF::extend() {
                 _subproblems[m]->rewire_near_nodes( p_new_sub_node, near_sub_nodes );
             }
         }
+        for( unsigned int k=0; k<_objective_num; k++ ) {
+            _references[k]->update_current_best();
+        }
+        for( unsigned int m=0; m<_subproblem_num; m++ ) {
+            _subproblems[m]->update_current_best();
+        }
+
     }
 
     if(_current_iteration % 10 == 0) {
