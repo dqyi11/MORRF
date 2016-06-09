@@ -28,11 +28,28 @@ ConfigObjDialog::ConfigObjDialog(MainWindow * parent) {
     mpLabelIterationNum = new QLabel("Iteration Num: ");
     mpLineEditIterationNum = new QLineEdit();
     mpLineEditIterationNum->setText(QString::number(mpParentWindow->mpViz->mMOPPInfo.mMaxIterationNum));
-    mpLineEditIterationNum->setMaximumWidth(40);
+    mpLineEditIterationNum->setMaximumWidth(80);
     mpLabelSegmentLength = new QLabel("Segment Len: ");
     mpLineEditSegmentLength = new QLineEdit();
     mpLineEditSegmentLength->setText(QString::number(mpParentWindow->mpViz->mMOPPInfo.mSegmentLength));
     mpLineEditSegmentLength->setMaximumWidth(40);
+
+    mpLoadWeightFromFile = new QCheckBox();
+    mpLabelWeightFile = new QLabel("Weight File: ");
+    mpLineEditWeightFile = new QLineEdit();
+    mpBtnOpenWeightFile = new QPushButton("Load");
+    if( mpParentWindow->mpViz->mMOPPInfo.mLoadWeightFile == false ) {
+        mpLoadWeightFromFile->setChecked(false);
+        mpLineEditWeightFile->setReadOnly(true);
+        mpBtnOpenWeightFile->setEnabled(false);
+    }
+    else {
+        mpLoadWeightFromFile->setChecked(true);
+        mpLineEditWeightFile->setReadOnly(false);
+        mpBtnOpenWeightFile->setEnabled(true);
+    }
+    connect(mpLoadWeightFromFile, SIGNAL(clicked(bool)), this, SLOT(onLoadWeightToggled(bool)));
+    connect(mpBtnOpenWeightFile, SIGNAL(clicked()), this, SLOT(onBtnOpenWeightFileClicked()));
 
     QHBoxLayout * minDistLayout = new QHBoxLayout();
     minDistLayout->addWidget(mpCheckMinDist);
@@ -43,6 +60,12 @@ ConfigObjDialog::ConfigObjDialog(MainWindow * parent) {
     minDistLayout->addWidget(mpLineEditIterationNum);
     minDistLayout->addWidget(mpLabelSegmentLength);
     minDistLayout->addWidget(mpLineEditSegmentLength);
+
+    QHBoxLayout * weightFileLayout = new QHBoxLayout();
+    weightFileLayout->addWidget(mpLoadWeightFromFile);
+    weightFileLayout->addWidget(mpLabelWeightFile);
+    weightFileLayout->addWidget(mpLineEditWeightFile);
+    weightFileLayout->addWidget(mpBtnOpenWeightFile);
 
     QHBoxLayout * typeLayout = new QHBoxLayout();
     mpLabelType = new QLabel("Type: ");
@@ -81,6 +104,7 @@ ConfigObjDialog::ConfigObjDialog(MainWindow * parent) {
 
     QVBoxLayout * mainLayout = new QVBoxLayout();
     mainLayout->addLayout(minDistLayout);
+    mainLayout->addLayout(weightFileLayout);
     mainLayout->addLayout(typeLayout);
     mainLayout->addWidget(mpListWidget);
     mainLayout->addLayout(buttonsLayout);
@@ -141,6 +165,19 @@ void ConfigObjDialog::updateDisplay() {
             }
 
             mpComboType->setCurrentIndex((int)mpParentWindow->mpViz->mMOPPInfo.mMethodType);
+
+            if(mpParentWindow->mpViz->mMOPPInfo.mLoadWeightFile==true) {
+                mpLoadWeightFromFile->setChecked(true);
+                mpLineEditWeightFile->setReadOnly(false);
+                mpBtnOpenWeightFile->setEnabled(true);
+            }
+            else {
+                mpLoadWeightFromFile->setChecked(false);
+                mpLineEditWeightFile->setReadOnly(true);
+                mpBtnOpenWeightFile->setEnabled(false);
+            }
+            mpLineEditWeightFile->setText(mpParentWindow->mpViz->mMOPPInfo.mWeightFile);
+
         }
     }
 
@@ -173,6 +210,15 @@ void ConfigObjDialog::updateConfiguration() {
     int type = mpComboType->currentIndex();
     mpParentWindow->mpViz->mMOPPInfo.mMethodType = (MORRF::MORRF_TYPE) type;
 
+    if(mpLoadWeightFromFile->isChecked()) {
+        mpParentWindow->mpViz->mMOPPInfo.mLoadWeightFile = true;
+        mpParentWindow->mpViz->mMOPPInfo.mWeightFile = mpLineEditWeightFile->text();
+    }
+    else {
+        mpParentWindow->mpViz->mMOPPInfo.mLoadWeightFile = false;
+        mpParentWindow->mpViz->mMOPPInfo.mWeightFile = "";
+    }
+
 }
 
 bool ConfigObjDialog::isCompatible(QString fitnessFile) {
@@ -182,4 +228,23 @@ bool ConfigObjDialog::isCompatible(QString fitnessFile) {
         return true;
     }
     return false;
+}
+
+void ConfigObjDialog::onLoadWeightToggled(bool checked) {
+    if( checked ) {
+        mpLineEditWeightFile->setReadOnly(false);
+        mpBtnOpenWeightFile->setEnabled(true);
+    }
+    else {
+        mpLineEditWeightFile->setReadOnly(true);
+        mpBtnOpenWeightFile->setEnabled(false);
+    }
+    update();
+}
+
+void ConfigObjDialog::onBtnOpenWeightFileClicked() {
+    QString weightFilename = QFileDialog::getOpenFileName(this,
+                  tr("Open Weight File"), "./", tr("Weight Files (*.*)"));
+    mpLineEditWeightFile->setText(weightFilename);
+    update();
 }

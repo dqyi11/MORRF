@@ -35,6 +35,11 @@ private:
     QLabel    * mpLabelSegmentLength;
     QLineEdit * mpLineEditSegmentLength;
 
+    QCheckBox   * mpLoadWeightFromFile;
+    QLabel      * mpLabelWeightFile;
+    QLineEdit   * mpLineEditWeightFile;
+    QPushButton * mpBtnOpenWeightFile;
+
     QLabel    * mpLabelType;
     QComboBox * mpComboType;
 
@@ -48,6 +53,8 @@ public slots:
     void onBtnCancelClicked();
     void onBtnAddClicked();
     void onBtnRemoveClicked();
+    void onLoadWeightToggled(bool checked);
+    void onBtnOpenWeightFileClicked();
 };
 
 #endif // CONFIGOBJDIALOG_H

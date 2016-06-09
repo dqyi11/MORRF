@@ -33,6 +33,12 @@ void MORRFVisualizer::nextTree() {
     }
 }
 
+void MORRFVisualizer::reset() {
+    mpMORRF = NULL;
+    mCurrentTreeIdx = 0;
+    mMOPPInfo.reset();
+}
+
 void MORRFVisualizer::paintEvent(QPaintEvent * e) {
     QLabel::paintEvent(e);
 

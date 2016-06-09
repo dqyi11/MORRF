@@ -175,29 +175,8 @@ void MainWindow::onRun() {
         return;
     }
 
-    if(mpMORRF) {
-        mpViz->mMOPPInfo.initObstacleInfo();
-        mpViz->mMOPPInfo.initFuncsParams();
-        QString msg = "RUNNING MORRF ... \n";
-        msg += "ObjNum( " + QString::number(mpViz->mMOPPInfo.mObjectiveNum) + " ) \n";
-        msg += "SubproblemNum( " + QString::number(mpViz->mMOPPInfo.mSubproblemNum) + " ) \n";
-        msg += "SegmentLen( " + QString::number(mpViz->mMOPPInfo.mSegmentLength) + " ) \n";
-        msg += "MaxIterationNum( " + QString::number(mpViz->mMOPPInfo.mMaxIterationNum) + " ) \n";
-        qDebug(msg.toStdString().c_str());
-
-        mpMORRF = new MORRF(mpMap->width(), mpMap->height(), mpViz->mMOPPInfo.mObjectiveNum, mpViz->mMOPPInfo.mSubproblemNum, mpViz->mMOPPInfo.mSegmentLength, mpViz->mMOPPInfo.mMethodType);
-
-        mpMORRF->add_funcs(mpViz->mMOPPInfo.mFuncs, mpViz->mMOPPInfo.mDistributions);
-        POS2D start(mpViz->mMOPPInfo.mStart.x(), mpViz->mMOPPInfo.mStart.y());
-        POS2D goal(mpViz->mMOPPInfo.mGoal.x(), mpViz->mMOPPInfo.mGoal.y());
-
-        mpMORRF->init(start, goal);
-
-        //mpViz->mMOPPInfo.dumpObstacleInfo("map1.txt");
-        mpMORRF->load_map(mpViz->mMOPPInfo.mppObstacle);
-        mpViz->setMORRF(mpMORRF);
-
-
+    if(mpMORRF == NULL) {
+        initMORRF();
     }
 
     while(mpMORRF->get_current_iteration() < mpViz->mMOPPInfo.mMaxIterationNum) {
@@ -309,6 +288,7 @@ void MainWindow::initMORRF() {
         delete mpMORRF;
         mpMORRF = NULL;
     }
+
     mpViz->mMOPPInfo.initObstacleInfo();
     mpViz->mMOPPInfo.initFuncsParams();
     QString msg = "RUNNING MORRF ... \n";
@@ -319,6 +299,7 @@ void MainWindow::initMORRF() {
     qDebug(msg.toStdString().c_str());
 
     mpMORRF = new MORRF(mpMap->width(), mpMap->height(), mpViz->mMOPPInfo.mObjectiveNum, mpViz->mMOPPInfo.mSubproblemNum, mpViz->mMOPPInfo.mSegmentLength, mpViz->mMOPPInfo.mMethodType);
+
     mpMORRF->add_funcs(mpViz->mMOPPInfo.mFuncs, mpViz->mMOPPInfo.mDistributions);
     POS2D start(mpViz->mMOPPInfo.mStart.x(), mpViz->mMOPPInfo.mStart.y());
     POS2D goal(mpViz->mMOPPInfo.mGoal.x(), mpViz->mMOPPInfo.mGoal.y());
@@ -326,6 +307,7 @@ void MainWindow::initMORRF() {
     mpMORRF->init(start, goal);
     mpMORRF->load_map(mpViz->mMOPPInfo.mppObstacle);
     mpViz->setMORRF(mpMORRF);
+
 }
 
 bool MainWindow::loadConfiguration(QString filename) {
@@ -355,4 +337,10 @@ void MainWindow::onReset() {
         delete mpMORRF;
         mpMORRF = NULL;
     }
+    mpViz->reset();
+    if(mpStatusProgressBar) {
+        mpStatusProgressBar->setValue(0);
+    }
+    updateStatus();
+    repaint();
 }

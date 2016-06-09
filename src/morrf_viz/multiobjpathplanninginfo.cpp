@@ -7,6 +7,10 @@
 #include <list>
 #include "morrf_viz/multiobjpathplanninginfo.h"
 
+#define DEFAULT_SEGMENT_LENGTH    5.0
+#define DEFAULT_MAX_ITERATION_NUM 1000
+#define DEAFULT_SUBPROBLEM_NUM    30
+
 MultiObjPathPlanningInfo::MultiObjPathPlanningInfo() {
     mInfoFilename = "";
     mMapFilename = "";
@@ -20,12 +24,15 @@ MultiObjPathPlanningInfo::MultiObjPathPlanningInfo() {
 
     mMinDistEnabled = false;
 
-    mSubproblemNum = 4;
-    mMaxIterationNum = 100;
-    mSegmentLength = 5.0;
+    mSubproblemNum = DEAFULT_SUBPROBLEM_NUM;
+    mMaxIterationNum = DEFAULT_MAX_ITERATION_NUM;
+    mSegmentLength = DEFAULT_SEGMENT_LENGTH;
 
     mMapWidth = 0;
     mMapHeight = 0;
+
+    mLoadWeightFile = false;
+    mWeightFile = "";
 
     mppObstacle = NULL;
 
@@ -151,6 +158,9 @@ void MultiObjPathPlanningInfo::read(const QJsonObject &json) {
     mSubproblemNum = json["subproblemNum"].toInt();
     mMaxIterationNum = json["maxIterationNum"].toInt();
     mSegmentLength = json["segmentLength"].toDouble();
+
+    mLoadWeightFile = json["loadWeightFile"].toBool();
+    mWeightFile = json["weightFile"].toString();
 }
 
 void MultiObjPathPlanningInfo::write(QJsonObject &json) const {
@@ -179,6 +189,9 @@ void MultiObjPathPlanningInfo::write(QJsonObject &json) const {
     json["subproblemNum"] = mSubproblemNum;
     json["maxIterationNum"] = mMaxIterationNum;
     json["segmentLength"] = mSegmentLength;
+
+    json["loadWeightFile"] = mLoadWeightFile;
+    json["weightFile"] = mWeightFile;
 }
 
 bool MultiObjPathPlanningInfo::saveToFile( QString filename ) {
@@ -241,4 +254,8 @@ void MultiObjPathPlanningInfo::exportPaths( QString filename ) {
             stream << "\n";
         }
     }
+}
+
+void MultiObjPathPlanningInfo::reset() {
+
 }
