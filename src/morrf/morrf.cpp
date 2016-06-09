@@ -492,14 +492,14 @@ bool MORRF::get_utopia_reference_vector( RRTNode* p_node, vector<double>& utopia
 }
 
 ReferenceTree* MORRF::get_reference_tree(unsigned int k) {
-    if( k<0 || k>=_objective_num ) {
+    if( k<0 || k>=_references.size() ) {
         return NULL;
     }
     return _references[k];
 }
 
 SubproblemTree* MORRF::get_subproblem_tree( unsigned int m ) {
-    if( m<0 || m>=_subproblem_num ) {
+    if( m<0 || m>=_subproblems.size() ) {
         return NULL;
     }
     return _subproblems[m];

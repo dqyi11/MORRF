@@ -259,3 +259,34 @@ void MultiObjPathPlanningInfo::exportPaths( QString filename ) {
 void MultiObjPathPlanningInfo::reset() {
 
 }
+
+std::vector< std::vector<float> > MultiObjPathPlanningInfo::loadWeightFromFile(QString filename) {
+    std::vector< std::vector<float> > weights;
+
+    QFile file(filename);
+    file.open(QIODevice::ReadOnly);
+    QTextStream in(&file);
+
+    while(!in.atEnd()) {
+        QString line = in.readLine();
+        QStringList fields = line.split(" ");
+
+        std::vector<float> weight;
+        for(QStringList::iterator it = fields.begin(); it != fields.end(); it++) {
+            QString field = (*it);
+            if(field.trimmed().compare("")!=0) {
+                float w = field.toFloat();
+                weight.push_back(w);
+            }
+        }
+        if(weight.size() > 0) {
+            weights.push_back(weight);
+        }
+        std::cout << "w size " << weight.size() << std::endl;
+    }
+
+    file.close();
+
+    std::cout << "weight size " << weights.size() << std::endl;
+    return weights;
+}

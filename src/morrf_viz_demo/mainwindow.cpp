@@ -304,7 +304,8 @@ void MainWindow::initMORRF() {
     POS2D start(mpViz->mMOPPInfo.mStart.x(), mpViz->mMOPPInfo.mStart.y());
     POS2D goal(mpViz->mMOPPInfo.mGoal.x(), mpViz->mMOPPInfo.mGoal.y());
 
-    mpMORRF->init(start, goal);
+    std::vector< std::vector<float> > weights = mpViz->mMOPPInfo.loadWeightFromFile( mpViz->mMOPPInfo.mWeightFile );
+    mpMORRF->init(start, goal, weights);
     mpMORRF->load_map(mpViz->mMOPPInfo.mppObstacle);
     mpViz->setMORRF(mpMORRF);
 

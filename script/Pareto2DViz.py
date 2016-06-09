@@ -24,7 +24,8 @@ def load(filename):
             line = line.replace('\n','')      
             ss = line.split('\t')
             #print ss
-            scores.append([ float(ss[0]), float(ss[1]) ])
+            if len(ss) > 0:
+                scores.append([ float(ss[0]), float(ss[1]) ])
     return np.array(scores);
 
 if __name__ == '__main__':

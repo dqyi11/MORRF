@@ -271,9 +271,8 @@ ReferenceTree::ReferenceTree( MORRF* parent, unsigned int objective_num, std::ve
 }
 
 void ReferenceTree::attach_new_node( RRTNode* p_node_new, std::list<RRTNode*> near_nodes ) {
-    double min_new_node_fitness = std::numeric_limits<double>::max(); //p_nearest_node->m_fitness + mp_parent->calc_kth_cost( p_nearest_node->m_pos, p_node_new->m_pos, m_index );
-    RRTNode* p_min_node = NULL; //p_nearest_node;
-
+    double min_new_node_fitness = std::numeric_limits<double>::max();
+    RRTNode* p_min_node = NULL;
 
     for( std::list<RRTNode*>::iterator it=near_nodes.begin(); it!=near_nodes.end(); it++ ) {
         RRTNode* p_near_node = *it;
@@ -341,6 +340,9 @@ void ReferenceTree::update_fitness_to_children( RRTNode* p_node, double delta_fi
 RRTNode * ReferenceTree::get_closet_to_goal( vector<double>& delta_cost, double& delta_fitness ) {
     RRTNode* p_closest_node = NULL;
     if( mp_parent ) {
+        KDNode2D nearest_node = mp_parent->find_nearest( m_goal );
+        p_closest_node = nearest_node.mp_morrf_node->m_nodes[m_index];
+        /*
         list<KDNode2D> near_nodes = mp_parent->find_near( m_goal );
         double min_total_fitness = std::numeric_limits<double>::max();
         double min_delta_fitness = 0.0;
@@ -371,6 +373,7 @@ RRTNode * ReferenceTree::get_closet_to_goal( vector<double>& delta_cost, double&
                 delta_cost[k] = 0.0;
             }
         }
+        */
     }
     return p_closest_node;
 }
@@ -496,6 +499,9 @@ void SubproblemTree::update_cost_to_children( RRTNode* p_node, vector<double>& d
 RRTNode * SubproblemTree::get_closet_to_goal( vector<double>& delta_cost, double& delta_fitness ){
     RRTNode * p_closest_node = NULL;
     if( mp_parent ) {
+        KDNode2D nearest_node = mp_parent->find_nearest( m_goal );
+        p_closest_node = nearest_node.mp_morrf_node->m_nodes[m_index];
+        /*
         std::list<KDNode2D> near_nodes = mp_parent->find_near( m_goal );
         double min_total_fitness = std::numeric_limits<double>::max();
         double min_delta_fitness = 0.0;
@@ -527,6 +533,7 @@ RRTNode * SubproblemTree::get_closet_to_goal( vector<double>& delta_cost, double
         for( unsigned int k=0; k<m_objective_num; k++ ) {
             delta_cost[k] = min_delta_cost[k];
         }
+        */
     }
     return p_closest_node;
 }
