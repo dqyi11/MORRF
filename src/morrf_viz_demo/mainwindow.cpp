@@ -45,11 +45,13 @@ void MainWindow::createMenuBar() {
     mpFileMenu->addAction(mpOpenAction);
     mpFileMenu->addAction(mpSaveAction);
     mpFileMenu->addAction(mpExportAction);
+    mpFileMenu->addAction(mpDumpWeightAction);
 
     mpEditMenu = menuBar()->addMenu("&Edit");
     mpEditMenu->addAction(mpLoadMapAction);
     mpEditMenu->addAction(mpLoadObjAction);
     mpEditMenu->addAction(mpRunAction);
+    mpEditMenu->addAction(mpResetAction);
 
     mpContextMenu = new QMenu();
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -65,6 +67,8 @@ void MainWindow::createActions() {
     mpLoadMapAction = new QAction("Load Map", this);
     mpLoadObjAction = new QAction("Load Objectives", this);
     mpRunAction = new QAction("Run", this);
+    mpDumpWeightAction = new QAction("Dump Weights", this);
+    mpResetAction = new QAction("Reset", this);
 
     connect(mpOpenAction, SIGNAL(triggered()), this, SLOT(onOpen()));
     connect(mpSaveAction, SIGNAL(triggered()), this, SLOT(onSave()));
@@ -72,6 +76,8 @@ void MainWindow::createActions() {
     connect(mpLoadMapAction, SIGNAL(triggered()), this, SLOT(onLoadMap()));
     connect(mpLoadObjAction, SIGNAL(triggered()), this, SLOT(onLoadObj()));
     connect(mpRunAction, SIGNAL(triggered()), this, SLOT(onRun()));
+    connect(mpDumpWeightAction, SIGNAL(triggered()), this, SLOT(onDumpWeight()));
+    connect(mpResetAction, SIGNAL(triggered()), this, SLOT(onReset()));
 
     mpAddStartAction = new QAction("Add Start", this);
     mpAddGoalAction = new QAction("Add Goal", this);
@@ -100,6 +106,10 @@ void MainWindow::onSave() {
 
 void MainWindow::onExport() {
     QString pathFilename = QFileDialog::getSaveFileName(this, tr("Save File"), "./", tr("Txt Files (*.txt)"));
+    if(mpMORRF) {
+        std::vector<Path*> paths = mpMORRF->get_paths();
+        mpViz->mMOPPInfo.loadPaths(paths);
+    }
     exportPaths(pathFilename);
 }
 
@@ -164,36 +174,33 @@ void MainWindow::onRun() {
         msgBox.exec();
         return;
     }
+
     if(mpMORRF) {
-        delete mpMORRF;
-        mpMORRF = NULL;
+        mpViz->mMOPPInfo.initObstacleInfo();
+        mpViz->mMOPPInfo.initFuncsParams();
+        QString msg = "RUNNING MORRF ... \n";
+        msg += "ObjNum( " + QString::number(mpViz->mMOPPInfo.mObjectiveNum) + " ) \n";
+        msg += "SubproblemNum( " + QString::number(mpViz->mMOPPInfo.mSubproblemNum) + " ) \n";
+        msg += "SegmentLen( " + QString::number(mpViz->mMOPPInfo.mSegmentLength) + " ) \n";
+        msg += "MaxIterationNum( " + QString::number(mpViz->mMOPPInfo.mMaxIterationNum) + " ) \n";
+        qDebug(msg.toStdString().c_str());
+
+        mpMORRF = new MORRF(mpMap->width(), mpMap->height(), mpViz->mMOPPInfo.mObjectiveNum, mpViz->mMOPPInfo.mSubproblemNum, mpViz->mMOPPInfo.mSegmentLength, mpViz->mMOPPInfo.mMethodType);
+
+        mpMORRF->add_funcs(mpViz->mMOPPInfo.mFuncs, mpViz->mMOPPInfo.mDistributions);
+        POS2D start(mpViz->mMOPPInfo.mStart.x(), mpViz->mMOPPInfo.mStart.y());
+        POS2D goal(mpViz->mMOPPInfo.mGoal.x(), mpViz->mMOPPInfo.mGoal.y());
+
+        mpMORRF->init(start, goal);
+
+        //mpViz->mMOPPInfo.dumpObstacleInfo("map1.txt");
+        mpMORRF->load_map(mpViz->mMOPPInfo.mppObstacle);
+        mpViz->setMORRF(mpMORRF);
+
+
     }
 
-    mpViz->mMOPPInfo.initObstacleInfo();
-    mpViz->mMOPPInfo.initFuncsParams();
-    QString msg = "RUNNING MORRF ... \n";
-    msg += "ObjNum( " + QString::number(mpViz->mMOPPInfo.mObjectiveNum) + " ) \n";
-    msg += "SubproblemNum( " + QString::number(mpViz->mMOPPInfo.mSubproblemNum) + " ) \n";
-    msg += "SegmentLen( " + QString::number(mpViz->mMOPPInfo.mSegmentLength) + " ) \n";
-    msg += "MaxIterationNum( " + QString::number(mpViz->mMOPPInfo.mMaxIterationNum) + " ) \n";
-    qDebug(msg.toStdString().c_str());
-
-    mpMORRF = new MORRF(mpMap->width(), mpMap->height(), mpViz->mMOPPInfo.mObjectiveNum, mpViz->mMOPPInfo.mSubproblemNum, mpViz->mMOPPInfo.mSegmentLength, mpViz->mMOPPInfo.mMethodType);
-
-    mpMORRF->add_funcs(mpViz->mMOPPInfo.mFuncs, mpViz->mMOPPInfo.mDistributions);
-    POS2D start(mpViz->mMOPPInfo.mStart.x(), mpViz->mMOPPInfo.mStart.y());
-    POS2D goal(mpViz->mMOPPInfo.mGoal.x(), mpViz->mMOPPInfo.mGoal.y());
-
-    mpMORRF->init(start, goal);
-
-    //mpViz->mMOPPInfo.dumpObstacleInfo("map1.txt");
-    mpMORRF->load_map(mpViz->mMOPPInfo.mppObstacle);
-    mpViz->setMORRF(mpMORRF);
-
-    //mpMORRF->dump_map_info("map.txt");
-    mpMORRF->dump_weights("weights.txt");
-
-    while(mpMORRF->get_current_iteration() <= mpViz->mMOPPInfo.mMaxIterationNum) {
+    while(mpMORRF->get_current_iteration() < mpViz->mMOPPInfo.mMaxIterationNum) {
         QString msg = "CurrentIteration " + QString::number(mpMORRF->get_current_iteration()) + " ";
         msg += "(" + QString::number(mpMORRF->get_ball_radius()) + ")";
         qDebug(msg.toStdString().c_str());
@@ -206,9 +213,7 @@ void MainWindow::onRun() {
         repaint();
     }
 
-    std::vector<Path*> paths = mpMORRF->get_paths();
-    mpViz->mMOPPInfo.loadPaths(paths);
-    repaint();
+
 }
 
 void MainWindow::onAddStart() {
@@ -335,4 +340,19 @@ bool MainWindow::saveConfiguration(QString filename) {
         return mpViz->mMOPPInfo.saveToFile(filename);
     }
     return false;
+}
+
+void MainWindow::onDumpWeight() {
+    QString pathFilename = QFileDialog::getSaveFileName(this, tr("Save File"), "./", tr("Txt Files (*.txt)"));
+    //mpMORRF->dump_map_info("map.txt");
+    if(mpMORRF) {
+        mpMORRF->dump_weights(pathFilename.toStdString());
+    }
+}
+
+void MainWindow::onReset() {
+    if(mpMORRF) {
+        delete mpMORRF;
+        mpMORRF = NULL;
+    }
 }
