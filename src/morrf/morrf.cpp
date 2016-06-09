@@ -48,11 +48,27 @@ void MORRF::add_funcs( std::vector<COST_FUNC_PTR> funcs, std::vector<int**> fitn
     _fitness_distributions = fitnessDistributions;
 }
 
-void MORRF::_init_weights() {
+void MORRF::_init_weights( std::vector< std::vector<float> >& weights ) {
     _deinit_weights();
-    _weights.clear();
 
-    _weights = create_weights( _subproblem_num );
+    bool auto_gen = false;
+    if( weights.size() != _subproblem_num ) {
+        auto_gen = true;
+    }
+    if( auto_gen == false ) {
+        for(unsigned int i=0;i<_subproblem_num;i++){
+            if(weights[i].size() != _objective_num) {
+                auto_gen = true;
+                break;
+            }
+        }
+    }
+    if(auto_gen == true) {
+        _weights = create_weights( _subproblem_num );
+    }
+    else {
+        _weights = weights;
+    }
 }
 
 void MORRF::_deinit_weights() {
@@ -80,9 +96,9 @@ std::vector< std::vector< float > > MORRF::create_weights(unsigned int num) {
     return weights;
 }
 
-void MORRF::init(POS2D start, POS2D goal) {
+void MORRF::init(POS2D start, POS2D goal, std::vector< std::vector<float> > weights) {
 
-    _init_weights();
+    _init_weights( weights );
 
     KDNode2D root(start);    
     root.mp_morrf_node = new MORRFNode( start );
@@ -264,7 +280,7 @@ void MORRF::extend() {
             for ( unsigned int k=0; k<_objective_num; k++ ) {
 
                 unsigned int index = _references[k]->m_index;
-                RRTNode* p_nearest_ref_node = nearest_node.mp_morrf_node->m_nodes[index];
+                //RRTNode* p_nearest_ref_node = nearest_node.mp_morrf_node->m_nodes[index];
                 RRTNode* p_new_ref_node = new_node.mp_morrf_node->m_nodes[index];
                 list<RRTNode*> near_ref_nodes;
                 near_ref_nodes.clear();
@@ -284,7 +300,7 @@ void MORRF::extend() {
             for( unsigned int m=0; m<_subproblem_num; m++ ) {
 
                 unsigned int index = _subproblems[m]->m_index;
-                RRTNode* p_nearest_sub_node = nearest_node.mp_morrf_node->m_nodes[index];
+                //RRTNode* p_nearest_sub_node = nearest_node.mp_morrf_node->m_nodes[index];
                 RRTNode* p_new_sub_node = new_node.mp_morrf_node->m_nodes[index];
                 std::list<RRTNode*> near_sub_nodes;
                 near_sub_nodes.clear();

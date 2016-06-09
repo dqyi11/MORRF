@@ -25,7 +25,7 @@ public:
 
     void add_funcs( std::vector<COST_FUNC_PTR> funcs, std::vector<int**> fitnessDistributions );
 
-    void init(POS2D start, POS2D goal);
+    void init(POS2D start, POS2D goal, std::vector< std::vector<float> > weights = std::vector< std::vector<float> >(0));
 
     void load_map( int **pp_map );
     POS2D sampling();
@@ -84,7 +84,7 @@ public:
 
     std::vector< std::vector< float > > create_weights(unsigned int num);
 protected:
-    void _init_weights();
+    void _init_weights( std::vector< std::vector<float> >& weights );
     void _deinit_weights();
 
 private:
