@@ -1,4 +1,3 @@
-#include "mainwindow.h"
 #include <QFileDialog>
 #include <configobjdialog.h>
 #include <QMessageBox>
@@ -6,6 +5,7 @@
 #include <QKeyEvent>
 #include <QStatusBar>
 #include <QApplication>
+#include "mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent) {
