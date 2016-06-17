@@ -42,6 +42,7 @@ RRTree::RRTree( MORRF* parent, unsigned int objective_num, std::vector<float>  w
 
     m_nodes.clear();
     m_current_best_cost = std::vector<double>(m_objective_num, 0.0);
+    m_first_path_iteration = 0;
 }
 
 RRTNode* RRTree::init( POS2D start, POS2D goal ) {
@@ -263,6 +264,15 @@ bool RRTree::update_current_best() {
         return true;
     }
     return false;
+}
+
+void RRTree::record() {
+    if(mp_current_best==NULL) {
+        m_first_path_iteration++;
+    }
+    else {
+        m_hist_cost.push_back( m_current_best_cost );
+    }
 }
 
 ReferenceTree::ReferenceTree( MORRF* parent, unsigned int objective_num, std::vector<float> weight, unsigned int index )

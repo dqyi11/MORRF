@@ -82,6 +82,9 @@ public:
 
     void optimize();
 
+    void record();
+    void write_hist_cost(std::string filename);
+
     std::vector< std::vector< float > > create_weights(unsigned int num);
 protected:
     void _init_weights( std::vector< std::vector<float> >& weights );

@@ -62,6 +62,7 @@ public:
     unsigned int get_current_iteration() { return m_nodes.size(); }
 
     Path* find_path();
+    void record();
 
     bool update_current_best();
     Path* mp_current_best;
@@ -79,6 +80,9 @@ public:
     std::vector<double> m_weight;
     std::list<RRTNode*> m_nodes;
     std::vector<double> m_current_best_cost;
+
+    unsigned int m_first_path_iteration;
+    std::vector< std::vector<double> > m_hist_cost;
 };
 
 class ReferenceTree : public RRTree {

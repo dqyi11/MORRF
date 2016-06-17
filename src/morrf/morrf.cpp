@@ -327,6 +327,7 @@ void MORRF::extend() {
     if(_current_iteration % 10 == 0) {
         optimize();
     }
+    record();
     _current_iteration++;
 }
 
@@ -537,6 +538,7 @@ void MORRF::dump_weights( std::string filename ) {
     }
 
     weight_file.close();
+
 }
 
 bool MORRF::are_reference_structures_correct() {
@@ -702,4 +704,38 @@ bool MORRF::is_ref_tree_min_cost() {
         }
     }
     return true;
+}
+
+void MORRF::record() {
+    for(vector<ReferenceTree*>::iterator it=_references.begin();it!=_references.end();it++) {
+        ReferenceTree* p_ref_tree = (*it);
+        if(p_ref_tree) {
+            p_ref_tree->record();
+        }
+    }
+    for(vector<SubproblemTree*>::iterator it=_subproblems.begin();it!=_subproblems.end();it++) {
+        SubproblemTree* p_sub_tree = (*it);
+        if(p_sub_tree) {
+            p_sub_tree->record();
+        }
+    }
+
+}
+
+void MORRF::write_hist_cost(std::string filename) {
+    ofstream hist_cost_file;
+    hist_cost_file.open(filename.c_str());
+    for(vector<ReferenceTree*>::iterator it=_references.begin();it!=_references.end();it++) {
+        ReferenceTree* p_ref_tree = (*it);
+        if(p_ref_tree) {
+
+        }
+    }
+    for(vector<SubproblemTree*>::iterator it=_subproblems.begin();it!=_subproblems.end();it++) {
+        SubproblemTree* p_sub_tree = (*it);
+        if(p_sub_tree) {
+
+        }
+    }
+    hist_cost_file.close();
 }
