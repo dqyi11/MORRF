@@ -46,6 +46,7 @@ void MainWindow::createMenuBar() {
     mpFileMenu->addAction(mpSaveAction);
     mpFileMenu->addAction(mpExportAction);
     mpFileMenu->addAction(mpDumpWeightAction);
+    mpFileMenu->addAction(mpSaveLogFileAction);
 
     mpEditMenu = menuBar()->addMenu("&Edit");
     mpEditMenu->addAction(mpLoadMapAction);
@@ -69,6 +70,7 @@ void MainWindow::createActions() {
     mpRunAction = new QAction("Run", this);
     mpDumpWeightAction = new QAction("Dump Weights", this);
     mpResetAction = new QAction("Reset", this);
+    mpSaveLogFileAction = new QAction("Save Log File", this);
 
     connect(mpOpenAction, SIGNAL(triggered()), this, SLOT(onOpen()));
     connect(mpSaveAction, SIGNAL(triggered()), this, SLOT(onSave()));
@@ -78,6 +80,7 @@ void MainWindow::createActions() {
     connect(mpRunAction, SIGNAL(triggered()), this, SLOT(onRun()));
     connect(mpDumpWeightAction, SIGNAL(triggered()), this, SLOT(onDumpWeight()));
     connect(mpResetAction, SIGNAL(triggered()), this, SLOT(onReset()));
+    connect(mpSaveLogFileAction, SIGNAL(triggered()), this, SLOT(onSaveLogFile()));
 
     mpAddStartAction = new QAction("Add Start", this);
     mpAddGoalAction = new QAction("Add Goal", this);
@@ -328,8 +331,10 @@ bool MainWindow::saveConfiguration(QString filename) {
 void MainWindow::onDumpWeight() {
     QString pathFilename = QFileDialog::getSaveFileName(this, tr("Save File"), "./", tr("Txt Files (*.txt)"));
     //mpMORRF->dump_map_info("map.txt");
-    if(mpMORRF) {
-        mpMORRF->dump_weights(pathFilename.toStdString());
+    if(pathFilename!="") {
+        if(mpMORRF) {
+            mpMORRF->dump_weights(pathFilename.toStdString());
+        }
     }
 }
 
@@ -344,4 +349,14 @@ void MainWindow::onReset() {
     }
     updateStatus();
     repaint();
+}
+
+void MainWindow::onSaveLogFile() {
+    QString pathFilename = QFileDialog::getSaveFileName(this, tr("Save File"), "./", tr("Txt Files (*.txt)"));
+    //mpMORRF->dump_map_info("map.txt");
+    if(pathFilename!="") {
+        if(mpMORRF) {
+            mpMORRF->write_hist_cost(pathFilename.toStdString());
+        }
+    }
 }

@@ -57,6 +57,7 @@ private:
 
     QAction*      mpDumpWeightAction;
     QAction*      mpResetAction;
+    QAction*      mpSaveLogFileAction;
 
     QPoint mCursorPoint;
 
@@ -77,6 +78,7 @@ private slots:
 
     void onDumpWeight();
     void onReset();
+    void onSaveLogFile();
 };
 
 #endif // MAINWINDOW_H

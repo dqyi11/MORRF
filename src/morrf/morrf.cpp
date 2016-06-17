@@ -315,12 +315,11 @@ void MORRF::extend() {
                 _subproblems[m]->rewire_near_nodes( p_new_sub_node, near_sub_nodes );
             }
         }
-        for( unsigned int k=0; k<_objective_num; k++ ) {
-            _references[k]->update_current_best();
-        }
-        for( unsigned int m=0; m<_subproblem_num; m++ ) {
-            _subproblems[m]->update_current_best();
-        }
+
+
+        update_current_best();
+
+
 
     }
 
@@ -431,6 +430,24 @@ double MORRF::calc_fitness( vector<double>& cost, vector<double>& weight, POS2D&
     return fitness;
 }
 
+double MORRF::calc_fitness( std::vector<double>& cost, std::vector<double>& weight, std::vector<double>& utopia ) {
+    double fitness = 0.0;
+
+    if( _type==MORRF::WEIGHTED_SUM ) {
+        fitness = calc_fitness_by_weighted_sum( cost, weight );
+    }
+    else if( _type==MORRF::TCHEBYCHEFF ) {
+        fitness = calc_fitness_by_tchebycheff( cost, weight, utopia );
+    }
+    else {
+        fitness = calc_fitness_by_boundary_intersection( cost, weight, utopia );
+    }
+    /*
+    if(fitness < 0.0) {
+        std::cout << "Negative fitness " << fitness << std::endl;
+    } */
+    return fitness;
+}
 
 float MORRF::calc_fitness_by_weighted_sum( vector<double>& cost, vector<double>& weight ) {
     double fitness = 0.0;
@@ -706,6 +723,28 @@ bool MORRF::is_ref_tree_min_cost() {
     return true;
 }
 
+void MORRF::update_current_best() {
+    std::vector<double> utopia(_objective_num,0.0);
+    for( unsigned int k=0; k<_objective_num; k++ ) {
+        ReferenceTree* p_ref_tree = _references[k];
+        if(p_ref_tree) {
+            p_ref_tree->update_current_best();
+            utopia[k] = p_ref_tree->m_current_best_cost[k];
+            p_ref_tree->m_current_best_fitness = utopia[k];
+        }
+    }
+    for( unsigned int m=0; m<_subproblem_num; m++ ) {
+        SubproblemTree* p_sub_tree = _subproblems[m];
+        if(p_sub_tree) {
+            p_sub_tree->update_current_best();
+            p_sub_tree->m_current_best_fitness = calc_fitness(p_sub_tree->m_current_best_cost,
+                                                              p_sub_tree->m_weight,
+                                                              utopia);
+        }
+    }
+
+}
+
 void MORRF::record() {
     for(vector<ReferenceTree*>::iterator it=_references.begin();it!=_references.end();it++) {
         ReferenceTree* p_ref_tree = (*it);
@@ -725,16 +764,18 @@ void MORRF::record() {
 void MORRF::write_hist_cost(std::string filename) {
     ofstream hist_cost_file;
     hist_cost_file.open(filename.c_str());
-    for(vector<ReferenceTree*>::iterator it=_references.begin();it!=_references.end();it++) {
-        ReferenceTree* p_ref_tree = (*it);
-        if(p_ref_tree) {
 
+    for(unsigned int k=0;k<_objective_num;k++) {
+        ReferenceTree* p_ref_tree = _references[k];
+        if(p_ref_tree) {
+            p_ref_tree->write_hist_data(hist_cost_file);
         }
     }
-    for(vector<SubproblemTree*>::iterator it=_subproblems.begin();it!=_subproblems.end();it++) {
-        SubproblemTree* p_sub_tree = (*it);
+    std::vector<double> subprob_fitness(_subproblems.size(), 0.0);
+    for(unsigned int m=0;m<_subproblems.size();m++) {
+        SubproblemTree* p_sub_tree = _subproblems[m];
         if(p_sub_tree) {
-
+            p_sub_tree->write_hist_data(hist_cost_file);
         }
     }
     hist_cost_file.close();

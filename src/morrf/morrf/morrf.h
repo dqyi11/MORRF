@@ -44,6 +44,7 @@ public:
     double calc_kth_cost( POS2D& pos_a, POS2D& pos_b, unsigned int k );
     double calc_fitness( std::vector<double>& cost, std::vector<double>& weight, RRTNode* node );
     double calc_fitness( std::vector<double>& cost, std::vector<double>& weight, POS2D& pos );
+    double calc_fitness( std::vector<double>& cost, std::vector<double>& weight, std::vector<double>& utopia );
 
     bool get_utopia_reference_vector( POS2D& pos, std::vector<double>& utopia );
     bool get_utopia_reference_vector( RRTNode* p_node, std::vector<double>& utopia );
@@ -59,6 +60,8 @@ public:
     SubproblemTree* get_subproblem_tree( unsigned int m );
 
     std::vector<Path*> get_paths();
+
+    void update_current_best();
 
     int** get_map_info() { return _pp_map_info; }
 

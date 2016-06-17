@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <list>
+#include <iostream>
 
 #include "morrf/KDTree2D.h"
 
@@ -55,6 +56,8 @@ public:
     virtual void rewire_near_nodes( RRTNode* p_node_new, std::list<RRTNode*> near_nodes ) = 0;
     virtual RRTNode * get_closet_to_goal( std::vector<double>& delta_cost, double& delta_fitness ) = 0;
 
+    virtual void write_hist_data( std::ostream& out );
+
     bool is_structure_correct();
     bool are_all_nodes_tractable();
     bool are_all_nodes_fitness_positive();
@@ -66,6 +69,8 @@ public:
 
     bool update_current_best();
     Path* mp_current_best;
+    std::vector<double> m_current_best_cost;
+    double m_current_best_fitness;
  
     TREE_TYPE m_type;
     unsigned int m_index;
@@ -79,10 +84,11 @@ public:
 
     std::vector<double> m_weight;
     std::list<RRTNode*> m_nodes;
-    std::vector<double> m_current_best_cost;
+
 
     unsigned int m_first_path_iteration;
     std::vector< std::vector<double> > m_hist_cost;
+    std::vector< double > m_hist_fitness;
 };
 
 class ReferenceTree : public RRTree {
@@ -93,7 +99,6 @@ public:
     virtual void rewire_near_nodes( RRTNode* p_node_new, std::list<RRTNode*> near_nodes );
     virtual RRTNode * get_closet_to_goal( std::vector<double>& delta_cost, double& delta_fitness );
 
-    Path* find_path();
     bool update_current_best();
 protected:
     void update_fitness_to_children( RRTNode* pNode, double delta_fitness );
