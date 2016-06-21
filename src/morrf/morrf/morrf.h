@@ -115,6 +115,9 @@ private:
 
     std::vector<POS2D> _sampled_positions;
 
+    POS2D m_start;
+    POS2D m_goal;
+
     double _range;
     double _ball_radius;
     double _segment_length;

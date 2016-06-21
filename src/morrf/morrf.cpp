@@ -98,9 +98,12 @@ std::vector< std::vector< float > > MORRF::create_weights(unsigned int num) {
 
 void MORRF::init(POS2D start, POS2D goal, std::vector< std::vector<float> > weights) {
 
+    m_start = start;
+    m_goal = goal;
+
     _init_weights( weights );
 
-    KDNode2D root(start);    
+    KDNode2D root(start);
     root.mp_morrf_node = new MORRFNode( start );
     root.mp_morrf_node->m_nodes = std::vector<RRTNode*>(_objective_num+_subproblem_num, NULL);
 

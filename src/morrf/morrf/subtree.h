@@ -99,6 +99,7 @@ public:
     virtual void rewire_near_nodes( RRTNode* p_node_new, std::list<RRTNode*> near_nodes );
     virtual RRTNode * get_closet_to_goal( std::vector<double>& delta_cost, double& delta_fitness );
 
+    Path* find_path();
     bool update_current_best();
 protected:
     void update_fitness_to_children( RRTNode* pNode, double delta_fitness );
