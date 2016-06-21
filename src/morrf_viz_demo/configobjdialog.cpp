@@ -5,7 +5,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 
-#define WEIGHTED_SUM_STR           "Weighted-sum"
+#define WEIGHTED_SUM_STR          "Weighted-sum"
 #define TCHEBYCHEFF_STR           "Tchebycheff"
 #define BOUNDARY_INTERSECTION_STR "Boundary-intersection"
 
@@ -67,16 +67,23 @@ ConfigObjDialog::ConfigObjDialog(MainWindow * parent) {
     weightFileLayout->addWidget(mpLineEditWeightFile);
     weightFileLayout->addWidget(mpBtnOpenWeightFile);
 
-    QHBoxLayout * typeLayout = new QHBoxLayout();
+    mpLabelSparsityK = new QLabel("Sparsity K:");
+    mpLineEditSparsityK = new QLineEdit();
+    mpLineEditSparsityK->setText(QString::number(mpParentWindow->mpViz->mMOPPInfo.mSparsityK));
+    mpLineEditSparsityK->setMaximumWidth(40);
+
     mpLabelType = new QLabel("Type: ");
     mpComboType = new QComboBox();
     mpComboType->addItem(WEIGHTED_SUM_STR);
     mpComboType->addItem(TCHEBYCHEFF_STR);
     mpComboType->addItem(BOUNDARY_INTERSECTION_STR);
-    typeLayout->addWidget(mpLabelType);
-    typeLayout->addWidget(mpComboType);
     mpComboType->setCurrentIndex((int)mpParentWindow->mpViz->mMOPPInfo.mMethodType);
 
+    QHBoxLayout * typeLayout = new QHBoxLayout();
+    typeLayout->addWidget(mpLabelSparsityK);
+    typeLayout->addWidget(mpLineEditSparsityK);
+    typeLayout->addWidget(mpLabelType);
+    typeLayout->addWidget(mpComboType);
 
     mpListWidget = new QListWidget();
     mpListWidget->setViewMode(QListView::IconMode);
@@ -164,6 +171,7 @@ void ConfigObjDialog::updateDisplay() {
                 }
             }
 
+            mpLineEditSparsityK->setText(QString::number(mpParentWindow->mpViz->mMOPPInfo.mSparsityK));
             mpComboType->setCurrentIndex((int)mpParentWindow->mpViz->mMOPPInfo.mMethodType);
 
             if(mpParentWindow->mpViz->mMOPPInfo.mLoadWeightFile==true) {
@@ -206,6 +214,7 @@ void ConfigObjDialog::updateConfiguration() {
     mpParentWindow->mpViz->mMOPPInfo.mMaxIterationNum = mpLineEditIterationNum->text().toInt();
     mpParentWindow->mpViz->mMOPPInfo.mSubproblemNum = mpLineEditSubProb->text().toInt();
     mpParentWindow->mpViz->mMOPPInfo.mSegmentLength = mpLineEditSegmentLength->text().toDouble();
+    mpParentWindow->mpViz->mMOPPInfo.mSparsityK = mpLineEditSparsityK->text().toInt();
 
     int type = mpComboType->currentIndex();
     mpParentWindow->mpViz->mMOPPInfo.mMethodType = (MORRF::MORRF_TYPE) type;

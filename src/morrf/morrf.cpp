@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <limits>
+#include "morrf/objective_knn.h"
 #include "morrf/morrf.h"
 
 #define OBSTACLE_THRESHOLD 200
@@ -36,7 +37,6 @@ MORRF::MORRF(unsigned int width, unsigned int height, unsigned int objective_num
 
 MORRF::~MORRF() {
     _deinit_weights();
-
     if( _p_kd_tree ) {
         delete _p_kd_tree;
         _p_kd_tree = NULL;
@@ -50,7 +50,6 @@ void MORRF::add_funcs( std::vector<COST_FUNC_PTR> funcs, std::vector<int**> fitn
 
 void MORRF::_init_weights( std::vector< std::vector<float> >& weights ) {
     _deinit_weights();
-
     bool auto_gen = false;
     if( weights.size() != _subproblem_num ) {
         auto_gen = true;
@@ -172,11 +171,11 @@ bool MORRF::_is_in_obstacle( POS2D pos ) {
 
 
 bool MORRF::_is_obstacle_free( POS2D pos_a, POS2D pos_b ) {
-    if ( pos_a == pos_b ) {
-        return true;
-    }
-    int x_dist = pos_a[0] - pos_b[0];
-    int y_dist = pos_a[1] - pos_b[1];
+    //if ( pos_a == pos_b ) {
+    //    return true;
+    //}
+    int x_dist = (int)(pos_a[0] - pos_b[0]);
+    int y_dist = (int)(pos_a[1] - pos_b[1]);
 
     if( x_dist == 0 && y_dist == 0 ) {
         return true;
@@ -319,10 +318,8 @@ void MORRF::extend() {
             }
         }
 
-
         update_current_best();
-
-
+        update_sparsity_level();
 
     }
 
@@ -331,6 +328,34 @@ void MORRF::extend() {
     }
     record();
     _current_iteration++;
+}
+
+void MORRF::update_sparsity_level() {
+
+    float objs[ (_objective_num+_subproblem_num) * _objective_num ];
+    //memset(objs, 0, (_objective_num+_subproblem_num) * _objective_num);
+    for( unsigned int k=0; k<_objective_num; k++ ) {
+        for( unsigned int i=0; i<_objective_num; i++) {
+            objs[k*_objective_num+i] =  _references[k]->m_current_best_cost[i];
+        }
+    }
+
+    for( unsigned int m=0; m<_subproblem_num; m++ ) {
+        for( unsigned int i=0; i<_objective_num; i++) {
+            objs[_objective_num*_objective_num+m*_objective_num+i] = _subproblems[m]->m_current_best_cost[i];
+        }
+    }
+
+    flann::Matrix<float> obj_vec(objs, _objective_num+_subproblem_num, _objective_num);
+    ObjectiveKNN knn( _sparsity_k, obj_vec );
+    std::vector<float> res = knn.get_sparse_diversity(obj_vec);
+
+    for( unsigned int k=0; k<_objective_num; k++ ) {
+        _references[k]->m_sparsity_level = res[k];
+    }
+    for( unsigned int m=0; m<_subproblem_num; m++ ) {
+        _subproblems[m]->m_sparsity_level = res[m+_objective_num];
+    }
 }
 
 KDNode2D MORRF::find_nearest( POS2D pos ) {
@@ -547,18 +572,22 @@ void MORRF::dump_map_info( std::string filename ) {
 }
 
 void MORRF::dump_weights( std::string filename ) {
-    ofstream weight_file;
-    weight_file.open(filename.c_str());
+  save_weights(_weights, filename);
+}
 
-    for( unsigned int i=0; i<_subproblem_num; i++ ) {
-        for( unsigned int j=0; j<_objective_num; j++ ) {
-            weight_file << _weights[i][j] << " ";
-        }
-        weight_file << std::endl;
-    }
+void MORRF::save_weights( std::vector< std::vector<float> >& weights, std::string filename ) {
+  ofstream weight_file;
+  weight_file.open(filename.c_str());
 
-    weight_file.close();
+  for( unsigned int i=0; i<weights.size(); i++ ) {
+      std::vector<float> w = weights[i];
+      for( unsigned int j=0; j<w.size(); j++ ) {
+          weight_file << w[j] << " ";
+      }
+      weight_file << std::endl;
+  }
 
+  weight_file.close();
 }
 
 bool MORRF::are_reference_structures_correct() {
@@ -695,7 +724,7 @@ bool MORRF::update_path_cost( Path *p ) {
             for(unsigned int k=0;k<_objective_num;k++) {
                 p->m_cost[k] += delta_cost[k];
             }
-        }        
+        }
         return true;
     }
     return false;

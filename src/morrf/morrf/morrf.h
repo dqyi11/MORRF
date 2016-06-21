@@ -67,6 +67,7 @@ public:
 
     void dump_map_info( std::string filename );
     void dump_weights( std::string filename );
+    void save_weights( std::vector< std::vector<float> >& weights, std::string filename );
 
     float calc_fitness_by_weighted_sum( std::vector<double>& cost, std::vector<double>& weight );
     float calc_fitness_by_tchebycheff( std::vector<double>& cost, std::vector<double>& weight, std::vector<double>& utopia_reference );
@@ -85,6 +86,9 @@ public:
 
     void optimize();
 
+    void set_sparsity_k(unsigned int k) { _sparsity_k = k; }
+    unsigned int get_sparsity_k() { return _sparsity_k; }
+
     void record();
     void write_hist_cost(std::string filename);
 
@@ -92,6 +96,8 @@ public:
 protected:
     void _init_weights( std::vector< std::vector<float> >& weights );
     void _deinit_weights();
+
+    void update_sparsity_level();
 
 private:
     int ** _pp_map_info;
@@ -127,6 +133,8 @@ private:
 
     double _theta;
     int _current_iteration;
+
+    unsigned int _sparsity_k;
 };
 
 #endif // MORRF_H

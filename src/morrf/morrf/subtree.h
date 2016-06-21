@@ -85,10 +85,12 @@ public:
     std::vector<double> m_weight;
     std::list<RRTNode*> m_nodes;
 
+    float m_sparsity_level;
 
     unsigned int m_first_path_iteration;
     std::vector< std::vector<double> > m_hist_cost;
     std::vector< double > m_hist_fitness;
+    std::vector< double > m_hist_sparsity_level;
 };
 
 class ReferenceTree : public RRTree {

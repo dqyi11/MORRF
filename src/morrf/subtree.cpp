@@ -44,6 +44,7 @@ RRTree::RRTree( MORRF* parent, unsigned int objective_num, std::vector<float>  w
     m_current_best_cost = std::vector<double>(m_objective_num, 0.0);
     m_current_best_fitness = std::numeric_limits<float>::max();
     m_first_path_iteration = 0;
+    m_sparsity_level = 0.0;
 }
 
 RRTNode* RRTree::init( POS2D start, POS2D goal ) {
@@ -277,6 +278,7 @@ void RRTree::record() {
     else {
         m_hist_cost.push_back( m_current_best_cost );
         m_hist_fitness.push_back( m_current_best_fitness );
+        m_hist_sparsity_level.push_back( m_sparsity_level );
     }
 }
 
@@ -292,11 +294,16 @@ void RRTree::write_hist_data( std::ostream& out ) {
         out << m_hist_fitness[j] << " ";
     }
     out << std::endl;
+    for(unsigned int j=0;j<m_hist_sparsity_level.size();j++) {
+        out << m_hist_sparsity_level[j] << " ";
+    }
+    out << std::endl;
     for(unsigned int j=m_first_path_iteration;
         j<m_first_path_iteration+m_hist_fitness.size();j++) {
         out << j << " ";
     }
     out << std::endl;
+
 }
 
 

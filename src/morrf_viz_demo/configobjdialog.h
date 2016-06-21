@@ -40,6 +40,9 @@ private:
     QLineEdit   * mpLineEditWeightFile;
     QPushButton * mpBtnOpenWeightFile;
 
+    QLabel    * mpLabelSparsityK;
+    QLineEdit * mpLineEditSparsityK;
+
     QLabel    * mpLabelType;
     QComboBox * mpComboType;
 

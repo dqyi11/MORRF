@@ -11,6 +11,7 @@ set(${HDR} morrf/kdtree++/allocator.hpp
            morrf/utilities.h
            morrf/subtree.h
            morrf/morrf.h
+           morrf/objective_knn.h
     )
 
 
