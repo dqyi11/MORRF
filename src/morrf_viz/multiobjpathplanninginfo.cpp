@@ -249,6 +249,7 @@ void MultiObjPathPlanningInfo::exportPaths( QString filename ) {
             stream << "\n";
         }
         stream << "\n";
+
         // Save paths
         for( std::vector<Path*>::iterator it=mFoundPaths.begin(); it!=mFoundPaths.end(); it++ ) {
             Path* p = *it;

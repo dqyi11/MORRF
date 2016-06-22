@@ -318,10 +318,10 @@ void MORRF::extend() {
             }
         }
 
-        update_current_best();
-        update_sparsity_level();
-
     }
+
+    update_current_best();
+    update_sparsity_level();
 
     if(_current_iteration % 10 == 0) {
         optimize();
