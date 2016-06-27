@@ -25,6 +25,20 @@ Path::Path( POS2D start, POS2D goal, int objectiveNum ) {
     m_cost = vector<double>(m_objective_num, 0.0);
     m_weight = vector<double>(m_objective_num, 0.0);
     m_fitness = 0.0;
+    m_tree_idx = -1;
+    m_dominated = false;
+}
+
+bool Path::is_dominated_by(Path* p_other_path) {
+    if(p_other_path) {
+        for(unsigned int k=0;k<m_objective_num;k++) {
+            if(m_cost[k] < p_other_path->m_cost[k]) {
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
 }
 
 RRTree::RRTree( MORRF* parent, unsigned int objective_num, std::vector<float>  weight, unsigned int index ) {
@@ -194,6 +208,7 @@ RRTNode* RRTree::find_ancestor( RRTNode* p_node ) {
 
 Path* RRTree::find_path(RRTNode * p_closest_node) {
     Path* p_new_path = new Path( m_start, m_goal, m_objective_num );
+    p_new_path->m_tree_idx = m_index;
 
     list<RRTNode*> node_list;
 
@@ -305,7 +320,6 @@ void RRTree::write_hist_data( std::ostream& out ) {
     out << std::endl;
 
 }
-
 
 ReferenceTree::ReferenceTree( MORRF* parent, unsigned int objective_num, std::vector<float> weight, unsigned int index )
     : RRTree( parent, objective_num, weight, index ) {

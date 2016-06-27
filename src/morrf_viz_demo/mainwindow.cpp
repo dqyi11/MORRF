@@ -201,7 +201,8 @@ void MainWindow::onRun() {
         repaint();
     }
 
-
+    mpMORRF->sort_subproblem_trees();
+    repaint();
 }
 
 void MainWindow::onAddStart() {

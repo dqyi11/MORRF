@@ -62,6 +62,7 @@ public:
     std::vector<Path*> get_paths();
 
     bool update_current_best();
+    void update_dominance( std::vector<Path*>& paths );
 
     int** get_map_info() { return _pp_map_info; }
 
@@ -94,6 +95,8 @@ public:
     void write_hist_cost(std::string filename);
 
     std::vector< std::vector< float > > create_weights(unsigned int num);
+
+    void sort_subproblem_trees();
 protected:
     void _init_weights( std::vector< std::vector<float> >& weights );
     void _deinit_weights();

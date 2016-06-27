@@ -9,6 +9,14 @@
 
 using namespace std;
 
+bool sparisity_compare_ascending(SubproblemTree* const & a, SubproblemTree* const & b) {
+    return a->m_sparsity_level < b->m_sparsity_level;
+}
+
+bool sparisity_compare_descending(SubproblemTree* const & a, SubproblemTree* const & b) {
+    return a->m_sparsity_level > b->m_sparsity_level;
+}
+
 MORRF::MORRF(unsigned int width, unsigned int height, unsigned int objective_num, unsigned int subproblem_num, unsigned int segmentLength, MORRF_TYPE type) {
     _sampling_width = width;
     _sampling_height = height;
@@ -712,6 +720,7 @@ vector<Path*> MORRF::get_paths() {
             }
         }
     }
+    update_dominance(paths);
     return paths;
 }
 
@@ -828,4 +837,27 @@ void MORRF::write_hist_cost(std::string filename) {
         }
     }
     hist_cost_file.close();
+}
+
+void MORRF::update_dominance( std::vector<Path*>& paths ) {
+
+    for(std::vector<Path*>::iterator it=paths.begin();
+        it!=paths.end();it++) {
+        Path* p_path = (*it);
+        p_path->m_dominated = false;
+        for(std::vector<Path*>::iterator itc=paths.begin();
+            itc!=paths.end();itc++) {
+            Path* p_other_path = (*itc);
+            if(p_path != p_other_path) {
+                if(p_path->is_dominated_by(p_other_path)) {
+                    p_path->m_dominated = true;
+                    break;
+                }
+            }
+        }        
+    }
+}
+
+void MORRF::sort_subproblem_trees() {
+    std::sort(_subproblems.begin(), _subproblems.end(), sparisity_compare_descending);
 }

@@ -29,6 +29,7 @@ public:
 class Path {
 public:
     Path( POS2D start, POS2D goal, int objectiveNum );
+    bool is_dominated_by(Path* p_other_path);
 
     int m_objective_num;
     std::vector<double> m_cost;
@@ -37,6 +38,8 @@ public:
     POS2D m_start;
     POS2D m_goal;
     std::vector<POS2D> m_waypoints;
+    int m_tree_idx;
+    bool m_dominated;
 };
 
 class RRTree {
@@ -68,6 +71,7 @@ public:
     void record();
 
     bool update_current_best(RRTNode* p_closet_node=NULL);
+
     Path* mp_current_best;
     std::vector<double> m_current_best_cost;
     double m_current_best_fitness;
