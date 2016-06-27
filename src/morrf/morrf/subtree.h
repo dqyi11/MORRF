@@ -64,14 +64,14 @@ public:
     RRTNode* find_ancestor( RRTNode* p_node );
     unsigned int get_current_iteration() { return m_nodes.size(); }
 
-    Path* find_path();
+    Path* find_path(RRTNode* p_closet_node=NULL);
     void record();
 
-    bool update_current_best();
+    bool update_current_best(RRTNode* p_closet_node=NULL);
     Path* mp_current_best;
     std::vector<double> m_current_best_cost;
     double m_current_best_fitness;
- 
+
     TREE_TYPE m_type;
     unsigned int m_index;
     unsigned int m_objective_num;
@@ -101,8 +101,8 @@ public:
     virtual void rewire_near_nodes( RRTNode* p_node_new, std::list<RRTNode*> near_nodes );
     virtual RRTNode * get_closet_to_goal( std::vector<double>& delta_cost, double& delta_fitness );
 
-    Path* find_path();
-    bool update_current_best();
+    Path* find_path(RRTNode* p_closet_node=NULL);
+    bool update_current_best(RRTNode* p_closet_node=NULL);
 protected:
     void update_fitness_to_children( RRTNode* pNode, double delta_fitness );
 };

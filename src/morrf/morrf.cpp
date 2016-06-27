@@ -33,6 +33,9 @@ MORRF::MORRF(unsigned int width, unsigned int height, unsigned int objective_num
             _pp_map_info[i][j] = 255;
         }
     }
+
+    _solution_available_iteration = -1;
+    _solution_utopia = std::vector<double>(_objective_num, 0.0);
 }
 
 MORRF::~MORRF() {
@@ -327,6 +330,7 @@ void MORRF::extend() {
         optimize();
     }
     record();
+    update_ball_radius();
     _current_iteration++;
 }
 
@@ -377,15 +381,16 @@ KDNode2D MORRF::find_exact(POS2D pos) {
 std::list<KDNode2D> MORRF::find_near( POS2D pos ) {
     std::list<KDNode2D> near_list;
     KDNode2D node(pos);
-
-    int num_vertices = _p_kd_tree->size();
-    int num_dimensions = 2;
-    _ball_radius = _theta * _range * pow( log((double)(num_vertices + 1.0))/((double)(num_vertices + 1.0)), 1.0/((double)num_dimensions) );
     _p_kd_tree->find_within_range( node, _ball_radius, std::back_inserter(near_list) );
 
     return near_list;
 }
 
+void MORRF::update_ball_radius() {
+    int num_vertices = _p_kd_tree->size();
+    int num_dimensions = 2;
+    _ball_radius = _theta * _range * pow( log((double)(num_vertices + 1.0))/((double)(num_vertices + 1.0)), 1.0/((double)num_dimensions) );
+}
 
 bool MORRF::_contains( POS2D pos ) {
     if( _p_kd_tree ) {
@@ -755,26 +760,38 @@ bool MORRF::is_ref_tree_min_cost() {
     return true;
 }
 
-void MORRF::update_current_best() {
-    std::vector<double> utopia(_objective_num,0.0);
-    for( unsigned int k=0; k<_objective_num; k++ ) {
+bool MORRF::update_current_best() {
+
+    KDNode2D nearest_node = find_nearest( m_goal );
+    if( _is_obstacle_free(m_goal, nearest_node) == false ) {
+        return false;
+    }
+    if( _solution_available_iteration < 0 ) {
+        _solution_available_iteration = _current_iteration;
+    }
+
+    for( unsigned int k=0; k<_objective_num; k++ ) {        
         ReferenceTree* p_ref_tree = _references[k];
         if(p_ref_tree) {
-            p_ref_tree->update_current_best();
-            utopia[k] = p_ref_tree->m_current_best_cost[k];
-            p_ref_tree->m_current_best_fitness = utopia[k];
+            unsigned int index = p_ref_tree->m_index;
+            RRTNode* p_closest_node = nearest_node.mp_morrf_node->m_nodes[index];
+            p_ref_tree->update_current_best(p_closest_node);
+            _solution_utopia[k] = p_ref_tree->m_current_best_cost[k];
+            p_ref_tree->m_current_best_fitness = _solution_utopia[k];
         }
     }
     for( unsigned int m=0; m<_subproblem_num; m++ ) {
         SubproblemTree* p_sub_tree = _subproblems[m];
         if(p_sub_tree) {
-            p_sub_tree->update_current_best();
+            unsigned int index = p_sub_tree->m_index;
+            RRTNode* p_closest_node = nearest_node.mp_morrf_node->m_nodes[index];
+            p_sub_tree->update_current_best(p_closest_node);
             p_sub_tree->m_current_best_fitness = calc_fitness(p_sub_tree->m_current_best_cost,
                                                               p_sub_tree->m_weight,
-                                                              utopia);
+                                                              _solution_utopia);
         }
     }
-
+    return true;
 }
 
 void MORRF::record() {

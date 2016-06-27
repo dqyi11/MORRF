@@ -61,7 +61,7 @@ public:
 
     std::vector<Path*> get_paths();
 
-    void update_current_best();
+    bool update_current_best();
 
     int** get_map_info() { return _pp_map_info; }
 
@@ -85,6 +85,7 @@ public:
     bool update_path_cost( Path *p );
 
     void optimize();
+    void update_ball_radius();
 
     void set_sparsity_k(unsigned int k) { _sparsity_k = k; }
     unsigned int get_sparsity_k() { return _sparsity_k; }
@@ -135,6 +136,8 @@ private:
     int _current_iteration;
 
     unsigned int _sparsity_k;
+    int _solution_available_iteration;
+    std::vector<double> _solution_utopia;
 };
 
 #endif // MORRF_H
