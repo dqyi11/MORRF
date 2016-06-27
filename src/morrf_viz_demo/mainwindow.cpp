@@ -93,27 +93,33 @@ void MainWindow::createActions() {
 void MainWindow::onOpen() {
     QString tempFilename = QFileDialog::getOpenFileName(this,
              tr("Open File"), "./", tr("Json Files (*.json)"));
-    if( loadConfiguration( tempFilename ) ) {
-        openMap(mpViz->mMOPPInfo.mMapFullpath);
-        if(mpConfigObjDialog) {
-            mpConfigObjDialog->updateDisplay();
+    if(tempFilename!="") {
+        if( loadConfiguration( tempFilename ) ) {
+            openMap(mpViz->mMOPPInfo.mMapFullpath);
+            if(mpConfigObjDialog) {
+                mpConfigObjDialog->updateDisplay();
+            }
+            repaint();
         }
-        repaint();
     }
 }
 
 void MainWindow::onSave() {
     QString tempFilename = QFileDialog::getSaveFileName(this, tr("Save File"), "./", tr("Json Files (*.json)"));
-    saveConfiguration( tempFilename );
+    if(tempFilename!="") {
+        saveConfiguration( tempFilename );
+    }
 }
 
 void MainWindow::onExport() {
     QString pathFilename = QFileDialog::getSaveFileName(this, tr("Save File"), "./", tr("Txt Files (*.txt)"));
-    if(mpMORRF) {
-        std::vector<Path*> paths = mpMORRF->get_paths();
-        mpViz->mMOPPInfo.loadPaths(paths);
+    if(pathFilename!="") {
+        if(mpMORRF) {
+            std::vector<Path*> paths = mpMORRF->get_paths();
+            mpViz->mMOPPInfo.loadPaths(paths);
+        }
+        exportPaths(pathFilename);
     }
-    exportPaths(pathFilename);
 }
 
 void MainWindow::onLoadMap() {
