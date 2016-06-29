@@ -19,6 +19,7 @@ public:
     bool dumpObstacleInfo(QString filename);
     std::vector<int**> getFitnessDistributions();
 
+    bool getCsvInfo(QString filename, int**& pixInfo);
     bool getPixInfo(QString filename, int**& pixInfo);
     void initFuncsParams();
 

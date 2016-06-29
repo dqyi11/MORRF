@@ -81,10 +81,38 @@ std::vector<int**> MultiObjPathPlanningInfo::getFitnessDistributions() {
                 fitness[i][j] = 0;
             }
         }
-        bool sucess = getPixInfo(fitnessName, fitness);
+        if(fitnessName.endsWith(".csv", Qt::CaseInsensitive)==true) {
+            bool sucess = getCsvInfo(fitnessName, fitness);
+        }
+        else {
+            bool sucess = getPixInfo(fitnessName, fitness);
+        }
         fitnessDistributions.push_back(fitness);
     }
     return fitnessDistributions;
+}
+
+bool MultiObjPathPlanningInfo::getCsvInfo(QString filename, int**& pixInfo) {
+    if(pixInfo==NULL) {
+        return false;
+    }
+    QFile file(filename);
+    file.open(QIODevice::ReadOnly);
+
+    QList< QList<QByteArray> > csv_data;
+    while (!file.atEnd()) {
+        QByteArray line = file.readLine();
+        QList<QByteArray> bits = line.split(',');
+        csv_data.append(bits);
+    }
+
+    for(unsigned int i=0;i<csv_data.size();i++) {
+        for(unsigned int j=0;j<csv_data[i].size();j++) {
+            pixInfo[j][i] = csv_data[i][j].toInt();
+        }
+    }
+
+    return true;
 }
 
 bool MultiObjPathPlanningInfo::getPixInfo(QString filename, int**& pixInfo) {

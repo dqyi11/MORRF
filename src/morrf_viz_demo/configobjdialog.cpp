@@ -138,10 +138,15 @@ void ConfigObjDialog::onBtnAddClicked() {
            mpListWidget->addItem(objFilename);
            repaint();
        }
+       else {
+           QMessageBox msg;
+           msg.setText("Fitness distribution file is not compatible!");
+           msg.exec();
+       }
    }
    else {
        QMessageBox msg;
-       msg.setText("Fitness distribution file is not compatible!");
+       msg.setText("Fitness distribution file is null!");
        msg.exec();
    }
 }
@@ -231,6 +236,10 @@ void ConfigObjDialog::updateConfiguration() {
 }
 
 bool ConfigObjDialog::isCompatible(QString fitnessFile) {
+
+    if(true == fitnessFile.endsWith(".csv", Qt::CaseInsensitive)) {
+        return true;
+    }
     QPixmap pixmap(fitnessFile);
     if (pixmap.width()==mpParentWindow->mpViz->mMOPPInfo.mMapWidth
             && pixmap.height()==mpParentWindow->mpViz->mMOPPInfo.mMapHeight) {
