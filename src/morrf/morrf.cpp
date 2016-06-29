@@ -370,6 +370,26 @@ void MORRF::update_sparsity_level() {
     }
 }
 
+void MORRF::update_sparsity_level( std::vector<Path*>& paths ) {
+
+    unsigned int path_num = paths.size();
+    float objs[ path_num * _objective_num ];
+
+    for( unsigned int m=0; m<path_num; m++ ) {
+        for( unsigned int i=0; i<_objective_num; i++) {
+            objs[m*_objective_num+i] = paths[m]->m_cost[i];
+        }
+    }
+
+    flann::Matrix<float> obj_vec(objs, path_num, _objective_num);
+    ObjectiveKNN knn( _sparsity_k, obj_vec );
+    std::vector<float> res = knn.get_sparse_diversity(obj_vec);
+
+    for( unsigned int m=0; m<path_num; m++ ) {
+        paths[m]->m_sparsity_level = res[m];
+    }
+}
+
 KDNode2D MORRF::find_nearest( POS2D pos ) {
     KDNode2D node( pos );
 
@@ -721,6 +741,7 @@ vector<Path*> MORRF::get_paths() {
         }
     }
     update_dominance(paths);
+    update_sparsity_level(paths);
     return paths;
 }
 

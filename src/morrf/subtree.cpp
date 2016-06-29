@@ -4,9 +4,10 @@
 
 using namespace std;
 
-RRTNode::RRTNode( POS2D pos, int objective_num ) {
+RRTNode::RRTNode( POS2D pos, int objective_num, int tree_idx ) {
     m_pos = pos;
     m_objective_num = objective_num;
+    m_index = tree_idx;
 
     m_cost = vector<double>(m_objective_num, 0.0);
     m_fitness = 0.0;
@@ -27,6 +28,7 @@ Path::Path( POS2D start, POS2D goal, int objectiveNum ) {
     m_fitness = 0.0;
     m_tree_idx = -1;
     m_dominated = false;
+    m_sparsity_level = 0.0;
 }
 
 bool Path::is_dominated_by(Path* p_other_path) {
@@ -68,14 +70,14 @@ RRTNode* RRTree::init( POS2D start, POS2D goal ) {
     }
     m_start = start;
     m_goal = goal;
-    mp_root = new RRTNode( start, m_objective_num );
+    mp_root = new RRTNode( start, m_objective_num, m_index );
     m_nodes.push_back(mp_root);
 
     return mp_root;
 }
 
 RRTNode*  RRTree::create_new_node( POS2D pos ) {
-    RRTNode * pNode = new RRTNode( pos, m_objective_num );
+    RRTNode * pNode = new RRTNode( pos, m_objective_num, m_index );
     m_nodes.push_back(pNode);
     return pNode;
 }
@@ -109,8 +111,9 @@ bool RRTree::has_edge( RRTNode* p_node_p, RRTNode* p_node_c ) {
         }
     }
     /*
-    if ( p_node_p == p_node_c->mp_parent)
+    if ( p_node_p == p_node_c->mp_parent) {
         return true;
+    }
     */
     return false;
 }
@@ -281,6 +284,7 @@ bool RRTree::update_current_best(RRTNode* p_closet_node) {
         for(unsigned int k=0;k<m_objective_num;k++) {
             m_current_best_cost[k] = mp_current_best->m_cost[k];
         }
+        m_current_best_fitness = mp_current_best->m_fitness;
         return true;
     }
     return false;

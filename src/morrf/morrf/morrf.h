@@ -102,6 +102,7 @@ protected:
     void _deinit_weights();
 
     void update_sparsity_level();
+    void update_sparsity_level( std::vector<Path*>& paths );
 
 private:
     int ** _pp_map_info;

@@ -246,7 +246,8 @@ void MultiObjPathPlanningInfo::exportPaths( QString filename ) {
             for(unsigned int k=0;k<mObjectiveNum;k++) {
                 stream << p->m_cost[k] << "\t";
             }
-            stream << (int)p->m_dominated;
+            stream << (int)p->m_dominated << "\t";
+            stream << p->m_sparsity_level;
             stream << "\n";
         }
         stream << "\n";
