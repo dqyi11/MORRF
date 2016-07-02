@@ -6,7 +6,7 @@ add_executable(morrf-viz-demo
                configobjdialog.cpp
                mainwindow.h
                mainwindow.cpp
-               main.cpp
+               morrf_viz_demo.cpp
                )
 
 include_directories(
