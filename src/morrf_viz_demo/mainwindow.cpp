@@ -290,6 +290,11 @@ bool MainWindow::planPath(QString config_filename, QString paths_filename, QStri
             mpMORRF->extend();
         }
 
+        if(mpMORRF) {
+            std::vector<Path*> paths = mpMORRF->get_paths();
+            mpViz->mMOPPInfo.loadPaths(paths);
+        }
+
         if( true == exportPaths(paths_filename) ) {
             if(log_filename!="") {
                 if(mpMORRF) {
