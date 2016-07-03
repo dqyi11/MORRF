@@ -1,6 +1,6 @@
 package "morrf_viz_demo"
 version "0.0.1"
-purpose "A program used to demonstrate the Distributed Correspondence Graph (DCG) class."
+purpose "MORRF*"
 
 option "no_gui" - "no gui" int default="0" optional
 option "config" - "config file" string optional
