@@ -3,11 +3,9 @@ version "0.0.1"
 purpose "A program used to demonstrate the Distributed Correspondence Graph (DCG) class."
 
 option "no_gui" - "no gui" int default="0" optional
-option "llm" - "config file" string optional
-option "grammar" - "grammar file" string required
-option "command" - "command string" string required
-option "output" - "output file" string optional
-option "latex_output" - "latex output file" string optional
-option "beam_width" - "beam width" int default="4" optional
+option "config" - "config file" string optional
+option "paths" - "grammar file" string optional
+option "log" - "command string" string optional
+
 
 text ""

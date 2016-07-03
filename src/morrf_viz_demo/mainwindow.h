@@ -21,7 +21,7 @@ public:
 
     MORRFVisualizer * mpViz;
 
-    bool planPath(QString filename);
+    bool planPath(QString config_filename, QString paths_filename, QString log_filename="");
 protected:
     void createMenuBar();
     void createActions();

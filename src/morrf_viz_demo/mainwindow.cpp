@@ -276,17 +276,26 @@ bool MainWindow::exportPaths(QString filename) {
     return false;
 }
 
-bool MainWindow::planPath(QString filename) {
+bool MainWindow::planPath(QString config_filename, QString paths_filename, QString log_filename) {
 
-    if( true == setupPlanning(filename) ) {
+    if( true == setupPlanning(config_filename) ) {
 
+        openMap(mpViz->mMOPPInfo.mMapFullpath);
         initMORRF();
-        while(mpMORRF->get_current_iteration() <= mpViz->mMOPPInfo.mMaxIterationNum) {
+        while(mpMORRF->get_current_iteration() < mpViz->mMOPPInfo.mMaxIterationNum) {
+            QString msg = "CurrentIteration " + QString::number(mpMORRF->get_current_iteration()) + " ";
+            msg += "(" + QString::number(mpMORRF->get_ball_radius()) + ")";
+            qDebug(msg.toStdString().c_str());
+
             mpMORRF->extend();
         }
 
-        QString output_filename = filename + ".txt";
-        if( true == exportPaths(output_filename) ) {
+        if( true == exportPaths(paths_filename) ) {
+            if(log_filename!="") {
+                if(mpMORRF) {
+                    mpMORRF->write_hist_cost(log_filename.toStdString());
+                }
+            }
             return true;
         }
     }
@@ -308,6 +317,8 @@ void MainWindow::initMORRF() {
     msg += "MaxIterationNum( " + QString::number(mpViz->mMOPPInfo.mMaxIterationNum) + " ) \n";
     qDebug(msg.toStdString().c_str());
 
+    QString size_str = "width=" + QString::number(mpMap->width()) + " height=" + QString::number(mpMap->height()) + "\n";
+    qDebug(size_str.toStdString().c_str());
     mpMORRF = new MORRF(mpMap->width(), mpMap->height(), mpViz->mMOPPInfo.mObjectiveNum, mpViz->mMOPPInfo.mSubproblemNum, mpViz->mMOPPInfo.mSegmentLength, mpViz->mMOPPInfo.mMethodType);
 
     mpMORRF->add_funcs(mpViz->mMOPPInfo.mFuncs, mpViz->mMOPPInfo.mDistributions);
@@ -317,8 +328,11 @@ void MainWindow::initMORRF() {
     mpMORRF->set_sparsity_k(mpViz->mMOPPInfo.mSparsityK);
     std::vector< std::vector<float> > weights = mpViz->mMOPPInfo.loadWeightFromFile( mpViz->mMOPPInfo.mWeightFile );
     mpMORRF->init(start, goal, weights);
+    qDebug("load map information");
     mpMORRF->load_map(mpViz->mMOPPInfo.mppObstacle);
     mpViz->setMORRF(mpMORRF);
+
+    qDebug("Finish initialization");
 
 }
 

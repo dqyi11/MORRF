@@ -23,16 +23,14 @@ if( NOT GENGETOPT )
   return()
 endif()
 
-# function to generate the getgetopt source and header from a .ggo file
-function(generate_ggo)
-  include_directories(${CMAKE_CURRENT_BINARY_DIR})
-  cmake_parse_arguments(GENERATE_GGO "" "INPUT;OUTPUT" "" ${ARGN})
+macro(generate_ggo input output)
   add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${GENERATE_GGO_OUTPUT}.c ${CMAKE_CURRENT_BINARY_DIR}/${GENERATE_GGO_OUTPUT}.h
-    COMMAND ${GENGETOPT} -i ${CMAKE_CURRENT_SOURCE_DIR}/${GENERATE_GGO_INPUT} --file-name ${GENERATE_GGO_OUTPUT} --output-dir=${CMAKE_CURRENT_BINARY_DIR} --unamed-opts
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${GENERATE_GGO_INPUT}
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${output}.c ${CMAKE_CURRENT_BINARY_DIR}/${output}.h
+    COMMAND ${GENGETOPT} -i ${CMAKE_CURRENT_SOURCE_DIR}/${input} --file-name ${output} --output-dir=${CMAKE_CURRENT_BINARY_DIR} --unamed-opts
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${input}
   )
-endfunction(generate_ggo)
+  include_directories (${CMAKE_CURRENT_BINARY_DIR})
+endmacro(generate_ggo)
 
 # Find package FLANN
 find_package(PkgConfig)
