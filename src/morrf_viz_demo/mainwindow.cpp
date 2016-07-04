@@ -276,23 +276,29 @@ bool MainWindow::exportPaths(QString filename) {
     return false;
 }
 
-bool MainWindow::planPath(QString config_filename, QString paths_filename, QString log_filename) {
+bool MainWindow::planPath(QString config_filename, QString paths_filename, QString weight_filename, QString log_filename) {
 
     if( true == setupPlanning(config_filename) ) {
 
         openMap(mpViz->mMOPPInfo.mMapFullpath);
         initMORRF();
         while(mpMORRF->get_current_iteration() < mpViz->mMOPPInfo.mMaxIterationNum) {
+
             QString msg = "CurrentIteration " + QString::number(mpMORRF->get_current_iteration()) + " ";
             msg += "(" + QString::number(mpMORRF->get_ball_radius()) + ")";
             qDebug(msg.toStdString().c_str());
 
             mpMORRF->extend();
         }
+        mpMORRF->sort_subproblem_trees();
 
         if(mpMORRF) {
             std::vector<Path*> paths = mpMORRF->get_paths();
             mpViz->mMOPPInfo.loadPaths(paths);
+        }
+
+        if(weight_filename!="") {
+            mpMORRF->dump_weights(weight_filename.toStdString());
         }
 
         if( true == exportPaths(paths_filename) ) {
@@ -301,6 +307,8 @@ bool MainWindow::planPath(QString config_filename, QString paths_filename, QStri
                     mpMORRF->write_hist_cost(log_filename.toStdString());
                 }
             }
+
+            onReset();
             return true;
         }
     }
@@ -331,7 +339,10 @@ void MainWindow::initMORRF() {
     POS2D goal(mpViz->mMOPPInfo.mGoal.x(), mpViz->mMOPPInfo.mGoal.y());
 
     mpMORRF->set_sparsity_k(mpViz->mMOPPInfo.mSparsityK);
-    std::vector< std::vector<float> > weights = mpViz->mMOPPInfo.loadWeightFromFile( mpViz->mMOPPInfo.mWeightFile );
+    std::vector< std::vector<float> > weights;
+    if(mpViz->mMOPPInfo.mLoadWeightFile == true) {
+        weights = mpViz->mMOPPInfo.loadWeightFromFile( mpViz->mMOPPInfo.mWeightFile );
+    }
     mpMORRF->init(start, goal, weights);
     qDebug("load map information");
     mpMORRF->load_map(mpViz->mMOPPInfo.mppObstacle);

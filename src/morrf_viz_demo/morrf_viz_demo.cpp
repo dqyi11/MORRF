@@ -17,8 +17,10 @@ int main(int argc, char *argv[]) {
         QString config_filename(args.config_arg);
         QString paths_filename(args.paths_arg);
         QString log_filename(args.log_arg);
+        QString weight_filename(args.weight_arg);
         std::cout << "loading " << config_filename.toStdString() << std::endl;
-        if(w.planPath(config_filename, paths_filename, log_filename )) {
+        if(w.planPath(config_filename, paths_filename, weight_filename, log_filename )) {
+            std::cout << "dumping weight to " << weight_filename.toStdString() << std::endl;
             std::cout << "saving to " << paths_filename.toStdString() << std::endl;
             std::cout << "logging to " << log_filename.toStdString() << std::endl;
         }

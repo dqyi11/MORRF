@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <limits>
+#include <time.h>
 #include "morrf/objective_knn.h"
 #include "morrf/morrf.h"
 
@@ -88,6 +89,7 @@ void MORRF::_deinit_weights() {
 std::vector< std::vector< float > > MORRF::create_weights(unsigned int num) {
     std::vector< std::vector< float > > weights;
 
+    srand(time(NULL));
     for( unsigned int i=0; i<num; i++ ) {
         vector<float> weight( _objective_num, 0.0 );
         std::vector<float> temp_array;
