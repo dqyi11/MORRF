@@ -283,11 +283,11 @@ bool MainWindow::planPath(QString config_filename, QString paths_filename, QStri
         openMap(mpViz->mMOPPInfo.mMapFullpath);
         initMORRF();
         while(mpMORRF->get_current_iteration() < mpViz->mMOPPInfo.mMaxIterationNum) {
-
-            QString msg = "CurrentIteration " + QString::number(mpMORRF->get_current_iteration()) + " ";
-            msg += "(" + QString::number(mpMORRF->get_ball_radius()) + ")";
-            qDebug(msg.toStdString().c_str());
-
+            if(mpMORRF->get_current_iteration() % 100 == 0) {
+                QString msg = "CurrentIteration " + QString::number(mpMORRF->get_current_iteration()) + " ";
+                msg += "(" + QString::number(mpMORRF->get_ball_radius()) + ")";
+                qDebug(msg.toStdString().c_str());
+            }     
             mpMORRF->extend();
         }
         mpMORRF->sort_subproblem_trees();
