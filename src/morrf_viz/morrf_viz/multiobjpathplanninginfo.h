@@ -145,6 +145,7 @@ public:
     int mSubproblemNum;
     int mMaxIterationNum;
     double mSegmentLength;
+    double mBoundaryIntersectionPenalty;
 
     int mSparsityK;
 

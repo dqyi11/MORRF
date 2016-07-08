@@ -72,6 +72,12 @@ ConfigObjDialog::ConfigObjDialog(MainWindow * parent) {
     mpLineEditSparsityK->setText(QString::number(mpParentWindow->mpViz->mMOPPInfo.mSparsityK));
     mpLineEditSparsityK->setMaximumWidth(40);
 
+    mpLabelBIPenalty = new QLabel("BI Penalty:");;
+    mpLineEditBIPenalty = new QLineEdit();
+    mpLineEditBIPenalty->setText(QString::number(mpParentWindow->mpViz->mMOPPInfo.mBoundaryIntersectionPenalty));
+    mpLineEditBIPenalty->setMaximumWidth(40);
+
+
     mpLabelType = new QLabel("Type: ");
     mpComboType = new QComboBox();
     mpComboType->addItem(WEIGHTED_SUM_STR);
@@ -82,6 +88,8 @@ ConfigObjDialog::ConfigObjDialog(MainWindow * parent) {
     QHBoxLayout * typeLayout = new QHBoxLayout();
     typeLayout->addWidget(mpLabelSparsityK);
     typeLayout->addWidget(mpLineEditSparsityK);
+    typeLayout->addWidget(mpLabelBIPenalty);
+    typeLayout->addWidget(mpLineEditBIPenalty);
     typeLayout->addWidget(mpLabelType);
     typeLayout->addWidget(mpComboType);
 
@@ -177,6 +185,7 @@ void ConfigObjDialog::updateDisplay() {
             }
 
             mpLineEditSparsityK->setText(QString::number(mpParentWindow->mpViz->mMOPPInfo.mSparsityK));
+            mpLineEditBIPenalty->setText(QString::number(mpParentWindow->mpViz->mMOPPInfo.mBoundaryIntersectionPenalty));
             mpComboType->setCurrentIndex((int)mpParentWindow->mpViz->mMOPPInfo.mMethodType);
 
             if(mpParentWindow->mpViz->mMOPPInfo.mLoadWeightFile==true) {
@@ -220,6 +229,7 @@ void ConfigObjDialog::updateConfiguration() {
     mpParentWindow->mpViz->mMOPPInfo.mSubproblemNum = mpLineEditSubProb->text().toInt();
     mpParentWindow->mpViz->mMOPPInfo.mSegmentLength = mpLineEditSegmentLength->text().toDouble();
     mpParentWindow->mpViz->mMOPPInfo.mSparsityK = mpLineEditSparsityK->text().toInt();
+    mpParentWindow->mpViz->mMOPPInfo.mBoundaryIntersectionPenalty = mpLineEditBIPenalty->text().toDouble();
 
     int type = mpComboType->currentIndex();
     mpParentWindow->mpViz->mMOPPInfo.mMethodType = (MORRF::MORRF_TYPE) type;

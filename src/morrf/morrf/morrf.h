@@ -97,6 +97,9 @@ public:
     std::vector< std::vector< float > > create_weights(unsigned int num);
 
     void sort_subproblem_trees();
+
+    double get_theta() { return _theta; }
+    void set_theta( double theta ) { _theta = theta; }
 protected:
     void _init_weights( std::vector< std::vector<float> >& weights );
     void _deinit_weights();

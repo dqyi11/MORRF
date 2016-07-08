@@ -7,6 +7,7 @@
 #include "morrf/morrf.h"
 
 #define OBSTACLE_THRESHOLD 200
+#define DEFAULT_THETA      4.0;
 
 using namespace std;
 
@@ -33,7 +34,7 @@ MORRF::MORRF(unsigned int width, unsigned int height, unsigned int objective_num
     _current_iteration = 0;
     _segment_length = segmentLength;
 
-    _theta = 4;
+    _theta = DEFAULT_THETA;
 
     _pp_map_info = new int*[_sampling_width];
     for( unsigned int i=0; i<_sampling_width; i++ ) {

@@ -347,9 +347,9 @@ void MainWindow::initMORRF() {
     qDebug("load map information");
     mpMORRF->load_map(mpViz->mMOPPInfo.mppObstacle);
     mpViz->setMORRF(mpMORRF);
+    mpMORRF->set_theta(mpViz->mMOPPInfo.mBoundaryIntersectionPenalty);
 
     qDebug("Finish initialization");
-
 }
 
 bool MainWindow::loadConfiguration(QString filename) {
