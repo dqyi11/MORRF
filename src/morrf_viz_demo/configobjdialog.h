@@ -42,7 +42,6 @@ private:
 
     QLabel    * mpLabelSparsityK;
     QLineEdit * mpLineEditSparsityK;
-
     QLabel    * mpLabelBIPenalty;
     QLineEdit * mpLineEditBIPenalty;
 

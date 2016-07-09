@@ -9,7 +9,7 @@
 
 #define DEFAULT_SEGMENT_LENGTH    5.0
 #define DEFAULT_MAX_ITERATION_NUM 1000
-#define DEAFULT_SUBPROBLEM_NUM    30
+#define DEFAULT_SUBPROBLEM_NUM    30
 #define DEFAULT_SPARSITY_K        4
 
 MultiObjPathPlanningInfo::MultiObjPathPlanningInfo() {
@@ -25,7 +25,7 @@ MultiObjPathPlanningInfo::MultiObjPathPlanningInfo() {
 
     mMinDistEnabled = false;
 
-    mSubproblemNum = DEAFULT_SUBPROBLEM_NUM;
+    mSubproblemNum = DEFAULT_SUBPROBLEM_NUM;
     mMaxIterationNum = DEFAULT_MAX_ITERATION_NUM;
     mSegmentLength = DEFAULT_SEGMENT_LENGTH;
 
@@ -166,7 +166,7 @@ void MultiObjPathPlanningInfo::initFuncsParams() {
 }
 
 void MultiObjPathPlanningInfo::read(const QJsonObject &json) {
-    mInfoFilename;
+
     mMapFilename = json["mapFilename"].toString();
     mMapFullpath = json["mapFullpath"].toString();
     mMapWidth = json["mapWidth"].toInt();

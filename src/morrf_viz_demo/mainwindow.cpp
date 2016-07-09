@@ -350,6 +350,7 @@ void MainWindow::initMORRF() {
     mpMORRF->set_theta(mpViz->mMOPPInfo.mBoundaryIntersectionPenalty);
 
     qDebug("Finish initialization");
+
 }
 
 bool MainWindow::loadConfiguration(QString filename) {
