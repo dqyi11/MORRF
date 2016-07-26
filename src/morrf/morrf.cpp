@@ -8,6 +8,7 @@
 
 #define OBSTACLE_THRESHOLD 200
 #define DEFAULT_THETA      4.0;
+#define DEFAULT_BI_PENALTY 4.0
 
 using namespace std;
 
@@ -35,6 +36,7 @@ MORRF::MORRF(unsigned int width, unsigned int height, unsigned int objective_num
     _segment_length = segmentLength;
 
     _theta = DEFAULT_THETA;
+    _boundary_intersection_penalty = DEFAULT_BI_PENALTY;
 
     _pp_map_info = new int*[_sampling_width];
     for( unsigned int i=0; i<_sampling_width; i++ ) {
@@ -43,6 +45,8 @@ MORRF::MORRF(unsigned int width, unsigned int height, unsigned int objective_num
             _pp_map_info[i][j] = 255;
         }
     }
+
+    srand(time(NULL));
 
     _solution_available_iteration = -1;
     _solution_utopia = std::vector<double>(_objective_num, 0.0);
@@ -81,6 +85,13 @@ void MORRF::_init_weights( std::vector< std::vector<float> >& weights ) {
     else {
         _weights = weights;
     }
+    /*
+    for(unsigned int i=0;i<_weights.size();i++){
+        for(unsigned int j=0;j<_weights[i].size();j++){
+            std::cout << _weights[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }*/
 }
 
 void MORRF::_deinit_weights() {
@@ -90,7 +101,6 @@ void MORRF::_deinit_weights() {
 std::vector< std::vector< float > > MORRF::create_weights(unsigned int num) {
     std::vector< std::vector< float > > weights;
 
-    srand(time(NULL));
     for( unsigned int i=0; i<num; i++ ) {
         vector<float> weight( _objective_num, 0.0 );
         std::vector<float> temp_array;
@@ -105,7 +115,6 @@ std::vector< std::vector< float > > MORRF::create_weights(unsigned int num) {
         }
         weights.push_back( weight );
     }
-
     return weights;
 }
 
@@ -266,8 +275,13 @@ void MORRF::extend() {
 
             _sampled_positions.push_back(new_pos);
 
+            //std::cout << new_pos[0] << ", " << new_pos[1] << std::endl;
+
             std::list<KDNode2D> near_nodes = find_near( new_pos );
             KDNode2D new_node( new_pos );
+
+            //std::cout << "radius " << _ball_radius << std::endl;
+            //std::cout << "NEAR SIZE IN MORRF " << near_nodes.size() << std::endl;
 
             new_node.mp_morrf_node = new MORRFNode( new_pos );
             new_node.mp_morrf_node->m_nodes = std::vector<RRTNode*>(_objective_num+_subproblem_num, NULL);
@@ -543,7 +557,7 @@ float MORRF::calc_fitness_by_boundary_intersection( vector<double>& cost, vector
         d2 += vectorD2[k]*vectorD2[k];
     }
     d2 = sqrt(d2);
-    return d1 + _theta * d2;
+    return d1 + _boundary_intersection_penalty * d2;
 }
 
 
@@ -722,7 +736,7 @@ bool MORRF::is_node_number_identical() {
     return true;
 }
 
-vector<Path*> MORRF::get_paths() {
+vector<Path*> MORRF::get_paths(bool dominance_update, bool sparsity_level_update) {
     vector<Path*> paths;
 
     for(vector<ReferenceTree*>::iterator it=_references.begin();it!=_references.end();it++) {
@@ -743,8 +757,12 @@ vector<Path*> MORRF::get_paths() {
             }
         }
     }
-    update_dominance(paths);
-    update_sparsity_level(paths);
+    if(dominance_update) {
+        update_dominance(paths);
+    }
+    if(sparsity_level_update) {
+        update_sparsity_level(paths);
+    }
     return paths;
 }
 

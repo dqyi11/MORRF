@@ -59,7 +59,7 @@ public:
     ReferenceTree* get_reference_tree( unsigned int k );
     SubproblemTree* get_subproblem_tree( unsigned int m );
 
-    std::vector<Path*> get_paths();
+    std::vector<Path*> get_paths(bool dominance_update = true, bool sparsity_level_update = true);
 
     bool update_current_best();
     void update_dominance( std::vector<Path*>& paths );
@@ -100,6 +100,9 @@ public:
 
     double get_theta() { return _theta; }
     void set_theta( double theta ) { _theta = theta; }
+
+    void set_boundary_intersection_penalty( double bi_penalty ) { _boundary_intersection_penalty = bi_penalty; }
+    double get_boundary_intersection_penalty() { return _boundary_intersection_penalty; }
 protected:
     void _init_weights( std::vector< std::vector<float> >& weights );
     void _deinit_weights();
@@ -141,6 +144,7 @@ private:
 
     double _theta;
     int _current_iteration;
+    double _boundary_intersection_penalty;
 
     unsigned int _sparsity_k;
     int _solution_available_iteration;
